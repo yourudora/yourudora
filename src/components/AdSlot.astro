@@ -1,0 +1,43 @@
+---
+/**
+ * Google AdSense 等の広告枠。
+ * 本番では slot 内に広告スクリプト／要素を配置するか、
+ * `client:load` コンポーネントへ差し替えてください。
+ */
+interface Props {
+  label?: string;
+  class?: string;
+  /** レイアウト用の想定サイズ */
+  size?: "banner" | "rectangle" | "sidebar";
+}
+
+const {
+  label = "Advertisement",
+  class: className = "",
+  size = "banner",
+} = Astro.props;
+
+const sizeClass =
+  size === "sidebar"
+    ? "min-h-64 max-w-xs"
+    : size === "rectangle"
+      ? "min-h-64 max-w-md"
+      : "min-h-24 w-full max-w-3xl";
+---
+
+<aside
+  class:list={[
+    "ad-slot mx-auto flex flex-col items-center justify-center gap-2 rounded-sm border border-dashed border-forest-600/80 bg-forest-800/40 px-4 py-3 text-center",
+    sizeClass,
+    className,
+  ]}
+  aria-label={label}
+  data-ad-slot={size}
+>
+  <span class="text-[0.65rem] uppercase tracking-[0.2em] text-mist-500">{label}</span>
+  <div class="flex w-full flex-1 items-center justify-center text-sm text-mist-400">
+    <slot>
+      <span>広告枠（AdSense 等）</span>
+    </slot>
+  </div>
+</aside>

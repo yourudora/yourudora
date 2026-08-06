@@ -1,0 +1,69 @@
+---
+/**
+ * 同一オリジンの配布ファイルを確実にファイル保存するリンク。
+ * fetch → Blob 経由でダウンロードし、ブラウザ内表示や文字化けを避ける。
+ */
+interface Props {
+  href: string;
+  filename?: string;
+  class?: string;
+}
+
+const { href, class: className = "" } = Astro.props;
+const filename =
+  Astro.props.filename ??
+  decodeURIComponent(href.split("/").pop()?.split("?")[0] || "download");
+---
+
+<a
+  href={href}
+  download={filename}
+  class={className}
+  data-file-download
+  data-filename={filename}
+>
+  <slot />
+</a>
+
+<script>
+  function bindFileDownloads() {
+    document.querySelectorAll<HTMLAnchorElement>("a[data-file-download]").forEach((anchor) => {
+      if (anchor.dataset.downloadBound === "1") return;
+      anchor.dataset.downloadBound = "1";
+
+      anchor.addEventListener("click", async (event) => {
+        const filename = anchor.dataset.filename || "download";
+        const url = anchor.href;
+
+        // 同一オリジンのみ Blob 強制（CORS 制約回避）
+        const sameOrigin = url.startsWith(window.location.origin) || url.startsWith("/");
+        if (!sameOrigin) return;
+
+        event.preventDefault();
+
+        try {
+          const response = await fetch(url, { credentials: "same-origin" });
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          const blob = await response.blob();
+          const objectUrl = URL.createObjectURL(blob);
+          const temp = document.createElement("a");
+          temp.href = objectUrl;
+          temp.download = filename;
+          document.body.appendChild(temp);
+          temp.click();
+          temp.remove();
+          URL.revokeObjectURL(objectUrl);
+        } catch (error) {
+          console.error("Download failed, falling back to navigation:", error);
+          window.location.assign(url);
+        }
+      });
+    });
+  }
+
+  bindFileDownloads();
+  document.addEventListener("astro:page-load", bindFileDownloads);
+</script>

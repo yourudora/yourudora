@@ -1,0 +1,58 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import AdSlot from "../../components/AdSlot.astro";
+import DonationSlot from "../../components/DonationSlot.astro";
+import DownloadLink from "../../components/DownloadLink.astro";
+import { plugins } from "../../data/site";
+---
+
+<Layout title="Plugins" description="自作ゲームエンジンプラグインの無料配布一覧。">
+  <section class="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8 lg:py-16">
+    <div class="max-w-2xl">
+      <h1 class="font-display text-3xl text-gold-300 sm:text-4xl">Plugins</h1>
+      <p class="mt-3 text-sm leading-relaxed text-mist-400 sm:text-base">
+        ゲーム開発向けの自作プラグインを無料で配布しています。対応エンジンと概要を確認のうえダウンロードしてください。
+      </p>
+    </div>
+
+    <div class="mt-10 grid gap-4 md:grid-cols-2">
+      {
+        plugins.map((plugin) => (
+          <article class="flex flex-col border border-forest-600/70 bg-forest-800/35 p-5 sm:p-6">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="rounded-sm border border-moss-500/30 bg-moss-500/10 px-2 py-0.5 text-[0.7rem] text-moss-300">
+                {plugin.category}
+              </span>
+              <span class="text-xs text-mist-500">{plugin.engine}</span>
+            </div>
+            <h2 class="mt-3 font-display text-xl text-cream-100">{plugin.title}</h2>
+            <p class="mt-2 flex-1 whitespace-pre-line text-sm leading-relaxed text-mist-400">{plugin.summary}</p>
+            <div class="mt-5 flex flex-wrap gap-2">
+              <DownloadLink
+                href={plugin.downloadHref}
+                class="inline-flex items-center rounded-sm border border-gold-400/50 bg-gold-400/10 px-4 py-2 text-sm text-gold-300 transition hover:bg-gold-400/20"
+              >
+                ダウンロード
+              </DownloadLink>
+              {plugin.donationHref && (
+                <a
+                  href={plugin.donationHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center rounded-sm border border-forest-600 px-4 py-2 text-sm text-cream-200/85 transition hover:border-wood-500/50 hover:text-gold-300"
+                >
+                  ドネーション
+                </a>
+              )}
+            </div>
+          </article>
+        ))
+      }
+    </div>
+
+    <div class="mt-12 flex flex-col gap-6">
+      <DonationSlot />
+      <AdSlot size="banner" />
+    </div>
+  </section>
+</Layout>

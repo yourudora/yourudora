@@ -1,0 +1,56 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import AdSlot from "../../components/AdSlot.astro";
+import { games } from "../../data/site";
+
+const statusTone: Record<string, string> = {
+  開発中: "border-wood-600/40 bg-wood-600/15 text-gold-300",
+  "Demo公開中": "border-moss-500/40 bg-moss-500/15 text-moss-300",
+  リリース済み: "border-gold-400/40 bg-gold-400/10 text-gold-300",
+};
+---
+
+<Layout title="Games" description="開発中・リリース済みの自作ゲーム紹介。">
+  <section class="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8 lg:py-16">
+    <div class="max-w-2xl">
+      <h1 class="font-display text-3xl text-gold-300 sm:text-4xl">Games</h1>
+      <p class="mt-3 text-sm leading-relaxed text-mist-400 sm:text-base">
+        箱庭で育てているゲームたち。スクリーンショットと進捗ステータスを随時更新します。
+      </p>
+    </div>
+
+    <div class="mt-10 space-y-10">
+      {
+        games.map((game) => (
+          <article class="grid gap-6 border border-forest-600/70 bg-forest-800/30 p-5 sm:p-6 lg:grid-cols-[1.1fr_1fr] lg:gap-8">
+            <div
+              class="relative flex aspect-video items-center justify-center overflow-hidden border border-forest-600/50 bg-gradient-to-br from-forest-700/80 via-forest-800 to-forest-950"
+              role="img"
+              aria-label={game.screenshotAlt}
+            >
+              <div class="absolute inset-0 opacity-30" aria-hidden="true">
+                <div class="absolute left-1/4 top-1/3 h-24 w-24 rounded-full bg-moss-500/40 blur-2xl" />
+                <div class="absolute bottom-1/4 right-1/4 h-20 w-32 rounded-full bg-wood-500/30 blur-2xl" />
+              </div>
+              <p class="relative z-10 text-xs tracking-[0.18em] text-mist-500">SCREENSHOT</p>
+            </div>
+            <div class="flex flex-col">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class:list={["rounded-sm border px-2 py-0.5 text-[0.7rem]", statusTone[game.status]]}>
+                  {game.status}
+                </span>
+                <span class="text-xs text-mist-500">{game.platforms}</span>
+              </div>
+              <h2 class="mt-3 font-display text-2xl text-cream-100">{game.title}</h2>
+              <p class="mt-3 whitespace-pre-line text-sm leading-relaxed text-mist-400">{game.summary}</p>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+
+    <div class="mt-12">
+      <AdSlot size="banner" />
+    </div>
+  </section>
+</Layout>
