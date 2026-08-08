@@ -21,13 +21,7 @@ const year = new Date().getFullYear();
         {
           navItems.map((item) => (
             <li>
-              <a
-                href={item.href}
-                class:list={[
-                  "text-sm hover:text-gold-300",
-                  item.href === "/terms/" ? "font-medium text-gold-300 hover:text-gold-400" : "text-cream-200",
-                ]}
-              >
+              <a href={item.href} class="text-sm text-cream-200 hover:text-gold-300">
                 {item.label}
               </a>
             </li>

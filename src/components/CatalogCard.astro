@@ -1,7 +1,7 @@
 ---
 /**
  * Shared catalog card: image-dominant layout + overlay tags.
- * Cyber-modern neon glass styling; entire card navigates to detail.
+ * Cyber-modern neon styling; entire card navigates to detail.
  */
 interface Props {
   href: string;
@@ -27,7 +27,6 @@ const {
   class: className = "",
 } = Astro.props;
 
-const displayUrl = href.replace(/\/$/, "") || href;
 const badges = [genre, engine].filter((value): value is string => Boolean(value));
 ---
 
@@ -72,11 +71,6 @@ const badges = [genre, engine].filter((value): value is string => Boolean(value)
     <div class="cyber-card__body">
       <h3 class="cyber-card__title">{title}</h3>
       <p class="cyber-card__desc">{description}</p>
-    </div>
-
-    <!-- URL slides up on hover -->
-    <div class="cyber-card__url" aria-hidden="true">
-      <span class="cyber-card__url-text">{displayUrl}</span>
     </div>
   </div>
 </article>
