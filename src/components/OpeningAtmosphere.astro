@@ -1,0 +1,31 @@
+---
+/**
+ * Non-blocking cyber opening / ambient background.
+ * All layers use pointer-events: none so UI stays fully interactive.
+ */
+const particles = Array.from({ length: 18 }, (_, i) => {
+  const left = ((i * 37) % 97) + 1;
+  const top = ((i * 53) % 89) + 3;
+  const size = 2 + (i % 3);
+  const delay = (i % 9) * 0.35;
+  const duration = 6 + (i % 5);
+  return { left, top, size, delay, duration };
+});
+---
+
+<div class="opening-fx" aria-hidden="true">
+  <div class="opening-fx__grid"></div>
+  <div class="opening-fx__glow"></div>
+  <div class="opening-fx__particles">
+    {
+      particles.map((p) => (
+        <span
+          class="opening-fx__dot"
+          style={`left:${p.left}%;top:${p.top}%;width:${p.size}px;height:${p.size}px;animation-delay:${p.delay}s;animation-duration:${p.duration}s;`}
+        />
+      ))
+    }
+  </div>
+  <div class="opening-fx__scan"></div>
+  <div class="opening-fx__scan opening-fx__scan--soft"></div>
+</div>

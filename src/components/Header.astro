@@ -12,7 +12,11 @@ function isActive(href: string) {
 
 <header class="sticky top-0 z-50 border-b border-forest-600 bg-forest-900/95 backdrop-blur-md">
   <div class="relative mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-2 sm:gap-5 sm:px-6 sm:py-2.5 lg:px-8">
-    <a href="/" class="group inline-flex shrink-0 items-center no-underline" aria-label={`${site.name} トップへ`}>
+    <a
+      href="/"
+      class="intro-reveal intro-reveal--0 group inline-flex shrink-0 items-center no-underline"
+      aria-label={`${site.name} トップへ`}
+    >
       <img
         src={site.logo}
         alt={site.name}
@@ -38,7 +42,7 @@ function isActive(href: string) {
 
     <nav
       id="site-nav"
-      class="absolute left-0 right-0 top-full hidden border-b border-forest-600 bg-forest-800 px-4 py-3 shadow-lg md:static md:flex md:border-0 md:bg-transparent md:p-0 md:shadow-none"
+      class="intro-reveal intro-reveal--1 absolute left-0 right-0 top-full hidden border-b border-forest-600 bg-forest-800 px-4 py-3 shadow-lg md:static md:flex md:border-0 md:bg-transparent md:p-0 md:shadow-none"
       data-nav-panel
     >
       <ul class="flex flex-col gap-1.5 md:flex-row md:items-center md:gap-2 lg:gap-2.5">
