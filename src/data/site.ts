@@ -1,3 +1,6 @@
+/** OFUSE箱のユーザーID。書き換えると donation.href が連動します。 */
+const ofuseUserId = "YOUR_OFUSE_ID";
+
 export const site = {
   name: "ユルドラの箱庭",
   tagline: "プラグインを育て、ゲームを届ける小さな庭",
@@ -10,9 +13,14 @@ export const site = {
     github: "https://github.com/",
     youtube: "https://youtube.com/",
   },
+  /**
+   * OFUSE（オフセ）の応援導線。
+   * ofuseUserId を書き換えるか、公開URLが異なる場合は href を直接指定してください。
+   */
   donation: {
-    label: "Buy Me a Coffee",
-    href: "https://www.buymeacoffee.com/",
+    userId: ofuseUserId,
+    label: "OFUSEで応援メッセージを送る",
+    href: `https://ofuse.me/${ofuseUserId}`,
   },
 } as const;
 

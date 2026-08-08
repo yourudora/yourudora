@@ -2,7 +2,7 @@
 import { site } from "../data/site";
 
 /**
- * Buy Me a Coffee 等のドネーション導線。
+ * OFUSE（オフセ）等の応援・ファンレター導線。
  * href / label を差し替えるか、slot で独自ウィジェットを配置できます。
  */
 interface Props {
@@ -38,9 +38,8 @@ const {
           class="inline-flex items-center gap-2 rounded-sm border border-gold-400/40 bg-wood-600/20 px-3 py-1.5 text-sm text-gold-300 transition hover:border-gold-400 hover:bg-wood-600/35"
         >
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-            <path d="M4 8h13v7a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V8Z" stroke-linejoin="round" />
-            <path d="M17 9h1.5a2.5 2.5 0 0 1 0 5H17" stroke-linecap="round" />
-            <path d="M8 5c.5 1 .5 2 0 3M11 5c.5 1 .5 2 0 3M14 5c.5 1 .5 2 0 3" stroke-linecap="round" />
+            <path d="M4 6.5h16v11a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-11Z" stroke-linejoin="round" />
+            <path d="m4 7 8 6 8-6" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
           <span>{label}</span>
         </a>
@@ -49,7 +48,7 @@ const {
           <div>
             <p class="font-display text-lg text-cream-100">開発を応援する</p>
             <p class="mt-1 text-sm text-mist-400">
-              プラグインは無料配布です。余裕があれば一杯のコーヒーで支えていただけると嬉しいです。
+              プラグインは無料配布です。OFUSEから応援メッセージや支援をお送りいただけると嬉しいです。
             </p>
           </div>
           <a
@@ -59,9 +58,8 @@ const {
             class="inline-flex shrink-0 items-center gap-2 rounded-sm border border-gold-400/50 bg-gradient-to-b from-wood-500/30 to-wood-600/20 px-4 py-2.5 text-sm font-medium text-gold-300 transition hover:border-gold-300 hover:from-wood-500/45 hover:to-wood-600/30"
           >
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-              <path d="M4 8h13v7a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V8Z" stroke-linejoin="round" />
-              <path d="M17 9h1.5a2.5 2.5 0 0 1 0 5H17" stroke-linecap="round" />
-              <path d="M8 5c.5 1 .5 2 0 3M11 5c.5 1 .5 2 0 3M14 5c.5 1 .5 2 0 3" stroke-linecap="round" />
+              <path d="M4 6.5h16v11a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-11Z" stroke-linejoin="round" />
+              <path d="m4 7 8 6 8-6" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
             <span>{label}</span>
           </a>

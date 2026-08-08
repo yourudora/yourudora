@@ -38,6 +38,6 @@ npm run preview
 ## 広告・ドネーション枠
 
 - `AdSlot.astro` … Google AdSense 等を差し込むための枠（`size`: `banner` | `rectangle` | `sidebar`）
-- `DonationSlot.astro` … Buy Me a Coffee 等の導線。`href` / `label` または slot で差し替え可能
+- `DonationSlot.astro` … OFUSE 等の応援導線。`href` / `label` または slot で差し替え可能
 
 リンク先や文言は `src/data/site.ts` で一括管理しています。
