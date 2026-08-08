@@ -11,21 +11,21 @@ function isActive(href: string) {
 ---
 
 <header class="sticky top-0 z-50 border-b border-forest-600 bg-forest-900/95 backdrop-blur-md">
-  <div class="relative mx-auto flex max-w-6xl items-center justify-between gap-5 px-4 py-4 sm:gap-6 sm:px-6 sm:py-5 lg:px-8">
+  <div class="relative mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-2 sm:gap-5 sm:px-6 sm:py-2.5 lg:px-8">
     <a href="/" class="group inline-flex shrink-0 items-center no-underline" aria-label={`${site.name} トップへ`}>
       <img
         src={site.logo}
         alt={site.name}
         width="320"
         height="72"
-        class="h-12 w-auto max-w-[14rem] object-contain object-left transition duration-200 group-hover:opacity-90 sm:h-14 sm:max-w-[18rem] md:h-16 md:max-w-[22rem] lg:h-[4.5rem] lg:max-w-[26rem]"
+        class="h-11 w-auto max-w-[13.5rem] object-contain object-left transition duration-200 group-hover:opacity-90 sm:h-12 sm:max-w-[17rem] md:h-14 md:max-w-[20rem] lg:h-16 lg:max-w-[24rem]"
         decoding="async"
       />
     </a>
 
     <button
       type="button"
-      class="inline-flex h-11 w-11 items-center justify-center rounded-sm border border-forest-600 text-cream-200 md:hidden"
+      class="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-forest-600 text-cream-200 md:hidden"
       aria-expanded="false"
       aria-controls="site-nav"
       data-nav-toggle
@@ -38,17 +38,17 @@ function isActive(href: string) {
 
     <nav
       id="site-nav"
-      class="absolute left-0 right-0 top-full hidden border-b border-forest-600 bg-forest-800 px-4 py-5 shadow-lg md:static md:flex md:border-0 md:bg-transparent md:p-0 md:shadow-none"
+      class="absolute left-0 right-0 top-full hidden border-b border-forest-600 bg-forest-800 px-4 py-3 shadow-lg md:static md:flex md:border-0 md:bg-transparent md:p-0 md:shadow-none"
       data-nav-panel
     >
-      <ul class="flex flex-col gap-2 md:flex-row md:items-center md:gap-2 lg:gap-3">
+      <ul class="flex flex-col gap-1.5 md:flex-row md:items-center md:gap-2 lg:gap-2.5">
         {
           navItems.map((item) => (
             <li>
               <a
                 href={item.href}
                 class:list={[
-                  "block rounded-sm px-3.5 py-2.5 text-sm font-medium transition md:px-4 md:py-2",
+                  "block rounded-sm px-3 py-1.5 text-sm font-medium transition md:px-3.5 md:py-1.5",
                   isActive(item.href)
                     ? "bg-gold-400/15 text-gold-300"
                     : "text-cream-200 hover:bg-forest-700 hover:text-gold-300",

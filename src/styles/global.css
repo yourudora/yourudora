@@ -121,7 +121,7 @@
 
   /* Show ~4 changelog rows; scroll for the rest */
   .changelog-list {
-    max-height: 9.75rem;
+    max-height: 10.5rem;
   }
 }
 
