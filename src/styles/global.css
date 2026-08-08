@@ -116,12 +116,15 @@
   }
 
   .card-surface {
-    @apply rounded-sm border border-forest-600 bg-forest-800;
+    border-radius: 0.125rem;
+    border: 1px solid var(--color-forest-600);
+    background-color: #243044;
   }
 
   /* Show ~4 changelog rows; scroll for the rest */
   .changelog-list {
     max-height: 10.5rem;
+    background-color: #243044;
   }
 }
 
@@ -230,33 +233,26 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   border-radius: 999px;
-  border: 1px solid rgba(125, 211, 252, 0.45);
-  background: rgba(8, 15, 28, 0.72);
+  border: 1px solid #38bdf8;
+  background-color: #0b1220;
   padding: 0.18rem 0.55rem;
   font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.02em;
   line-height: 1.2;
   color: #e0f2fe;
-  box-shadow:
-    0 2px 8px rgba(2, 8, 23, 0.35),
-    0 0 10px rgba(56, 189, 248, 0.18);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(2, 8, 23, 0.45);
 }
 
 .cyber-card__badge.is-genre {
-  border-color: rgba(167, 139, 250, 0.55);
-  background: linear-gradient(135deg, rgba(167, 139, 250, 0.28), rgba(8, 15, 28, 0.75));
+  border-color: #a78bfa;
+  background-color: #1a1530;
   color: #ede9fe;
-  box-shadow:
-    0 2px 8px rgba(2, 8, 23, 0.35),
-    0 0 12px rgba(167, 139, 250, 0.28);
 }
 
 .cyber-card__badge.is-engine {
-  border-color: rgba(34, 211, 238, 0.5);
-  background: linear-gradient(135deg, rgba(34, 211, 238, 0.22), rgba(8, 15, 28, 0.75));
+  border-color: #22d3ee;
+  background-color: #0b1c24;
 }
 
 /* Text footer: title 1 line + description 2 lines */
@@ -507,24 +503,36 @@
   }
 }
 
-/* Staggered content reveal on first paint */
+/* Staggered reveal: only while top-page first-visit opening is active */
 .intro-reveal {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+html.opening-pending .intro-reveal,
+html.opening-active .intro-reveal {
   animation: intro-rise-glow 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.intro-reveal--0 {
+html.opening-pending .intro-reveal--0,
+html.opening-active .intro-reveal--0 {
   animation-delay: 0.05s;
 }
-.intro-reveal--1 {
+html.opening-pending .intro-reveal--1,
+html.opening-active .intro-reveal--1 {
   animation-delay: 0.18s;
 }
-.intro-reveal--2 {
+html.opening-pending .intro-reveal--2,
+html.opening-active .intro-reveal--2 {
   animation-delay: 0.32s;
 }
-.intro-reveal--3 {
+html.opening-pending .intro-reveal--3,
+html.opening-active .intro-reveal--3 {
   animation-delay: 0.48s;
 }
-.intro-reveal--4 {
+html.opening-pending .intro-reveal--4,
+html.opening-active .intro-reveal--4 {
   animation-delay: 0.62s;
 }
 
@@ -550,12 +558,14 @@
   .opening-fx__glow,
   .opening-fx__dot,
   .opening-fx__scan,
-  .intro-reveal {
+  html.opening-pending .intro-reveal,
+  html.opening-active .intro-reveal {
     animation: none !important;
   }
 
+  .opening-fx,
   .opening-fx__scan {
-    display: none;
+    display: none !important;
   }
 
   .intro-reveal {
