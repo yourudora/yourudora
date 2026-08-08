@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="720" viewBox="0 0 960 720" role="img" aria-label="Plugin image placeholder">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a2433"/>
+      <stop offset="55%" stop-color="#243044"/>
+      <stop offset="100%" stop-color="#162032"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0.35"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="720" fill="url(#bg)"/>
+  <rect x="48" y="48" width="864" height="624" rx="8" fill="none" stroke="#3d4f66" stroke-width="2"/>
+  <path d="M120 520 L320 300 L460 420 L620 220 L840 480" fill="none" stroke="url(#accent)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="320" cy="300" r="10" fill="#7dd3fc"/>
+  <circle cx="620" cy="220" r="10" fill="#5eead4"/>
+  <text x="480" y="620" text-anchor="middle" fill="#94a3b8" font-family="Noto Sans JP, sans-serif" font-size="28">Image Placeholder</text>
+</svg>

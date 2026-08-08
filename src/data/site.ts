@@ -28,7 +28,7 @@ export const navItems = [
   { href: "/", label: "トップ" },
   { href: "/plugins/", label: "プラグイン" },
   { href: "/games/", label: "ゲーム" },
-  { href: "/about/", label: "このサイトについて" },
+  { href: "/contact/", label: "お問い合わせ" },
 ] as const;
 
 export type ChangelogItem = {
@@ -42,12 +42,12 @@ export const changelog: ChangelogItem[] = [
   {
     date: "2026-08-06",
     label: "ツクールMZ用プラグイン「CopyAttack」を配布開始",
-    href: "/plugins/",
+    href: "/plugins/copyattack/",
   },
   {
     date: "2026-08-06",
     label: "サイト「ユルドラの箱庭」を公開しました",
-    href: "/about/",
+    href: "/contact/",
   },
 ];
 
@@ -75,7 +75,7 @@ export const pickupItems: PickupItem[] = [
     summary:
       "敵の技をコピーして使えるようにする、RPGツクールMZ向けバトルプラグイン。",
     meta: "RPGツクールMZ",
-    href: "/plugins/",
+    href: "/plugins/copyattack/",
     status: "無料配布中",
   },
   {
@@ -87,35 +87,6 @@ export const pickupItems: PickupItem[] = [
     status: "開発中",
   },
 ];
-
-export type PluginItem = {
-  title: string;
-  engine: string;
-  summary: string;
-  downloadHref: string;
-  donationHref?: string;
-  category: string;
-  /** 公開・更新日（YYYY-MM-DD）。新着順ソートに使用 */
-  updatedAt: string;
-};
-
-export const plugins: PluginItem[] = [
-  {
-    title: "CopyAttack",
-    engine: "RPGツクールMZ",
-    summary:
-      "敵から技をコピーできるスキルを実装するバトルプラグインです。\nコピーした技を味方側で使用でき、敵の攻撃を活かした駆け引きのある戦闘を作れます。",
-    downloadHref: "/downloads/CopyAttack.zip",
-    donationHref: site.donation.href,
-    category: "バトル",
-    updatedAt: "2026-08-06",
-  },
-];
-
-/** 新着順（updatedAt 降順）のプラグイン一覧 */
-export function getPluginsNewestFirst(): PluginItem[] {
-  return [...plugins].sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
-}
 
 export type GameItem = {
   title: string;

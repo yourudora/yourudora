@@ -2,8 +2,8 @@
 import Layout from "../../layouts/Layout.astro";
 import AdSlot from "../../components/AdSlot.astro";
 import DonationSlot from "../../components/DonationSlot.astro";
-import DownloadLink from "../../components/DownloadLink.astro";
-import { getPluginsNewestFirst } from "../../data/site";
+import PluginCard from "../../components/PluginCard.astro";
+import { getPluginsNewestFirst } from "../../data/plugins";
 
 const plugins = getPluginsNewestFirst();
 ---
@@ -11,48 +11,14 @@ const plugins = getPluginsNewestFirst();
 <Layout title="プラグイン" description="自作ゲームエンジンプラグインの無料配布一覧。">
   <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
     <div class="max-w-2xl">
-      <h1 class="text-3xl font-bold tracking-tight text-cream-100 sm:text-4xl">プラグイン</h1>
+      <h1 class="text-3xl font-bold tracking-tight text-cream-100 sm:text-4xl">プラグイン一覧</h1>
       <p class="mt-3 text-sm leading-relaxed text-mist-400 sm:text-base">
-        ゲーム開発向けの自作プラグインを無料で配布しています。対応エンジンと概要を確認のうえダウンロードしてください。
+        カードを選ぶと詳細ページへ移動します。対応エンジンと概要を確認のうえダウンロードしてください。
       </p>
     </div>
 
-    <div class="mt-8 grid gap-4 md:grid-cols-2">
-      {
-        plugins.map((plugin) => (
-          <article class="card-surface flex flex-col p-5 sm:p-6">
-            <div class="flex flex-wrap items-center gap-2">
-              <time class="font-mono text-xs text-mist-500" datetime={plugin.updatedAt}>
-                {plugin.updatedAt}
-              </time>
-              <span class="rounded-sm border border-moss-500/40 bg-moss-500/15 px-2 py-0.5 text-[0.7rem] font-medium text-moss-400">
-                {plugin.category}
-              </span>
-              <span class="text-xs text-mist-500">{plugin.engine}</span>
-            </div>
-            <h2 class="mt-3 text-xl font-bold text-cream-100">{plugin.title}</h2>
-            <p class="mt-2 flex-1 whitespace-pre-line text-sm leading-relaxed text-mist-400">{plugin.summary}</p>
-            <div class="mt-5 flex flex-wrap gap-2">
-              <DownloadLink
-                href={plugin.downloadHref}
-                class="inline-flex items-center rounded-sm border border-gold-400/50 bg-gold-400/15 px-4 py-2 text-sm font-bold text-gold-300 transition hover:bg-gold-400/25 hover:text-cream-100"
-              >
-                ダウンロード
-              </DownloadLink>
-              {plugin.donationHref && (
-                <a
-                  href={plugin.donationHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="inline-flex items-center rounded-sm border border-forest-600 bg-forest-700/50 px-4 py-2 text-sm text-cream-200 transition hover:border-gold-400/40 hover:text-gold-300"
-                >
-                  OFUSEで応援
-                </a>
-              )}
-            </div>
-          </article>
-        ))
-      }
+    <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {plugins.map((plugin) => <PluginCard plugin={plugin} />)}
     </div>
 
     <div class="mt-12 flex flex-col gap-6">
