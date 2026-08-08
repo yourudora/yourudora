@@ -118,6 +118,11 @@
   .card-surface {
     @apply rounded-sm border border-forest-600 bg-forest-800;
   }
+
+  /* Show ~4 changelog rows; scroll for the rest */
+  .changelog-list {
+    max-height: 9.75rem;
+  }
 }
 
 /* Cyber-modern catalog cards */
