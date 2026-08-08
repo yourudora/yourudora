@@ -13,7 +13,7 @@ export type PluginItem = {
   slug: string;
   title: string;
   engine: string;
-  /** カード用の1行説明 */
+  /** カード用の短い説明（最大2行想定） */
   shortDescription: string;
   /** 詳細ページ用の本文 */
   description: string;
@@ -53,9 +53,22 @@ export function getPluginImage(plugin: PluginItem): string {
   return plugin.image ?? placeholderImage;
 }
 
+export type PluginSortMode = "newest" | "oldest" | "name";
+
+export function sortPlugins(items: PluginItem[], mode: PluginSortMode = "newest"): PluginItem[] {
+  const list = [...items];
+  if (mode === "oldest") {
+    return list.sort((a, b) => a.updatedAt.localeCompare(b.updatedAt));
+  }
+  if (mode === "name") {
+    return list.sort((a, b) => a.title.localeCompare(b.title, "ja"));
+  }
+  return list.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+}
+
 /** 新着順（updatedAt 降順）のプラグイン一覧 */
 export function getPluginsNewestFirst(): PluginItem[] {
-  return [...plugins].sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
+  return sortPlugins(plugins, "newest");
 }
 
 export function getPluginBySlug(slug: string): PluginItem | undefined {

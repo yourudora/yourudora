@@ -2,35 +2,23 @@
 import Layout from "../layouts/Layout.astro";
 import AdSlot from "../components/AdSlot.astro";
 import DonationSlot from "../components/DonationSlot.astro";
+import GameCard from "../components/GameCard.astro";
 import PluginCard from "../components/PluginCard.astro";
+import SortControls from "../components/SortControls.astro";
+import { getGamesNewestFirst } from "../data/games";
 import { getPluginsNewestFirst } from "../data/plugins";
 import { getChangelogNewestFirst } from "../data/site";
 
 const newestPlugins = getPluginsNewestFirst();
+const newestGames = getGamesNewestFirst();
 const newestChangelog = getChangelogNewestFirst();
 ---
 
 <Layout>
   <section class="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-    <!-- 1. Plugins (newest first) -->
+    <!-- 1. Changelog -->
     <div class="animate-fade-in">
-      <div class="flex flex-wrap items-end justify-between gap-3">
-        <h2 class="text-xl font-bold tracking-tight text-cream-100 sm:text-2xl">
-          プラグイン一覧
-        </h2>
-        <a href="/plugins/" class="text-sm font-medium text-gold-300 hover:text-gold-400">
-          すべて見る
-        </a>
-      </div>
-
-      <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {newestPlugins.map((plugin) => <PluginCard plugin={plugin} />)}
-      </div>
-    </div>
-
-    <!-- 2. Changelog / news (newest first) -->
-    <div class="animate-fade-up mt-10" style="animation-delay: 0.08s">
-      <h2 class="text-xl font-bold tracking-tight text-cream-100 sm:text-2xl">更新履歴・お知らせ</h2>
+      <h2 class="text-xl font-bold tracking-tight text-cream-100 sm:text-2xl">更新履歴</h2>
 
       <ol class="card-surface mt-5 divide-y divide-forest-600">
         {
@@ -50,6 +38,62 @@ const newestChangelog = getChangelogNewestFirst();
           ))
         }
       </ol>
+    </div>
+
+    <!-- 2. Plugins -->
+    <div class="animate-fade-up mt-10" style="animation-delay: 0.06s">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div class="flex flex-wrap items-end gap-3">
+          <h2 class="text-xl font-bold tracking-tight text-cream-100 sm:text-2xl">
+            プラグイン一覧
+          </h2>
+          <a href="/plugins/" class="text-sm font-medium text-gold-300 hover:text-gold-400">
+            すべて見る
+          </a>
+        </div>
+        <SortControls listId="plugins-home" />
+      </div>
+
+      <div
+        class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        data-sort-grid="plugins-home"
+      >
+        {
+          newestPlugins.map((plugin) => (
+            <div data-sort-item data-updated-at={plugin.updatedAt} data-name={plugin.title}>
+              <PluginCard plugin={plugin} />
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <!-- 3. Games -->
+    <div class="animate-fade-up mt-10" style="animation-delay: 0.12s">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div class="flex flex-wrap items-end gap-3">
+          <h2 class="text-xl font-bold tracking-tight text-cream-100 sm:text-2xl">
+            ゲーム一覧
+          </h2>
+          <a href="/games/" class="text-sm font-medium text-gold-300 hover:text-gold-400">
+            すべて見る
+          </a>
+        </div>
+        <SortControls listId="games-home" />
+      </div>
+
+      <div
+        class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        data-sort-grid="games-home"
+      >
+        {
+          newestGames.map((game) => (
+            <div data-sort-item data-updated-at={game.updatedAt} data-name={game.title}>
+              <GameCard game={game} />
+            </div>
+          ))
+        }
+      </div>
     </div>
   </section>
 

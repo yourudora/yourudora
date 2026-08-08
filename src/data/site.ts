@@ -83,26 +83,7 @@ export const pickupItems: PickupItem[] = [
     title: "パラムネシア-まねっこ少女の冒険記-",
     summary: "敵の技を奪って攻略する、駆け引き重視の短編RPG。",
     meta: "PC / 開発中",
-    href: "/games/",
+    href: "/games/paramnesia/",
     status: "開発中",
-  },
-];
-
-export type GameItem = {
-  title: string;
-  summary: string;
-  status: "開発中" | "デモ公開中" | "リリース済み";
-  platforms: string;
-  screenshotAlt: string;
-};
-
-export const games: GameItem[] = [
-  {
-    title: "パラムネシア-まねっこ少女の冒険記-",
-    summary:
-      "洞窟で目覚めた記憶喪失の少年「ルカ」と、正義感あふれる少女「リゼット」。\n失われた記憶の手がかりと平和を求め、二人は旅に出る――。\n\n敵の技を奪って攻略する駆け引きなど、RPG好きに向けた奥深いバトルを楽しめる短編作品です。",
-    status: "開発中",
-    platforms: "PC（Windows）",
-    screenshotAlt: "ゲームのスクリーンショット予定領域",
   },
 ];

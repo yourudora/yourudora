@@ -1,0 +1,70 @@
+---
+/**
+ * Client-side sort controls for catalog grids.
+ * Target grid must contain [data-sort-item] with data-updated-at and data-name.
+ */
+interface Props {
+  listId: string;
+  class?: string;
+  label?: string;
+}
+
+const {
+  listId,
+  class: className = "",
+  label = "並び替え",
+} = Astro.props;
+---
+
+<div class:list={["flex items-center gap-2", className]} data-sort-controls={listId}>
+  <label for={`sort-${listId}`} class="shrink-0 text-sm text-mist-400">{label}</label>
+  <select
+    id={`sort-${listId}`}
+    data-sort-select={listId}
+    class="rounded-sm border border-forest-600 bg-forest-800 px-3 py-1.5 text-sm text-cream-100 outline-none transition focus:border-gold-400"
+  >
+    <option value="newest" selected>新しい順</option>
+    <option value="oldest">古い順</option>
+    <option value="name">名前順</option>
+  </select>
+</div>
+
+<script>
+  function sortCatalog(listId: string, mode: string) {
+    const grid = document.querySelector(`[data-sort-grid="${listId}"]`);
+    if (!grid) return;
+
+    const items = Array.from(grid.querySelectorAll<HTMLElement>("[data-sort-item]"));
+    items.sort((a, b) => {
+      const aDate = a.dataset.updatedAt ?? "";
+      const bDate = b.dataset.updatedAt ?? "";
+      const aName = a.dataset.name ?? "";
+      const bName = b.dataset.name ?? "";
+
+      if (mode === "oldest") return aDate.localeCompare(bDate);
+      if (mode === "name") return aName.localeCompare(bName, "ja");
+      // newest (default)
+      return bDate.localeCompare(aDate);
+    });
+
+    for (const item of items) {
+      grid.appendChild(item);
+    }
+  }
+
+  function bindSortControls() {
+    document.querySelectorAll<HTMLSelectElement>("[data-sort-select]").forEach((select) => {
+      if (select.dataset.sortBound === "1") return;
+      select.dataset.sortBound = "1";
+
+      select.addEventListener("change", () => {
+        const listId = select.dataset.sortSelect;
+        if (!listId) return;
+        sortCatalog(listId, select.value);
+      });
+    });
+  }
+
+  bindSortControls();
+  document.addEventListener("astro:page-load", bindSortControls);
+</script>

@@ -1,4 +1,5 @@
 ---
+import CatalogCard from "./CatalogCard.astro";
 import type { PluginItem } from "../data/plugins";
 import { getPluginImage } from "../data/plugins";
 
@@ -8,39 +9,13 @@ interface Props {
 }
 
 const { plugin, class: className = "" } = Astro.props;
-const href = `/plugins/${plugin.slug}/`;
-const imageSrc = getPluginImage(plugin);
-const imageAlt = plugin.imageAlt ?? `${plugin.title}のアイキャッチ画像`;
 ---
 
-<a
-  href={href}
-  class:list={[
-    "card-surface group flex aspect-[3/4] flex-col overflow-hidden transition hover:border-gold-400/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-400/60",
-    className,
-  ]}
->
-  <!-- ~70% eyecatch -->
-  <div class="relative min-h-0 flex-[7] overflow-hidden bg-forest-950">
-    <img
-      src={imageSrc}
-      alt={imageAlt}
-      class="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
-      loading="lazy"
-      decoding="async"
-    />
-    <div
-      class="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-forest-950/70 to-transparent"
-      aria-hidden="true"
-    >
-    </div>
-  </div>
-
-  <!-- ~20% title + ~10% one-line description -->
-  <div class="flex min-h-0 flex-[3] flex-col justify-center gap-1.5 px-3.5 py-3 sm:px-4">
-    <h3 class="line-clamp-2 text-base font-bold leading-snug tracking-tight text-cream-100 transition group-hover:text-gold-300 sm:text-lg">
-      {plugin.title}
-    </h3>
-    <p class="truncate text-sm text-mist-400">{plugin.shortDescription}</p>
-  </div>
-</a>
+<CatalogCard
+  href={`/plugins/${plugin.slug}/`}
+  title={plugin.title}
+  description={plugin.shortDescription}
+  imageSrc={getPluginImage(plugin)}
+  imageAlt={plugin.imageAlt ?? `${plugin.title}のアイキャッチ画像`}
+  class={className}
+/>

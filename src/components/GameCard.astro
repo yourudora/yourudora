@@ -1,0 +1,21 @@
+---
+import CatalogCard from "./CatalogCard.astro";
+import type { GameItem } from "../data/games";
+import { getGameImage } from "../data/games";
+
+interface Props {
+  game: GameItem;
+  class?: string;
+}
+
+const { game, class: className = "" } = Astro.props;
+---
+
+<CatalogCard
+  href={`/games/${game.slug}/`}
+  title={game.title}
+  description={game.shortDescription}
+  imageSrc={getGameImage(game)}
+  imageAlt={game.imageAlt ?? `${game.title}のアイキャッチ画像`}
+  class={className}
+/>
