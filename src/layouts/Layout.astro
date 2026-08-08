@@ -50,7 +50,7 @@ const pageTitle = title ? `${title} | ${site.name}` : site.name;
       })();
     </script>
   </head>
-  <body class="flex min-h-dvh flex-col">
+  <body class="relative flex min-h-dvh flex-col">
     <OpeningAtmosphere />
     <a
       href="#main"
@@ -59,7 +59,7 @@ const pageTitle = title ? `${title} | ${site.name}` : site.name;
       本文へスキップ
     </a>
     <Header />
-    <main id="main" class="relative z-[1] flex-1">
+    <main id="main" class="relative z-10 flex-1">
       <slot />
     </main>
     <Footer />

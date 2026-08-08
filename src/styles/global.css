@@ -370,8 +370,8 @@
   pointer-events: none;
   position: fixed;
   inset: 0;
-  /* Above UI visually; clicks/taps pass through */
-  z-index: 60;
+  /* Behind all site content; still above the body backdrop */
+  z-index: 0;
   overflow: hidden;
 }
 
