@@ -50,6 +50,9 @@ const statusTone: Record<string, string> = {
           <time class="font-mono text-xs text-mist-500" datetime={game.updatedAt}>
             {game.updatedAt}
           </time>
+          <span class="rounded-sm border border-moss-500/40 bg-moss-500/15 px-2 py-0.5 text-[0.7rem] font-medium text-moss-400">
+            {game.genre}
+          </span>
           <span class:list={["rounded-sm border px-2 py-0.5 text-[0.7rem]", statusTone[game.status]]}>
             {game.status}
           </span>

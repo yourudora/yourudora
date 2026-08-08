@@ -1,6 +1,6 @@
 ---
 /**
- * Shared catalog card: ~70% image / title / 2-line description.
+ * Shared catalog card: image-dominant layout + overlay tags.
  * Cyber-modern neon glass styling; entire card navigates to detail.
  */
 interface Props {
@@ -9,6 +9,10 @@ interface Props {
   description: string;
   imageSrc: string;
   imageAlt: string;
+  /** Genre / category badge (e.g. バトル) */
+  genre?: string;
+  /** Engine or type badge (e.g. RPGツクールMZ) */
+  engine?: string;
   class?: string;
 }
 
@@ -18,10 +22,13 @@ const {
   description,
   imageSrc,
   imageAlt,
+  genre,
+  engine,
   class: className = "",
 } = Astro.props;
 
 const displayUrl = href.replace(/\/$/, "") || href;
+const badges = [genre, engine].filter((value): value is string => Boolean(value));
 ---
 
 <article class:list={["cyber-card group", className]}>
@@ -36,7 +43,7 @@ const displayUrl = href.replace(/\/$/, "") || href;
       <span class="sr-only">{title}の詳細へ</span>
     </a>
 
-    <!-- ~70% eyecatch -->
+    <!-- Image area (~80%+) with overlay badges -->
     <div class="cyber-card__media">
       <img
         src={imageSrc}
@@ -47,9 +54,21 @@ const displayUrl = href.replace(/\/$/, "") || href;
         draggable="false"
       />
       <div class="cyber-card__media-shade" aria-hidden="true"></div>
+
+      {
+        badges.length > 0 && (
+          <ul class="cyber-card__badges">
+            {badges.map((badge, index) => (
+              <li class:list={["cyber-card__badge", index === 0 ? "is-genre" : "is-engine"]}>
+                {badge}
+              </li>
+            ))}
+          </ul>
+        )
+      }
     </div>
 
-    <!-- Title + 2-line description -->
+    <!-- Compact text: title 1 line + description 2 lines -->
     <div class="cyber-card__body">
       <h3 class="cyber-card__title">{title}</h3>
       <p class="cyber-card__desc">{description}</p>

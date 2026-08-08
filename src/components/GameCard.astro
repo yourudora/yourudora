@@ -17,5 +17,7 @@ const { game, class: className = "" } = Astro.props;
   description={game.shortDescription}
   imageSrc={getGameImage(game)}
   imageAlt={game.imageAlt ?? `${game.title}のアイキャッチ画像`}
+  genre={game.genre}
+  engine={game.platforms}
   class={className}
 />

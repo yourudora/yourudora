@@ -191,7 +191,8 @@
 .cyber-card__media {
   position: relative;
   min-height: 0;
-  flex: 7 1 0%;
+  /* Image takes ~82%+ of card height */
+  flex: 1 1 auto;
   overflow: hidden;
   background: #0b1220;
 }
@@ -201,28 +202,78 @@
   position: absolute;
   inset-inline: 0;
   bottom: 0;
-  height: 40%;
-  background: linear-gradient(to top, rgba(11, 18, 32, 0.85), transparent);
+  height: 28%;
+  background: linear-gradient(to top, rgba(11, 18, 32, 0.8), transparent);
 }
 
+.cyber-card__badges {
+  pointer-events: none;
+  position: absolute;
+  top: 0.45rem;
+  left: 0.45rem;
+  z-index: 12;
+  display: flex;
+  max-width: calc(100% - 0.9rem);
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cyber-card__badge {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-radius: 999px;
+  border: 1px solid rgba(125, 211, 252, 0.45);
+  background: rgba(8, 15, 28, 0.72);
+  padding: 0.18rem 0.55rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  color: #e0f2fe;
+  box-shadow:
+    0 2px 8px rgba(2, 8, 23, 0.35),
+    0 0 10px rgba(56, 189, 248, 0.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.cyber-card__badge.is-genre {
+  border-color: rgba(167, 139, 250, 0.55);
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.28), rgba(8, 15, 28, 0.75));
+  color: #ede9fe;
+  box-shadow:
+    0 2px 8px rgba(2, 8, 23, 0.35),
+    0 0 12px rgba(167, 139, 250, 0.28);
+}
+
+.cyber-card__badge.is-engine {
+  border-color: rgba(34, 211, 238, 0.5);
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.22), rgba(8, 15, 28, 0.75));
+}
+
+/* Compact footer: title 1 line + description 2 lines only */
 .cyber-card__body {
   position: relative;
   z-index: 0;
   display: flex;
-  min-height: 0;
-  flex: 3 1 0%;
+  flex: 0 0 auto;
   flex-direction: column;
   justify-content: center;
-  gap: 0.4rem;
-  padding: 0.85rem 1rem 1.65rem;
+  gap: 0.12rem;
+  padding: 0.35rem 0.65rem 0.4rem;
+  background: rgba(10, 16, 28, 0.55);
 }
 
 .cyber-card__title {
-  display: -webkit-box;
   overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  font-size: 1.05rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.92rem;
   font-weight: 800;
   line-height: 1.25;
   letter-spacing: -0.02em;
@@ -237,8 +288,9 @@
   overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
-  font-size: 0.875rem;
-  line-height: 1.35;
+  min-height: calc(0.72rem * 1.3 * 2);
+  font-size: 0.72rem;
+  line-height: 1.3;
   color: #cbd5e1;
   transition:
     color 300ms ease-in-out,

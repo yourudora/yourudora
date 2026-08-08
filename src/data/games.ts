@@ -15,6 +15,8 @@ export type GameItem = {
   shortDescription: string;
   /** 詳細ページ用の本文 */
   description: string;
+  /** ジャンル（カードバッジ用） */
+  genre: string;
   status: GameStatus;
   platforms: string;
   /** 公開・更新日（YYYY-MM-DD）。新着順ソートに使用 */
@@ -35,6 +37,7 @@ export const games: GameItem[] = [
       "敵の技を奪って攻略する、駆け引き重視の短編RPG。",
     description:
       "洞窟で目覚めた記憶喪失の少年「ルカ」と、正義感あふれる少女「リゼット」。\n失われた記憶の手がかりと平和を求め、二人は旅に出る――。\n\n敵の技を奪って攻略する駆け引きなど、RPG好きに向けた奥深いバトルを楽しめる短編作品です。",
+    genre: "RPG",
     status: "開発中",
     platforms: "PC（Windows）",
     updatedAt: "2026-08-06",
