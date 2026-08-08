@@ -1,10 +1,11 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import CatalogControls from "../../components/CatalogControls.astro";
 import GameCard from "../../components/GameCard.astro";
-import SortControls from "../../components/SortControls.astro";
-import { getGamesNewestFirst } from "../../data/games";
+import { getGameGenres, getGamesNewestFirst } from "../../data/games";
 
 const games = getGamesNewestFirst();
+const genres = getGameGenres();
 ---
 
 <Layout title="ゲーム" description="開発中・リリース済みの自作ゲーム紹介。">
@@ -16,7 +17,7 @@ const games = getGamesNewestFirst();
           カードを選ぶと詳細ページへ移動します。進捗ステータスを随時更新します。
         </p>
       </div>
-      <SortControls listId="games-page" />
+      <CatalogControls listId="games-page" genres={genres} />
     </div>
 
     <div
@@ -25,12 +26,19 @@ const games = getGamesNewestFirst();
     >
       {
         games.map((game) => (
-          <div data-sort-item data-updated-at={game.updatedAt} data-name={game.title}>
+          <div
+            data-sort-item
+            data-updated-at={game.updatedAt}
+            data-name={game.title}
+            data-genre={game.genre}
+          >
             <GameCard game={game} />
           </div>
         ))
       }
     </div>
-
+    <p class="mt-4 text-sm text-mist-400" data-filter-empty="games-page" hidden>
+      該当するジャンルのゲームはありません。
+    </p>
   </section>
 </Layout>

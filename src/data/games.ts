@@ -46,6 +46,13 @@ export const games: GameItem[] = [
   },
 ];
 
+/** 登録済みジャンル（絞り込み用） */
+export function getGameGenres(): string[] {
+  return [...new Set(games.map((game) => game.genre))].sort((a, b) =>
+    a.localeCompare(b, "ja"),
+  );
+}
+
 export function getGameImage(game: GameItem): string {
   return game.image ?? placeholderImage;
 }

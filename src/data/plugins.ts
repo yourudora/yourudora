@@ -42,12 +42,19 @@ export const plugins: PluginItem[] = [
       "敵から技をコピーできるスキルを実装するバトルプラグインです。\nコピーした技を味方側で使用でき、敵の攻撃を活かした駆け引きのある戦闘を作れます。",
     downloadHref: "/downloads/CopyAttack.zip",
     donationHref: ofuseDonationHref,
-    category: "バトル",
+    category: "バトル系",
     updatedAt: "2026-08-06",
     // image: "/images/plugins/copyattack.webp",
     imageAlt: "CopyAttack のアイキャッチ画像",
   },
 ];
+
+/** 登録済みジャンル（絞り込み用） */
+export function getPluginGenres(): string[] {
+  return [...new Set(plugins.map((plugin) => plugin.category))].sort((a, b) =>
+    a.localeCompare(b, "ja"),
+  );
+}
 
 export function getPluginImage(plugin: PluginItem): string {
   return plugin.image ?? placeholderImage;

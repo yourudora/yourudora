@@ -1,0 +1,108 @@
+---
+/**
+ * Sort + genre filter controls for catalog grids.
+ * Grid items need [data-sort-item] with data-updated-at, data-name, data-genre.
+ */
+interface Props {
+  listId: string;
+  genres: readonly string[];
+  class?: string;
+}
+
+const { listId, genres, class: className = "" } = Astro.props;
+---
+
+<div
+  class:list={["flex flex-wrap items-center justify-end gap-x-4 gap-y-2", className]}
+  data-catalog-controls={listId}
+>
+  <div class="flex items-center gap-2">
+    <label for={`filter-${listId}`} class="shrink-0 text-sm text-mist-400">絞り込み</label>
+    <select
+      id={`filter-${listId}`}
+      data-filter-select={listId}
+      class="min-w-[9.5rem] rounded-sm border border-forest-600 bg-forest-800 px-3 py-1.5 text-sm text-cream-100 outline-none transition focus:border-gold-400"
+    >
+      <option value="all" selected>すべて</option>
+      {genres.map((genre) => <option value={genre}>{genre}</option>)}
+    </select>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <label for={`sort-${listId}`} class="shrink-0 text-sm text-mist-400">並び替え</label>
+    <select
+      id={`sort-${listId}`}
+      data-sort-select={listId}
+      class="min-w-[8.5rem] rounded-sm border border-forest-600 bg-forest-800 px-3 py-1.5 text-sm text-cream-100 outline-none transition focus:border-gold-400"
+    >
+      <option value="newest" selected>新しい順</option>
+      <option value="oldest">古い順</option>
+      <option value="name">名前順</option>
+    </select>
+  </div>
+</div>
+
+<script>
+  function applyCatalog(listId: string) {
+    const grid = document.querySelector<HTMLElement>(`[data-sort-grid="${listId}"]`);
+    if (!grid) return;
+
+    const sortSelect = document.querySelector<HTMLSelectElement>(`[data-sort-select="${listId}"]`);
+    const filterSelect = document.querySelector<HTMLSelectElement>(`[data-filter-select="${listId}"]`);
+    const empty = document.querySelector<HTMLElement>(`[data-filter-empty="${listId}"]`);
+
+    const mode = sortSelect?.value ?? "newest";
+    const genre = filterSelect?.value ?? "all";
+
+    const items = Array.from(grid.querySelectorAll<HTMLElement>("[data-sort-item]"));
+    const visible: HTMLElement[] = [];
+    const hidden: HTMLElement[] = [];
+
+    for (const item of items) {
+      const itemGenre = item.dataset.genre ?? "";
+      const match = genre === "all" || itemGenre === genre;
+      if (match) visible.push(item);
+      else hidden.push(item);
+    }
+
+    visible.sort((a, b) => {
+      const aDate = a.dataset.updatedAt ?? "";
+      const bDate = b.dataset.updatedAt ?? "";
+      const aName = a.dataset.name ?? "";
+      const bName = b.dataset.name ?? "";
+
+      if (mode === "oldest") return aDate.localeCompare(bDate);
+      if (mode === "name") return aName.localeCompare(bName, "ja");
+      return bDate.localeCompare(aDate);
+    });
+
+    for (const item of visible) {
+      item.hidden = false;
+      grid.appendChild(item);
+    }
+    for (const item of hidden) {
+      item.hidden = true;
+      grid.appendChild(item);
+    }
+
+    if (empty) {
+      empty.hidden = visible.length > 0;
+    }
+  }
+
+  function bindCatalogControls() {
+    document.querySelectorAll<HTMLSelectElement>("[data-sort-select], [data-filter-select]").forEach((select) => {
+      if (select.dataset.catalogBound === "1") return;
+      select.dataset.catalogBound = "1";
+
+      select.addEventListener("change", () => {
+        const listId = select.dataset.sortSelect || select.dataset.filterSelect;
+        if (!listId) return;
+        applyCatalog(listId);
+      });
+    });
+  }
+
+  bindCatalogControls();
+  document.addEventListener("astro:page-load", bindCatalogControls);
+</script>

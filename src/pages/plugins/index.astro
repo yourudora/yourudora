@@ -1,11 +1,12 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import CatalogControls from "../../components/CatalogControls.astro";
 import DonationSlot from "../../components/DonationSlot.astro";
 import PluginCard from "../../components/PluginCard.astro";
-import SortControls from "../../components/SortControls.astro";
-import { getPluginsNewestFirst } from "../../data/plugins";
+import { getPluginGenres, getPluginsNewestFirst } from "../../data/plugins";
 
 const plugins = getPluginsNewestFirst();
+const genres = getPluginGenres();
 ---
 
 <Layout title="プラグイン" description="自作ゲームエンジンプラグインの無料配布一覧。">
@@ -17,7 +18,7 @@ const plugins = getPluginsNewestFirst();
           カードを選ぶと詳細ページへ移動します。対応エンジンと概要を確認のうえダウンロードしてください。
         </p>
       </div>
-      <SortControls listId="plugins-page" />
+      <CatalogControls listId="plugins-page" genres={genres} />
     </div>
 
     <div
@@ -26,12 +27,20 @@ const plugins = getPluginsNewestFirst();
     >
       {
         plugins.map((plugin) => (
-          <div data-sort-item data-updated-at={plugin.updatedAt} data-name={plugin.title}>
+          <div
+            data-sort-item
+            data-updated-at={plugin.updatedAt}
+            data-name={plugin.title}
+            data-genre={plugin.category}
+          >
             <PluginCard plugin={plugin} />
           </div>
         ))
       }
     </div>
+    <p class="mt-4 text-sm text-mist-400" data-filter-empty="plugins-page" hidden>
+      該当するジャンルのプラグインはありません。
+    </p>
 
     <div class="mt-12">
       <DonationSlot />

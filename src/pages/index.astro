@@ -1,16 +1,18 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import CatalogControls from "../components/CatalogControls.astro";
 import DonationSlot from "../components/DonationSlot.astro";
 import GameCard from "../components/GameCard.astro";
 import PluginCard from "../components/PluginCard.astro";
-import SortControls from "../components/SortControls.astro";
-import { getGamesNewestFirst } from "../data/games";
-import { getPluginsNewestFirst } from "../data/plugins";
+import { getGameGenres, getGamesNewestFirst } from "../data/games";
+import { getPluginGenres, getPluginsNewestFirst } from "../data/plugins";
 import { getChangelogNewestFirst } from "../data/site";
 
 const newestPlugins = getPluginsNewestFirst();
 const newestGames = getGamesNewestFirst();
 const newestChangelog = getChangelogNewestFirst();
+const pluginGenres = getPluginGenres();
+const gameGenres = getGameGenres();
 ---
 
 <Layout>
@@ -50,7 +52,7 @@ const newestChangelog = getChangelogNewestFirst();
             すべて見る
           </a>
         </div>
-        <SortControls listId="plugins-home" />
+        <CatalogControls listId="plugins-home" genres={pluginGenres} />
       </div>
 
       <div
@@ -59,12 +61,20 @@ const newestChangelog = getChangelogNewestFirst();
       >
         {
           newestPlugins.map((plugin) => (
-            <div data-sort-item data-updated-at={plugin.updatedAt} data-name={plugin.title}>
+            <div
+              data-sort-item
+              data-updated-at={plugin.updatedAt}
+              data-name={plugin.title}
+              data-genre={plugin.category}
+            >
               <PluginCard plugin={plugin} />
             </div>
           ))
         }
       </div>
+      <p class="mt-4 text-sm text-mist-400" data-filter-empty="plugins-home" hidden>
+        該当するジャンルのプラグインはありません。
+      </p>
     </div>
 
     <!-- 3. Games -->
@@ -78,7 +88,7 @@ const newestChangelog = getChangelogNewestFirst();
             すべて見る
           </a>
         </div>
-        <SortControls listId="games-home" />
+        <CatalogControls listId="games-home" genres={gameGenres} />
       </div>
 
       <div
@@ -87,12 +97,20 @@ const newestChangelog = getChangelogNewestFirst();
       >
         {
           newestGames.map((game) => (
-            <div data-sort-item data-updated-at={game.updatedAt} data-name={game.title}>
+            <div
+              data-sort-item
+              data-updated-at={game.updatedAt}
+              data-name={game.title}
+              data-genre={game.genre}
+            >
               <GameCard game={game} />
             </div>
           ))
         }
       </div>
+      <p class="mt-4 text-sm text-mist-400" data-filter-empty="games-home" hidden>
+        該当するジャンルのゲームはありません。
+      </p>
     </div>
   </section>
 
