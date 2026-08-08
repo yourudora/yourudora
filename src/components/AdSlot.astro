@@ -27,14 +27,14 @@ const sizeClass =
 
 <aside
   class:list={[
-    "ad-slot mx-auto flex flex-col items-center justify-center gap-2 rounded-sm border border-dashed border-forest-600 bg-forest-800 px-4 py-3 text-center shadow-sm",
+    "ad-slot mx-auto flex flex-col items-center justify-center gap-2 rounded-sm border border-dashed border-forest-600 bg-forest-800/80 px-4 py-3 text-center",
     sizeClass,
     className,
   ]}
   aria-label={label}
   data-ad-slot={size}
 >
-  <span class="text-[0.65rem] uppercase tracking-[0.2em] text-mist-500">{label}</span>
+  <span class="text-[0.7rem] text-mist-500">{label}</span>
   <div class="flex w-full flex-1 items-center justify-center text-sm text-mist-400">
     <slot>
       <span>広告枠（AdSense 等）</span>

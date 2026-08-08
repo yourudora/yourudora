@@ -37,7 +37,7 @@ export type ChangelogItem = {
   href?: string;
 };
 
-/** 更新履歴（新しい日付を上に） */
+/** 更新履歴（新しい日付を上に並べてください） */
 export const changelog: ChangelogItem[] = [
   {
     date: "2026-08-06",
@@ -50,6 +50,11 @@ export const changelog: ChangelogItem[] = [
     href: "/about/",
   },
 ];
+
+/** 更新履歴を新しい順で返す */
+export function getChangelogNewestFirst(): ChangelogItem[] {
+  return [...changelog].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+}
 
 /** @deprecated changelog を使用してください */
 export const latestNews = changelog;

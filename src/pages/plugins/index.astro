@@ -20,12 +20,12 @@ const plugins = getPluginsNewestFirst();
     <div class="mt-8 grid gap-4 md:grid-cols-2">
       {
         plugins.map((plugin) => (
-          <article class="flex flex-col rounded-sm border border-forest-600 bg-forest-800 p-5 shadow-sm sm:p-6">
+          <article class="card-surface flex flex-col p-5 sm:p-6">
             <div class="flex flex-wrap items-center gap-2">
               <time class="font-mono text-xs text-mist-500" datetime={plugin.updatedAt}>
                 {plugin.updatedAt}
               </time>
-              <span class="rounded-sm border border-moss-500/30 bg-moss-500/10 px-2 py-0.5 text-[0.7rem] text-moss-500">
+              <span class="rounded-sm border border-moss-500/40 bg-moss-500/15 px-2 py-0.5 text-[0.7rem] font-medium text-moss-400">
                 {plugin.category}
               </span>
               <span class="text-xs text-mist-500">{plugin.engine}</span>
@@ -35,7 +35,7 @@ const plugins = getPluginsNewestFirst();
             <div class="mt-5 flex flex-wrap gap-2">
               <DownloadLink
                 href={plugin.downloadHref}
-                class="inline-flex items-center rounded-sm border border-gold-400/50 bg-gold-300/10 px-4 py-2 text-sm font-bold text-gold-400 transition hover:bg-gold-300/20"
+                class="inline-flex items-center rounded-sm border border-gold-400/50 bg-gold-400/15 px-4 py-2 text-sm font-bold text-gold-300 transition hover:bg-gold-400/25 hover:text-cream-100"
               >
                 ダウンロード
               </DownloadLink>
@@ -44,7 +44,7 @@ const plugins = getPluginsNewestFirst();
                   href={plugin.donationHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="inline-flex items-center rounded-sm border border-forest-600 px-4 py-2 text-sm text-cream-200 transition hover:border-gold-400/40 hover:text-gold-400"
+                  class="inline-flex items-center rounded-sm border border-forest-600 bg-forest-700/50 px-4 py-2 text-sm text-cream-200 transition hover:border-gold-400/40 hover:text-gold-300"
                 >
                   OFUSEで応援
                 </a>

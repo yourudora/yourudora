@@ -11,13 +11,13 @@ function isActive(href: string) {
 ---
 
 <div class="sticky top-0 z-50">
-  <!-- ご利用規約: 最上部に固定表示 -->
-  <div class="border-b border-gold-400/30 bg-gold-300/10">
-    <div class="mx-auto flex max-w-6xl items-center justify-center gap-2 px-4 py-2 sm:px-6 lg:px-8">
-      <span class="hidden text-xs font-medium text-gold-400 sm:inline">お知らせ</span>
+  <!-- Terms of Service: always visible at the very top -->
+  <div class="border-b border-gold-400/40 bg-forest-800">
+    <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6 lg:px-8">
+      <p class="text-xs text-mist-400 sm:text-sm">ご利用前に必ずご確認ください</p>
       <a
         href="/terms/"
-        class="inline-flex items-center gap-2 text-sm font-bold text-gold-400 underline decoration-gold-400/70 decoration-2 underline-offset-4 transition hover:text-gold-300"
+        class="inline-flex items-center gap-1.5 rounded-sm border border-gold-400/50 bg-gold-400/15 px-3 py-1.5 text-sm font-bold text-gold-300 transition hover:bg-gold-400/25 hover:text-cream-100"
       >
         ご利用規約
         <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -32,10 +32,10 @@ function isActive(href: string) {
     </div>
   </div>
 
-  <header class="relative border-b border-forest-600 bg-forest-800/90 backdrop-blur-md">
+  <header class="relative border-b border-forest-600 bg-forest-900/95 backdrop-blur-md">
     <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
       <a href="/" class="group flex items-baseline gap-2 no-underline">
-        <span class="text-base font-bold tracking-tight text-cream-100 transition group-hover:text-gold-400 sm:text-lg">
+        <span class="text-base font-bold tracking-tight text-cream-100 transition group-hover:text-gold-300 sm:text-lg">
           {site.name}
         </span>
       </a>
@@ -47,7 +47,7 @@ function isActive(href: string) {
         aria-controls="site-nav"
         data-nav-toggle
       >
-        <span class="sr-only">メニュー</span>
+        <span class="sr-only">メニューを開く</span>
         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
           <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"></path>
         </svg>
@@ -55,7 +55,7 @@ function isActive(href: string) {
 
       <nav
         id="site-nav"
-        class="absolute left-0 right-0 top-full hidden border-b border-forest-600 bg-forest-800 px-4 py-4 shadow-md md:static md:flex md:border-0 md:bg-transparent md:p-0 md:shadow-none"
+        class="absolute left-0 right-0 top-full hidden border-b border-forest-600 bg-forest-800 px-4 py-4 shadow-lg md:static md:flex md:border-0 md:bg-transparent md:p-0 md:shadow-none"
         data-nav-panel
       >
         <ul class="flex flex-col gap-1 md:flex-row md:items-center md:gap-1">
@@ -67,8 +67,8 @@ function isActive(href: string) {
                   class:list={[
                     "block rounded-sm px-3 py-2 text-sm font-medium transition md:py-1.5",
                     isActive(item.href)
-                      ? "bg-gold-300/15 text-gold-400"
-                      : "text-cream-200 hover:bg-forest-900 hover:text-gold-400",
+                      ? "bg-gold-400/15 text-gold-300"
+                      : "text-cream-200 hover:bg-forest-700 hover:text-gold-300",
                   ]}
                   aria-current={isActive(item.href) ? "page" : undefined}
                 >

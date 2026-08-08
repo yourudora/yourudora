@@ -27,10 +27,10 @@ import { site } from "../../data/site";
         </p>
       </article>
 
-      <article class="rounded-sm border border-forest-600 bg-forest-800 p-5 shadow-sm sm:p-6">
+      <article class="card-surface p-5 sm:p-6">
         <h2 class="text-2xl font-bold text-cream-100">お問い合わせ</h2>
         <p class="mt-3 text-sm leading-relaxed text-mist-400">
-          フォーム連携は今後追加予定です。当面は SNS または下記よりご連絡ください。
+          フォーム連携は今後追加予定です。当面はソーシャルアカウントまたは下記よりご連絡ください。
         </p>
 
         <form class="mt-6 space-y-4" action="#" method="get" data-contact-form>
@@ -68,27 +68,27 @@ import { site } from "../../data/site";
           </div>
           <button
             type="submit"
-            class="inline-flex items-center rounded-sm border border-gold-400/50 bg-gold-300/10 px-5 py-2.5 text-sm font-bold text-gold-400 transition hover:bg-gold-300/20"
+            class="inline-flex items-center rounded-sm border border-gold-400/50 bg-gold-400/15 px-5 py-2.5 text-sm font-bold text-gold-300 transition hover:bg-gold-400/25 hover:text-cream-100"
           >
             送信（準備中）
           </button>
         </form>
 
         <div class="mt-8 border-t border-forest-600 pt-5">
-          <p class="text-xs font-medium text-mist-500">SNS</p>
+          <p class="text-xs font-medium text-mist-500">ソーシャル</p>
           <ul class="mt-3 flex flex-wrap gap-3 text-sm">
             <li>
-              <a href={site.social.twitter} class="text-cream-200 hover:text-gold-400" target="_blank" rel="noopener noreferrer"
-                >X (Twitter)</a
+              <a href={site.social.twitter} class="text-cream-200 hover:text-gold-300" target="_blank" rel="noopener noreferrer"
+                >X（旧Twitter）</a
               >
             </li>
             <li>
-              <a href={site.social.github} class="text-cream-200 hover:text-gold-400" target="_blank" rel="noopener noreferrer"
+              <a href={site.social.github} class="text-cream-200 hover:text-gold-300" target="_blank" rel="noopener noreferrer"
                 >GitHub</a
               >
             </li>
             <li>
-              <a href={site.social.youtube} class="text-cream-200 hover:text-gold-400" target="_blank" rel="noopener noreferrer"
+              <a href={site.social.youtube} class="text-cream-200 hover:text-gold-300" target="_blank" rel="noopener noreferrer"
                 >YouTube</a
               >
             </li>
