@@ -1,6 +1,5 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import AdSlot from "../../components/AdSlot.astro";
 import DonationSlot from "../../components/DonationSlot.astro";
 import DownloadLink from "../../components/DownloadLink.astro";
 import { getPluginBySlug, getPluginImage, plugins } from "../../data/plugins";
@@ -82,9 +81,8 @@ const imageAlt = plugin.imageAlt ?? `${plugin.title}のアイキャッチ画像`
       </div>
     </div>
 
-    <div class="mt-12 flex flex-col gap-6">
+    <div class="mt-12">
       <DonationSlot />
-      <AdSlot size="banner" />
     </div>
   </section>
 </Layout>

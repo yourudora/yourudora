@@ -1,6 +1,5 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import AdSlot from "../components/AdSlot.astro";
 import DonationSlot from "../components/DonationSlot.astro";
 import GameCard from "../components/GameCard.astro";
 import PluginCard from "../components/PluginCard.astro";
@@ -98,8 +97,7 @@ const newestChangelog = getChangelogNewestFirst();
   </section>
 
   <section class="border-t border-forest-600">
-    <div class="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:px-6 lg:px-8">
-      <AdSlot size="banner" />
+    <div class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
       <DonationSlot />
     </div>
   </section>

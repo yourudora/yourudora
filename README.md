@@ -13,7 +13,7 @@
 yurudra-hakoniwa/
 ├── public/                 # 静的アセット
 ├── src/
-│   ├── components/         # Header / Footer / AdSlot / DonationSlot など
+│   ├── components/         # Header / Footer / DonationSlot など
 │   ├── data/site.ts        # サイト定数・サンプルコンテンツ
 │   ├── layouts/Layout.astro
 │   ├── pages/
@@ -35,9 +35,8 @@ npm run build
 npm run preview
 ```
 
-## 広告・ドネーション枠
+## ドネーション枠
 
-- `AdSlot.astro` … Google AdSense 等を差し込むための枠（`size`: `banner` | `rectangle` | `sidebar`）
 - `DonationSlot.astro` … OFUSE 等の応援導線。`href` / `label` または slot で差し替え可能
 
 リンク先や文言は `src/data/site.ts` で一括管理しています。

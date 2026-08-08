@@ -1,6 +1,5 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import AdSlot from "../../components/AdSlot.astro";
 import DonationSlot from "../../components/DonationSlot.astro";
 import PluginCard from "../../components/PluginCard.astro";
 import SortControls from "../../components/SortControls.astro";
@@ -34,9 +33,8 @@ const plugins = getPluginsNewestFirst();
       }
     </div>
 
-    <div class="mt-12 flex flex-col gap-6">
+    <div class="mt-12">
       <DonationSlot />
-      <AdSlot size="banner" />
     </div>
   </section>
 </Layout>
