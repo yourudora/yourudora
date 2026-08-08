@@ -1,5 +1,5 @@
 /** OFUSE箱のユーザーID。書き換えると donation.href が連動します。 */
-const ofuseUserId = "YOUR_OFUSE_ID";
+const ofuseUserId = "yourudora";
 
 export const site = {
   name: "ユルドラの箱庭",
