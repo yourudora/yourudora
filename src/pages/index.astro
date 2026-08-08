@@ -3,77 +3,122 @@ import Layout from "../layouts/Layout.astro";
 import AdSlot from "../components/AdSlot.astro";
 import DonationSlot from "../components/DonationSlot.astro";
 import PickupCard from "../components/PickupCard.astro";
-import { latestNews, pickupItems, site } from "../data/site";
+import { heroFeatures, latestNews, pickupItems, site } from "../data/site";
 ---
 
 <Layout description={site.description}>
-  <!-- Hero: brand-first, one composition -->
+  <!-- Hero: cyber first-view -->
   <section class="relative isolate overflow-hidden">
+    <div class="cyber-grid pointer-events-none absolute inset-0 -z-10 opacity-80" aria-hidden="true"></div>
+    <div class="cyber-scan pointer-events-none absolute inset-0 -z-10" aria-hidden="true"></div>
     <div
-      class="pointer-events-none absolute inset-0 -z-10 animate-soft-drift opacity-70"
+      class="pointer-events-none absolute inset-0 -z-10 animate-soft-drift"
       aria-hidden="true"
     >
-      <div
-        class="absolute -left-24 top-10 h-72 w-72 rounded-full bg-moss-500/20 blur-3xl"
-      >
-      </div>
-      <div
-        class="absolute right-0 top-0 h-[28rem] w-[28rem] rounded-full bg-wood-500/10 blur-3xl"
-      >
-      </div>
-      <div
-        class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-forest-900 to-transparent"
-      >
-      </div>
+      <div class="absolute -left-20 top-8 h-80 w-80 rounded-full bg-gold-400/15 blur-3xl animate-pulse-glow"></div>
+      <div class="absolute right-0 top-0 h-[28rem] w-[28rem] rounded-full bg-wood-600/20 blur-3xl"></div>
+      <div class="absolute bottom-10 left-1/3 h-56 w-56 rounded-full bg-moss-500/15 blur-3xl"></div>
     </div>
-    <div class="garden-grain pointer-events-none absolute inset-0 -z-10 opacity-[0.04]" aria-hidden="true"></div>
 
     <div
-      class="mx-auto flex min-h-[calc(100dvh-3.5rem)] max-w-6xl flex-col justify-center px-4 py-16 sm:px-6 lg:px-8 lg:py-20"
+      class="mx-auto flex min-h-[calc(100dvh-6.5rem)] max-w-6xl flex-col justify-center px-4 py-14 sm:px-6 lg:px-8 lg:py-16"
     >
       <p
-        class="animate-fade-in text-xs uppercase tracking-[0.28em] text-moss-300"
+        class="animate-fade-in font-display text-xs font-bold uppercase tracking-[0.32em] text-gold-300"
         style="animation-delay: 0.05s"
       >
         Free Plugins & Indie Games
       </p>
+
       <h1
-        class="animate-fade-up mt-4 font-display text-4xl leading-tight tracking-wide text-gold-300 sm:text-5xl md:text-6xl lg:text-7xl"
-        style="animation-delay: 0.12s"
+        class="animate-fade-up mt-4 font-display text-4xl font-extrabold leading-[1.1] tracking-wide text-neon sm:text-5xl md:text-6xl lg:text-7xl"
+        style="animation-delay: 0.1s"
       >
         {site.name}
       </h1>
+
       <p
-        class="animate-fade-up mt-5 max-w-xl text-base leading-relaxed text-cream-200/85 sm:text-lg"
-        style="animation-delay: 0.28s"
+        class="animate-fade-up mt-5 max-w-2xl text-xl font-bold leading-snug text-cream-100 sm:text-2xl md:text-3xl"
+        style="animation-delay: 0.2s"
       >
-        {site.tagline}
+        敵の技をコピーする。<br class="sm:hidden" />無料プラグインと自作ゲームの箱庭。
+      </p>
+
+      <p
+        class="animate-fade-up mt-4 max-w-xl text-sm leading-relaxed text-mist-400 sm:text-base"
+        style="animation-delay: 0.3s"
+      >
+        {site.tagline} — 一目でわかる機能と、すぐ試せる配布物を置いています。
       </p>
 
       <div
         class="animate-fade-up mt-8 flex flex-wrap gap-3"
-        style="animation-delay: 0.4s"
+        style="animation-delay: 0.38s"
       >
         <a
           href="/plugins/"
-          class="inline-flex items-center justify-center rounded-sm border border-gold-400/50 bg-gold-400/10 px-5 py-2.5 text-sm font-medium text-gold-300 transition hover:bg-gold-400/20"
+          class="inline-flex items-center justify-center rounded-sm border border-gold-400/60 bg-gold-400/15 px-5 py-2.5 text-sm font-bold text-gold-300 shadow-[0_0_24px_rgba(34,211,238,0.18)] transition hover:bg-gold-400/25"
         >
           プラグインを見る
         </a>
         <a
           href="/games/"
-          class="inline-flex items-center justify-center rounded-sm border border-forest-600 px-5 py-2.5 text-sm text-cream-200/90 transition hover:border-moss-400/50 hover:text-cream-100"
+          class="inline-flex items-center justify-center rounded-sm border border-forest-600 px-5 py-2.5 text-sm font-medium text-cream-200/90 transition hover:border-wood-500/60 hover:text-cream-100"
         >
           開発中のゲーム
         </a>
       </div>
 
-      <!-- Latest news (kept within hero budget as supporting signal) -->
+      <!-- Feature cards: what the tools do -->
       <div
-        class="animate-fade-up mt-12 max-w-2xl border-t border-forest-600/60 pt-6"
-        style="animation-delay: 0.55s"
+        class="animate-fade-up mt-12 grid gap-3 sm:grid-cols-3"
+        style="animation-delay: 0.48s"
       >
-        <p class="text-xs uppercase tracking-[0.22em] text-mist-500">Latest</p>
+        {
+          heroFeatures.map((feature) => (
+            <a
+              href={feature.href}
+              class="group relative overflow-hidden rounded-sm border border-forest-600/80 bg-forest-800/50 p-5 transition duration-300 hover:border-gold-400/50 hover:bg-forest-700/50 border-neon"
+            >
+              <div
+                class="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-gold-400/10 blur-2xl transition group-hover:bg-gold-400/20"
+                aria-hidden="true"
+              />
+              <div class="flex h-10 w-10 items-center justify-center rounded-sm border border-gold-400/30 bg-forest-950/70 text-gold-300">
+                {feature.icon === "copy" && (
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                    <rect x="9" y="9" width="10" height="10" rx="1.5" />
+                    <path d="M7 15H6a1.5 1.5 0 0 1-1.5-1.5v-9A1.5 1.5 0 0 1 6 3h9A1.5 1.5 0 0 1 16.5 4.5V6" stroke-linecap="round" />
+                  </svg>
+                )}
+                {feature.icon === "plugin" && (
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                    <path d="M9 3v3M15 3v3" stroke-linecap="round" />
+                    <path d="M7 8h10v9a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V8Z" stroke-linejoin="round" />
+                    <path d="M9 13h6" stroke-linecap="round" />
+                  </svg>
+                )}
+                {feature.icon === "game" && (
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                    <path d="M6 9h12a3 3 0 0 1 3 3v4a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-4a3 3 0 0 1 3-3Z" stroke-linejoin="round" />
+                    <path d="M8 14h.01M16 14h.01M12 12v4" stroke-linecap="round" />
+                  </svg>
+                )}
+              </div>
+              <h2 class="mt-4 font-display text-sm font-bold uppercase tracking-[0.12em] text-cream-100 group-hover:text-gold-300">
+                {feature.title}
+              </h2>
+              <p class="mt-2 text-sm leading-relaxed text-mist-400">{feature.summary}</p>
+            </a>
+          ))
+        }
+      </div>
+
+      <div
+        class="animate-fade-up mt-12 max-w-2xl border-t border-forest-600/70 pt-6"
+        style="animation-delay: 0.58s"
+      >
+        <p class="font-display text-xs uppercase tracking-[0.22em] text-mist-500">Latest</p>
         <ul class="mt-3 space-y-2.5">
           {
             latestNews.slice(0, 3).map((item) => (
@@ -97,10 +142,12 @@ import { latestNews, pickupItems, site } from "../data/site";
   </section>
 
   <!-- Pickup -->
-  <section class="border-t border-forest-700/50 bg-forest-950/30">
+  <section class="border-t border-forest-700/60 bg-forest-950/40">
     <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
       <div class="max-w-2xl">
-        <h2 class="font-display text-3xl text-cream-100 sm:text-4xl">ピックアップ</h2>
+        <h2 class="font-display text-3xl font-bold tracking-wide text-cream-100 sm:text-4xl">
+          ピックアップ
+        </h2>
         <p class="mt-3 text-sm leading-relaxed text-mist-400 sm:text-base">
           いま注目のプラグインと、育てているゲームをひとつずつ。
         </p>
@@ -113,7 +160,7 @@ import { latestNews, pickupItems, site } from "../data/site";
   </section>
 
   <!-- Monetization-ready slots -->
-  <section class="border-t border-forest-700/40">
+  <section class="border-t border-forest-700/50">
     <div class="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
       <AdSlot size="banner" />
       <DonationSlot />

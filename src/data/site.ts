@@ -31,6 +31,35 @@ export const navItems = [
   { href: "/about/", label: "About" },
 ] as const;
 
+export type HeroFeature = {
+  title: string;
+  summary: string;
+  href: string;
+  icon: "copy" | "plugin" | "game";
+};
+
+/** First-view feature cards: what this site / tools do at a glance */
+export const heroFeatures: HeroFeature[] = [
+  {
+    title: "技コピー・バトル拡張",
+    summary: "敵の技をコピーして使える。駆け引きのある戦闘をプラグインで追加。",
+    href: "/plugins/",
+    icon: "copy",
+  },
+  {
+    title: "無料プラグイン配布",
+    summary: "RPGツクールMZ向けの自作プラグインを、すぐに試せる形で無料公開。",
+    href: "/plugins/",
+    icon: "plugin",
+  },
+  {
+    title: "自作ゲーム開発ログ",
+    summary: "箱庭で育てているインディーゲームの進捗と世界観を随時更新。",
+    href: "/games/",
+    icon: "game",
+  },
+];
+
 export type NewsItem = {
   date: string;
   label: string;

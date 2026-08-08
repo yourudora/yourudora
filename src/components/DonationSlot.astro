@@ -2,8 +2,8 @@
 import { site } from "../data/site";
 
 /**
- * OFUSE（オフセ）等の応援・ファンレター導線。
- * href / label を差し替えるか、slot で独自ウィジェットを配置できます。
+ * OFUSE support / fan-letter CTA.
+ * Override href / label, or replace via slot.
  */
 interface Props {
   href?: string;
@@ -23,7 +23,7 @@ const {
 <div
   class:list={[
     "donation-slot",
-    compact ? "" : "rounded-sm border border-wood-600/30 bg-forest-800/50 p-4 sm:p-5",
+    compact ? "" : "rounded-sm border border-gold-400/25 bg-forest-800/55 p-4 sm:p-5",
     className,
   ]}
   data-donation-slot
@@ -35,7 +35,7 @@ const {
           href={href}
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 rounded-sm border border-gold-400/40 bg-wood-600/20 px-3 py-1.5 text-sm text-gold-300 transition hover:border-gold-400 hover:bg-wood-600/35"
+          class="inline-flex items-center gap-2 rounded-sm border border-gold-400/40 bg-gold-400/10 px-3 py-1.5 text-sm text-gold-300 transition hover:border-gold-400 hover:bg-gold-400/20"
         >
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <path d="M4 6.5h16v11a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-11Z" stroke-linejoin="round" />
@@ -46,7 +46,7 @@ const {
       ) : (
         <div class="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p class="font-display text-lg text-cream-100">開発を応援する</p>
+            <p class="font-display text-lg font-bold tracking-wide text-cream-100">開発を応援する</p>
             <p class="mt-1 text-sm text-mist-400">
               プラグインは無料配布です。OFUSEから応援メッセージや支援をお送りいただけると嬉しいです。
             </p>
@@ -55,7 +55,7 @@ const {
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            class="inline-flex shrink-0 items-center gap-2 rounded-sm border border-gold-400/50 bg-gradient-to-b from-wood-500/30 to-wood-600/20 px-4 py-2.5 text-sm font-medium text-gold-300 transition hover:border-gold-300 hover:from-wood-500/45 hover:to-wood-600/30"
+            class="inline-flex shrink-0 items-center gap-2 rounded-sm border border-gold-400/50 bg-gradient-to-r from-gold-400/20 to-wood-600/25 px-4 py-2.5 text-sm font-bold text-gold-300 transition hover:border-gold-300 hover:from-gold-400/30 hover:to-wood-600/35"
           >
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
               <path d="M4 6.5h16v11a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-11Z" stroke-linejoin="round" />

@@ -1,0 +1,74 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { site } from "../../data/site";
+---
+
+<Layout title="ご利用規約" description={`${site.name}のご利用規約（Terms of Service）。`}>
+  <section class="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8 lg:py-16">
+    <p class="font-display text-xs uppercase tracking-[0.28em] text-gold-300">Legal</p>
+    <h1 class="mt-3 font-display text-3xl font-bold tracking-wide text-cream-100 sm:text-4xl">
+      ご利用規約
+    </h1>
+    <p class="mt-2 text-sm text-mist-400">Terms of Service</p>
+    <p class="mt-6 text-sm leading-relaxed text-mist-400">
+      本規約は、{site.name}（以下「当サイト」）の利用条件を定めるものです。当サイトをご利用いただく前に、必ずお読みください。
+    </p>
+
+    <div class="mt-10 space-y-8 text-sm leading-relaxed text-cream-200/85">
+      <section class="space-y-2">
+        <h2 class="font-display text-lg font-bold text-gold-300">1. 適用</h2>
+        <p>
+          本規約は、当サイトの閲覧、プラグイン等のダウンロード、情報の利用、お問い合わせその他当サイト上で提供される一切のサービスに適用されます。
+        </p>
+      </section>
+
+      <section class="space-y-2">
+        <h2 class="font-display text-lg font-bold text-gold-300">2. 配布物について</h2>
+        <p>
+          当サイトで配布するプラグイン・素材等は、原則として無料で提供されます。各配布物に個別のライセンスや注意事項が付されている場合は、そちらが優先されます。利用前に内容をご確認ください。
+        </p>
+      </section>
+
+      <section class="space-y-2">
+        <h2 class="font-display text-lg font-bold text-gold-300">3. 禁止事項</h2>
+        <p>利用者は、以下の行為を行ってはなりません。</p>
+        <ul class="list-disc space-y-1 pl-5 text-mist-400">
+          <li>法令または公序良俗に反する行為</li>
+          <li>当サイトまたは第三者の権利・利益を侵害する行為</li>
+          <li>配布物の不正な再配布、改変の誤認表示、悪意ある改変・配布</li>
+          <li>当サイトの運営を妨害する行為</li>
+        </ul>
+      </section>
+
+      <section class="space-y-2">
+        <h2 class="font-display text-lg font-bold text-gold-300">4. 免責</h2>
+        <p>
+          当サイトおよび配布物の利用により生じた損害について、運営者は法令上許容される範囲で責任を負いません。動作保証、特定目的適合性の保証は行いません。開発中のゲーム情報は予告なく変更される場合があります。
+        </p>
+      </section>
+
+      <section class="space-y-2">
+        <h2 class="font-display text-lg font-bold text-gold-300">5. 外部サービス</h2>
+        <p>
+          当サイトは OFUSE 等の外部サービスへのリンクを含むことがあります。外部サービスの利用は各サービスの規約に従ってください。
+        </p>
+      </section>
+
+      <section class="space-y-2">
+        <h2 class="font-display text-lg font-bold text-gold-300">6. 規約の変更</h2>
+        <p>
+          運営者は必要に応じて本規約を変更できます。変更後の規約は、当ページに掲載した時点から効力を生じるものとします。
+        </p>
+      </section>
+
+      <section class="space-y-2">
+        <h2 class="font-display text-lg font-bold text-gold-300">7. お問い合わせ</h2>
+        <p>
+          本規約に関するお問い合わせは、<a href="/about/" class="text-gold-300 hover:text-gold-400">About / Contact</a> または SNS よりご連絡ください。
+        </p>
+      </section>
+    </div>
+
+    <p class="mt-12 text-xs text-mist-500">最終更新日: 2026-08-08 / 運営: {site.author}</p>
+  </section>
+</Layout>

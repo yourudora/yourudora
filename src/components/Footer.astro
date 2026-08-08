@@ -5,10 +5,10 @@ import DonationSlot from "./DonationSlot.astro";
 const year = new Date().getFullYear();
 ---
 
-<footer class="mt-auto border-t border-forest-700/70 bg-forest-950/90">
+<footer class="mt-auto border-t border-forest-600/70 bg-forest-950/95">
   <div class="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.4fr_1fr_1fr] lg:px-8">
     <div>
-      <p class="font-display text-xl text-gold-300">{site.name}</p>
+      <p class="font-display text-lg font-bold tracking-wide text-neon">{site.name}</p>
       <p class="mt-3 max-w-sm text-sm leading-relaxed text-mist-400">{site.description}</p>
       <div class="mt-5">
         <DonationSlot compact />
@@ -16,7 +16,7 @@ const year = new Date().getFullYear();
     </div>
 
     <div>
-      <p class="text-xs uppercase tracking-[0.2em] text-mist-500">Navigate</p>
+      <p class="font-display text-xs uppercase tracking-[0.2em] text-mist-500">Navigate</p>
       <ul class="mt-3 space-y-2">
         {
           navItems.map((item) => (
@@ -27,11 +27,16 @@ const year = new Date().getFullYear();
             </li>
           ))
         }
+        <li>
+          <a href="/terms/" class="text-sm font-medium text-gold-300 hover:text-gold-400">
+            ご利用規約
+          </a>
+        </li>
       </ul>
     </div>
 
     <div>
-      <p class="text-xs uppercase tracking-[0.2em] text-mist-500">SNS</p>
+      <p class="font-display text-xs uppercase tracking-[0.2em] text-mist-500">SNS</p>
       <ul class="mt-3 space-y-2">
         <li>
           <a href={site.social.twitter} class="text-sm text-cream-200/80 hover:text-gold-300" target="_blank" rel="noopener noreferrer"
