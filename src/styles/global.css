@@ -1,45 +1,43 @@
 @import "tailwindcss";
 
 @theme {
-  /* Deep void / dark navy */
-  --color-forest-950: #03050c;
-  --color-forest-900: #070b16;
-  --color-forest-800: #0c1224;
-  --color-forest-700: #151d36;
-  --color-forest-600: #243056;
+  /* Light / mid-tone surfaces (token names kept for compatibility) */
+  --color-forest-950: #f4f6f9;
+  --color-forest-900: #eef1f6;
+  --color-forest-800: #ffffff;
+  --color-forest-700: #e2e8f0;
+  --color-forest-600: #cbd5e1;
 
-  /* Neon cyan accents (primary) */
-  --color-gold-400: #22d3ee;
-  --color-gold-300: #67e8f9;
+  /* High-contrast accent (cyan-blue) */
+  --color-gold-400: #0369a1;
+  --color-gold-300: #0284c7;
 
-  /* Electric blue / aqua (secondary) */
-  --color-moss-500: #0ea5e9;
-  --color-moss-400: #38bdf8;
-  --color-moss-300: #7dd3fc;
+  /* Secondary accent */
+  --color-moss-500: #0f766e;
+  --color-moss-400: #0d9488;
+  --color-moss-300: #14b8a6;
 
-  /* Violet accent (tertiary) */
-  --color-wood-600: #7c3aed;
-  --color-wood-500: #a78bfa;
+  /* Tertiary accent */
+  --color-wood-600: #6d28d9;
+  --color-wood-500: #7c3aed;
 
-  /* Cool light text */
-  --color-cream-100: #eef2ff;
-  --color-cream-200: #c7d2fe;
-  --color-mist-400: #94a3b8;
+  /* Dark text on light surfaces */
+  --color-cream-100: #0f172a;
+  --color-cream-200: #1e293b;
+  --color-mist-400: #475569;
   --color-mist-500: #64748b;
 
-  --font-display: "Orbitron", "Noto Sans JP", "Hiragino Sans", sans-serif;
+  --font-display: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
   --font-sans: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
 
-  --animate-fade-up: fade-up 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
-  --animate-fade-in: fade-in 0.9s ease-out both;
-  --animate-soft-drift: soft-drift 16s ease-in-out infinite;
-  --animate-pulse-glow: pulse-glow 3.2s ease-in-out infinite;
+  --animate-fade-up: fade-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-fade-in: fade-in 0.65s ease-out both;
 }
 
 @keyframes fade-up {
   from {
     opacity: 0;
-    transform: translateY(1.25rem);
+    transform: translateY(0.75rem);
   }
   to {
     opacity: 1;
@@ -56,26 +54,6 @@
   }
 }
 
-@keyframes soft-drift {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(2%, -1.5%, 0) scale(1.05);
-  }
-}
-
-@keyframes pulse-glow {
-  0%,
-  100% {
-    opacity: 0.45;
-  }
-  50% {
-    opacity: 0.85;
-  }
-}
-
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -84,16 +62,15 @@
   body {
     @apply bg-forest-900 text-cream-100 font-sans antialiased;
     background-image:
-      radial-gradient(ellipse 70% 45% at 15% -5%, rgba(34, 211, 238, 0.14), transparent 55%),
-      radial-gradient(ellipse 55% 40% at 90% 0%, rgba(124, 58, 237, 0.12), transparent 50%),
-      radial-gradient(ellipse 50% 35% at 50% 100%, rgba(14, 165, 233, 0.08), transparent 55%),
-      linear-gradient(180deg, var(--color-forest-950) 0%, var(--color-forest-900) 45%, #0a1020 100%);
+      radial-gradient(ellipse 80% 50% at 10% -10%, rgba(2, 132, 199, 0.08), transparent 55%),
+      radial-gradient(ellipse 60% 40% at 95% 0%, rgba(109, 40, 217, 0.06), transparent 50%),
+      linear-gradient(180deg, #f8fafc 0%, var(--color-forest-900) 40%, #e8eef6 100%);
     background-attachment: fixed;
     min-height: 100dvh;
   }
 
   ::selection {
-    @apply bg-gold-400/30 text-cream-100;
+    @apply bg-gold-300/25 text-cream-100;
   }
 
   a {
@@ -106,32 +83,12 @@
     text-wrap: balance;
   }
 
-  .cyber-grid {
-    background-image:
-      linear-gradient(rgba(34, 211, 238, 0.06) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(34, 211, 238, 0.06) 1px, transparent 1px);
-    background-size: 48px 48px;
-    mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 75%);
-  }
-
-  .cyber-scan {
-    background: linear-gradient(
-      180deg,
-      transparent 0%,
-      rgba(34, 211, 238, 0.04) 50%,
-      transparent 100%
-    );
-    background-size: 100% 220%;
-    animation: soft-drift 10s linear infinite;
-  }
-
   .text-neon {
-    color: var(--color-gold-300);
-    text-shadow: 0 0 18px rgba(34, 211, 238, 0.35);
+    color: var(--color-gold-400);
   }
 
   .border-neon {
-    border-color: rgba(34, 211, 238, 0.35);
-    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.08), 0 0 24px rgba(34, 211, 238, 0.08);
+    border-color: rgba(3, 105, 161, 0.35);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   }
 }

@@ -25,48 +25,20 @@ export const site = {
 } as const;
 
 export const navItems = [
-  { href: "/", label: "Top" },
-  { href: "/plugins/", label: "Plugins" },
-  { href: "/games/", label: "Games" },
-  { href: "/about/", label: "About" },
+  { href: "/", label: "トップ" },
+  { href: "/plugins/", label: "プラグイン" },
+  { href: "/games/", label: "ゲーム" },
+  { href: "/about/", label: "このサイトについて" },
 ] as const;
 
-export type HeroFeature = {
-  title: string;
-  summary: string;
-  href: string;
-  icon: "copy" | "plugin" | "game";
-};
-
-/** First-view feature cards: what this site / tools do at a glance */
-export const heroFeatures: HeroFeature[] = [
-  {
-    title: "技コピー・バトル拡張",
-    summary: "敵の技をコピーして使える。駆け引きのある戦闘をプラグインで追加。",
-    href: "/plugins/",
-    icon: "copy",
-  },
-  {
-    title: "無料プラグイン配布",
-    summary: "RPGツクールMZ向けの自作プラグインを、すぐに試せる形で無料公開。",
-    href: "/plugins/",
-    icon: "plugin",
-  },
-  {
-    title: "自作ゲーム開発ログ",
-    summary: "箱庭で育てているインディーゲームの進捗と世界観を随時更新。",
-    href: "/games/",
-    icon: "game",
-  },
-];
-
-export type NewsItem = {
+export type ChangelogItem = {
   date: string;
   label: string;
   href?: string;
 };
 
-export const latestNews: NewsItem[] = [
+/** 更新履歴（新しい日付を上に） */
+export const changelog: ChangelogItem[] = [
   {
     date: "2026-08-06",
     label: "ツクールMZ用プラグイン「CopyAttack」を配布開始",
@@ -78,6 +50,9 @@ export const latestNews: NewsItem[] = [
     href: "/about/",
   },
 ];
+
+/** @deprecated changelog を使用してください */
+export const latestNews = changelog;
 
 export type PickupItem = {
   kind: "plugin" | "game";
@@ -101,8 +76,7 @@ export const pickupItems: PickupItem[] = [
   {
     kind: "game",
     title: "パラムネシア-まねっこ少女の冒険記-",
-    summary:
-      "敵の技を奪って攻略する、駆け引き重視の短編RPG。",
+    summary: "敵の技を奪って攻略する、駆け引き重視の短編RPG。",
     meta: "PC / 開発中",
     href: "/games/",
     status: "開発中",
@@ -116,6 +90,8 @@ export type PluginItem = {
   downloadHref: string;
   donationHref?: string;
   category: string;
+  /** 公開・更新日（YYYY-MM-DD）。新着順ソートに使用 */
+  updatedAt: string;
 };
 
 export const plugins: PluginItem[] = [
@@ -127,13 +103,19 @@ export const plugins: PluginItem[] = [
     downloadHref: "/downloads/CopyAttack.zip",
     donationHref: site.donation.href,
     category: "バトル",
+    updatedAt: "2026-08-06",
   },
 ];
+
+/** 新着順（updatedAt 降順）のプラグイン一覧 */
+export function getPluginsNewestFirst(): PluginItem[] {
+  return [...plugins].sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
+}
 
 export type GameItem = {
   title: string;
   summary: string;
-  status: "開発中" | "Demo公開中" | "リリース済み";
+  status: "開発中" | "デモ公開中" | "リリース済み";
   platforms: string;
   screenshotAlt: string;
 };
@@ -145,6 +127,6 @@ export const games: GameItem[] = [
       "洞窟で目覚めた記憶喪失の少年「ルカ」と、正義感あふれる少女「リゼット」。\n失われた記憶の手がかりと平和を求め、二人は旅に出る――。\n\n敵の技を奪って攻略する駆け引きなど、RPG好きに向けた奥深いバトルを楽しめる短編作品です。",
     status: "開発中",
     platforms: "PC（Windows）",
-    screenshotAlt: "箱庭クロニクルのスクリーンショット予定領域",
+    screenshotAlt: "ゲームのスクリーンショット予定領域",
   },
 ];
