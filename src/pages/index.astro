@@ -3,7 +3,6 @@ import Layout from "../layouts/Layout.astro";
 import CatalogControls from "../components/CatalogControls.astro";
 import DonationSlot from "../components/DonationSlot.astro";
 import GameCard from "../components/GameCard.astro";
-import OpeningAtmosphere from "../components/OpeningAtmosphere.astro";
 import PluginCard from "../components/PluginCard.astro";
 import { getGameGenres, getGamesNewestFirst } from "../data/games";
 import { getPluginGenres, getPluginsNewestFirst } from "../data/plugins";
@@ -17,8 +16,7 @@ const gameGenres = getGameGenres();
 ---
 
 <Layout>
-  <OpeningAtmosphere />
-  <section class="mx-auto max-w-6xl bg-forest-900 px-4 pb-8 pt-4 sm:px-6 sm:pb-10 sm:pt-5 lg:px-8">
+  <section class="mx-auto max-w-6xl px-4 pb-8 pt-4 sm:px-6 sm:pb-10 sm:pt-5 lg:px-8">
     <!-- 1. Changelog (compact; scroll when more than 4 items) -->
     <div class="intro-reveal intro-reveal--2">
       <h2 class="text-xl font-bold tracking-tight text-cream-100 sm:text-2xl">更新履歴</h2>
@@ -30,7 +28,7 @@ const gameGenres = getGameGenres();
               {item.href ? (
                 <a
                   href={item.href}
-                  class="group flex flex-col gap-0.5 px-3 py-2 transition hover:bg-forest-700 sm:flex-row sm:items-baseline sm:gap-4 sm:px-4"
+                  class="group flex flex-col gap-0.5 px-3 py-2 transition hover:bg-forest-700/70 sm:flex-row sm:items-baseline sm:gap-4 sm:px-4"
                 >
                   <time class="shrink-0 font-mono text-xs font-medium text-moss-400 sm:text-[0.8125rem]" datetime={item.date}>
                     {item.date}
@@ -126,7 +124,7 @@ const gameGenres = getGameGenres();
     </div>
   </section>
 
-  <section class="border-t border-forest-600 bg-forest-900">
+  <section class="border-t border-forest-600">
     <div class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
       <DonationSlot />
     </div>

@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import OpeningAtmosphere from "../components/OpeningAtmosphere.astro";
 import { site } from "../data/site";
 
 interface Props {
@@ -32,20 +33,25 @@ const pageTitle = title ? `${title} | ${site.name}` : site.name;
       rel="stylesheet"
     />
     <title>{pageTitle}</title>
+    <!-- Gate opening FX: top page + first visit in this tab/session only -->
     <script is:inline>
       (function () {
         try {
+          var key = "yurudra-opening-done";
           var path = location.pathname.replace(/\/$/, "") || "/";
-          var key = "yurudra-opening-played";
-          if (path === "/" && !sessionStorage.getItem(key)) {
+          var isTop = path === "/";
+          if (isTop && sessionStorage.getItem(key) !== "1") {
+            document.documentElement.classList.add("opening-enabled");
             sessionStorage.setItem(key, "1");
-            document.documentElement.classList.add("opening-pending");
           }
-        } catch (e) {}
+        } catch (e) {
+          /* private mode / blocked storage: skip opening */
+        }
       })();
     </script>
   </head>
-  <body class="flex min-h-dvh flex-col bg-forest-900">
+  <body class="flex min-h-dvh flex-col">
+    <OpeningAtmosphere />
     <a
       href="#main"
       class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-sm focus:border focus:border-gold-400/50 focus:bg-forest-800 focus:px-3 focus:py-2 focus:text-sm focus:text-gold-300"
@@ -53,7 +59,7 @@ const pageTitle = title ? `${title} | ${site.name}` : site.name;
       本文へスキップ
     </a>
     <Header />
-    <main id="main" class="relative z-[1] flex-1 bg-forest-900">
+    <main id="main" class="relative z-[1] flex-1">
       <slot />
     </main>
     <Footer />

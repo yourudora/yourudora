@@ -1,8 +1,7 @@
 ---
 /**
- * Top-page first-visit opening visuals.
- * Layout head script flags html.opening-pending + sessionStorage once per session.
- * All layers use pointer-events: none.
+ * Non-blocking cyber opening / ambient background.
+ * All layers use pointer-events: none so UI stays fully interactive.
  */
 const particles = Array.from({ length: 18 }, (_, i) => {
   const left = ((i * 37) % 97) + 1;
@@ -14,7 +13,7 @@ const particles = Array.from({ length: 18 }, (_, i) => {
 });
 ---
 
-<div class="opening-fx" data-opening-fx hidden aria-hidden="true">
+<div class="opening-fx" aria-hidden="true">
   <div class="opening-fx__grid"></div>
   <div class="opening-fx__glow"></div>
   <div class="opening-fx__particles">
@@ -30,32 +29,3 @@ const particles = Array.from({ length: 18 }, (_, i) => {
   <div class="opening-fx__scan"></div>
   <div class="opening-fx__scan opening-fx__scan--soft"></div>
 </div>
-
-<script>
-  function activateOpeningLayer() {
-    const root = document.querySelector<HTMLElement>("[data-opening-fx]");
-    if (!root) return;
-
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      document.documentElement.classList.remove("opening-pending", "opening-active");
-      root.remove();
-      return;
-    }
-
-    if (!document.documentElement.classList.contains("opening-pending")) {
-      root.remove();
-      return;
-    }
-
-    document.documentElement.classList.add("opening-active");
-    root.hidden = false;
-
-    window.setTimeout(() => {
-      root.remove();
-      document.documentElement.classList.remove("opening-pending", "opening-active");
-    }, 2200);
-  }
-
-  activateOpeningLayer();
-  document.addEventListener("astro:page-load", activateOpeningLayer);
-</script>
