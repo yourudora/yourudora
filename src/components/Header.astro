@@ -10,78 +10,60 @@ function isActive(href: string) {
 }
 ---
 
-<div class="sticky top-0 z-50">
-  <!-- Terms of Service: always visible at the very top -->
-  <div class="border-b border-gold-400/40 bg-forest-800">
-    <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6 lg:px-8">
-      <p class="text-xs text-mist-400 sm:text-sm">ご利用前に必ずご確認ください</p>
-      <a
-        href="/terms/"
-        class="inline-flex items-center gap-1.5 rounded-sm border border-gold-400/50 bg-gold-400/15 px-3 py-1.5 text-sm font-bold text-gold-300 transition hover:bg-gold-400/25 hover:text-cream-100"
-      >
-        ご利用規約
-        <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path
-            d="M3 8h10M9 4l4 4-4 4"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"></path>
-        </svg>
-      </a>
-    </div>
+<header class="sticky top-0 z-50 border-b border-forest-600 bg-forest-900/95 backdrop-blur-md">
+  <div class="relative mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-2.5 sm:px-6 sm:py-3 lg:px-8">
+    <a href="/" class="group inline-flex shrink-0 items-center no-underline" aria-label={`${site.name} トップへ`}>
+      <img
+        src={site.logo}
+        alt={site.name}
+        width="220"
+        height="48"
+        class="h-8 w-auto max-w-[10.5rem] object-contain object-left transition duration-200 group-hover:opacity-90 sm:h-10 sm:max-w-[14rem] md:h-11 md:max-w-[16rem]"
+        decoding="async"
+      />
+    </a>
+
+    <button
+      type="button"
+      class="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-forest-600 text-cream-200 md:hidden"
+      aria-expanded="false"
+      aria-controls="site-nav"
+      data-nav-toggle
+    >
+      <span class="sr-only">メニューを開く</span>
+      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"></path>
+      </svg>
+    </button>
+
+    <nav
+      id="site-nav"
+      class="absolute left-0 right-0 top-full hidden border-b border-forest-600 bg-forest-800 px-4 py-4 shadow-lg md:static md:flex md:border-0 md:bg-transparent md:p-0 md:shadow-none"
+      data-nav-panel
+    >
+      <ul class="flex flex-col gap-1 md:flex-row md:items-center md:gap-1">
+        {
+          navItems.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class:list={[
+                  "block rounded-sm px-3 py-2 text-sm font-medium transition md:py-1.5",
+                  isActive(item.href)
+                    ? "bg-gold-400/15 text-gold-300"
+                    : "text-cream-200 hover:bg-forest-700 hover:text-gold-300",
+                ]}
+                aria-current={isActive(item.href) ? "page" : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
   </div>
-
-  <header class="relative border-b border-forest-600 bg-forest-900/95 backdrop-blur-md">
-    <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-      <a href="/" class="group flex items-baseline gap-2 no-underline">
-        <span class="text-base font-bold tracking-tight text-cream-100 transition group-hover:text-gold-300 sm:text-lg">
-          {site.name}
-        </span>
-      </a>
-
-      <button
-        type="button"
-        class="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-forest-600 text-cream-200 md:hidden"
-        aria-expanded="false"
-        aria-controls="site-nav"
-        data-nav-toggle
-      >
-        <span class="sr-only">メニューを開く</span>
-        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-          <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"></path>
-        </svg>
-      </button>
-
-      <nav
-        id="site-nav"
-        class="absolute left-0 right-0 top-full hidden border-b border-forest-600 bg-forest-800 px-4 py-4 shadow-lg md:static md:flex md:border-0 md:bg-transparent md:p-0 md:shadow-none"
-        data-nav-panel
-      >
-        <ul class="flex flex-col gap-1 md:flex-row md:items-center md:gap-1">
-          {
-            navItems.map((item) => (
-              <li>
-                <a
-                  href={item.href}
-                  class:list={[
-                    "block rounded-sm px-3 py-2 text-sm font-medium transition md:py-1.5",
-                    isActive(item.href)
-                      ? "bg-gold-400/15 text-gold-300"
-                      : "text-cream-200 hover:bg-forest-700 hover:text-gold-300",
-                  ]}
-                  aria-current={isActive(item.href) ? "page" : undefined}
-                >
-                  {item.label}
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </nav>
-    </div>
-  </header>
-</div>
+</header>
 
 <script>
   const toggle = document.querySelector("[data-nav-toggle]");

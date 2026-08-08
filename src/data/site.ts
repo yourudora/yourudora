@@ -8,6 +8,11 @@ export const site = {
     "自作ゲームエンジンプラグインの無料配布と、開発中の自作ゲームの最新情報をお届けするサイトです。",
   url: "https://yurudra-hakoniwa.example.com",
   author: "ユルドラ",
+  /**
+   * ヘッダーロゴ画像（public 配下のパス）。
+   * 例: "/images/logo.png" / "/logo.png"
+   */
+  logo: "/images/logo.png",
   social: {
     twitter: "https://twitter.com/",
     github: "https://github.com/",
@@ -28,6 +33,7 @@ export const navItems = [
   { href: "/", label: "トップ" },
   { href: "/plugins/", label: "プラグイン" },
   { href: "/games/", label: "ゲーム" },
+  { href: "/terms/", label: "利用規約" },
   { href: "/contact/", label: "お問い合わせ" },
 ] as const;
 
