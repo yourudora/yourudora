@@ -20,7 +20,7 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
     メモ欄タグ自動生成
   </h2>
   <p class="mt-2 text-sm leading-relaxed text-mist-400">
-    設定したい機能を選ぶと、ツクールのメモ欄に貼り付けるタグが自動で生成されます。
+    設定したい機能を選ぶと、ツクールのメモ欄に貼り付けるタグが自動で生成されます。グループ名は日本語でも指定できます。
   </p>
 
   <div class="meta-tag-tool__form mt-4 space-y-4">
@@ -30,12 +30,28 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
       </label>
       <select id={`${id}-feature`} class="meta-tag-tool__select" data-mtg-feature>
         <option value="" selected>選択してください</option>
-        <option value="count">一度の発動でコピーできる数を変更</option>
-        <option value="hpRate">HPが一定割合以下になるまでコピー不可にする</option>
         <option value="copyAttack">コピー用スキルとして設定</option>
         <option value="forget">技忘れ用スキルとして設定</option>
+        <option value="count">一度の発動でコピーできる数を変更</option>
+        <option value="hpRate">HPが一定割合以下になるまでコピー不可にする</option>
         <option value="noCopy">コピー対象から除外</option>
+        <option value="learned">コピーで覚えた技の識別タグを付ける</option>
       </select>
+    </div>
+
+    <div class="meta-tag-tool__field" data-mtg-param="group" hidden>
+      <label for={`${id}-group`} class="meta-tag-tool__label" data-mtg-group-label>
+        グループ名（任意）
+      </label>
+      <input
+        id={`${id}-group`}
+        type="text"
+        class="meta-tag-tool__select"
+        data-mtg-group
+        placeholder="例: 青魔法（空欄可）"
+        autocomplete="off"
+      />
+      <p class="meta-tag-tool__note" data-mtg-group-note></p>
     </div>
 
     <div class="meta-tag-tool__field" data-mtg-param="count" hidden>
@@ -107,6 +123,10 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
       box-shadow 0.2s ease;
   }
 
+  .meta-tag-tool__select::placeholder {
+    color: #64748b;
+  }
+
   .meta-tag-tool__select:focus,
   .meta-tag-tool__result:focus {
     border-color: rgba(56, 189, 248, 0.7);
@@ -117,6 +137,13 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     color: #7dd3fc;
     letter-spacing: 0.02em;
+  }
+
+  .meta-tag-tool__note {
+    margin-top: 0.4rem;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: #94a3b8;
   }
 
   .meta-tag-tool__result-row {
@@ -184,10 +211,28 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
 </style>
 
 <script>
-  type FeatureKey = "count" | "hpRate" | "copyAttack" | "forget" | "noCopy" | "";
+  type FeatureKey =
+    | "count"
+    | "hpRate"
+    | "copyAttack"
+    | "forget"
+    | "noCopy"
+    | "learned"
+    | "";
 
-  function buildTag(feature: FeatureKey, count: string, hp: string): string | null {
+  function sanitizeGroupName(raw: string): string {
+    return raw.trim().replace(/[<>]/g, "");
+  }
+
+  function buildTag(
+    feature: FeatureKey,
+    count: string,
+    hp: string,
+    groupRaw: string,
+  ): string | null {
     if (!feature) return null;
+    const group = sanitizeGroupName(groupRaw);
+
     if (feature === "count") {
       if (!count) return null;
       return `<CopyAttackCount:${count}>`;
@@ -196,9 +241,14 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
       if (!hp) return null;
       return `<CopyAttackHpRate:${hp}>`;
     }
-    if (feature === "copyAttack") return "<CopyAttack>";
-    if (feature === "forget") return "<CopyAttackForget>";
+    if (feature === "copyAttack") {
+      return group ? `<CopyAttack:${group}>` : "<CopyAttack>";
+    }
+    if (feature === "forget") {
+      return group ? `<CopyAttackForget:${group}>` : "<CopyAttackForget>";
+    }
     if (feature === "noCopy") return "<NoCopyAttack>";
+    if (feature === "learned") return "<CopyAttackLearned>";
     return null;
   }
 
@@ -234,8 +284,12 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
     root.dataset.mtgBound = "1";
 
     const featureSelect = root.querySelector<HTMLSelectElement>("[data-mtg-feature]");
+    const groupWrap = root.querySelector<HTMLElement>('[data-mtg-param="group"]');
     const countWrap = root.querySelector<HTMLElement>('[data-mtg-param="count"]');
     const hpWrap = root.querySelector<HTMLElement>('[data-mtg-param="hpRate"]');
+    const groupInput = root.querySelector<HTMLInputElement>("[data-mtg-group]");
+    const groupLabel = root.querySelector<HTMLElement>("[data-mtg-group-label]");
+    const groupNote = root.querySelector<HTMLElement>("[data-mtg-group-note]");
     const countSelect = root.querySelector<HTMLSelectElement>("[data-mtg-count]");
     const hpSelect = root.querySelector<HTMLSelectElement>("[data-mtg-hp]");
     const output = root.querySelector<HTMLElement>("[data-mtg-output]");
@@ -260,18 +314,51 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
       }
     };
 
+    const updateGroupUi = (feature: FeatureKey) => {
+      const needsGroup = feature === "copyAttack" || feature === "forget";
+      if (groupWrap) groupWrap.hidden = !needsGroup;
+
+      if (!needsGroup) {
+        if (groupInput) groupInput.value = "";
+        return;
+      }
+
+      if (feature === "copyAttack") {
+        if (groupLabel) groupLabel.textContent = "グループ名（任意・空欄ならデフォルトグループ）";
+        if (groupInput) groupInput.placeholder = "例: 青魔法";
+        if (groupNote) {
+          groupNote.textContent =
+            "空欄 → <CopyAttack> ／ 入力あり → <CopyAttack:グループ名>（専用タグ <CopyAttackGroup:名前> でも可）";
+        }
+      } else if (feature === "forget") {
+        if (groupLabel) groupLabel.textContent = "グループ名（任意・空欄なら全グループ対象）";
+        if (groupInput) groupInput.placeholder = "例: 青魔法";
+        if (groupNote) {
+          groupNote.textContent =
+            "空欄 → <CopyAttackForget>（全グループ）／ 入力あり → <CopyAttackForget:グループ名>";
+        }
+      }
+    };
+
     const update = () => {
       const feature = (featureSelect.value || "") as FeatureKey;
       const needsCount = feature === "count";
       const needsHp = feature === "hpRate";
 
+      updateGroupUi(feature);
       if (countWrap) countWrap.hidden = !needsCount;
       if (hpWrap) hpWrap.hidden = !needsHp;
 
       if (!needsCount && countSelect) countSelect.value = "";
       if (!needsHp && hpSelect) hpSelect.value = "";
 
-      const tag = buildTag(feature, countSelect?.value ?? "", hpSelect?.value ?? "");
+      const tag = buildTag(
+        feature,
+        countSelect?.value ?? "",
+        hpSelect?.value ?? "",
+        groupInput?.value ?? "",
+      );
+
       if (tag) {
         output.hidden = false;
         resultInput.value = tag;
@@ -287,6 +374,7 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
     featureSelect.addEventListener("change", update);
     countSelect?.addEventListener("change", update);
     hpSelect?.addEventListener("change", update);
+    groupInput?.addEventListener("input", update);
 
     copyBtn.addEventListener("click", async () => {
       const tag = resultInput.value.trim();

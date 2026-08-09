@@ -48,6 +48,11 @@ export type ChangelogItem = {
 /** 更新履歴（新しい日付を上に並べてください） */
 export const changelog: ChangelogItem[] = [
   {
+    date: "2026-08-10",
+    label: "「敵の技コピー」を更新（グループ分け・味方コピーなどに対応）",
+    href: "/plugins/copyattack/",
+  },
+  {
     date: "2026-08-06",
     label: "ツクールMZ用プラグイン「敵の技コピー」を配布開始",
     href: "/plugins/copyattack/",
@@ -81,7 +86,7 @@ export const pickupItems: PickupItem[] = [
     kind: "plugin",
     title: "敵の技コピー",
     summary:
-      "敵の技をコピーして使えるようにする、RPGツクールMZ向けバトルプラグイン。",
+      "敵・味方の技をコピーして覚える、グループ分け対応のRPGツクールMZ向けバトルプラグイン。",
     meta: "RPGツクールMZ",
     href: "/plugins/copyattack/",
     status: "無料配布中",
