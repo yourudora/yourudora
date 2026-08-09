@@ -46,7 +46,7 @@ export type ChangelogItem = {
 export const changelog: ChangelogItem[] = [
   {
     date: "2026-08-06",
-    label: "ツクールMZ用プラグイン「CopyAttack」を配布開始",
+    label: "ツクールMZ用プラグイン「敵の技コピープラグイン」を配布開始",
     href: "/plugins/copyattack/",
   },
   {
@@ -76,7 +76,7 @@ export type PickupItem = {
 export const pickupItems: PickupItem[] = [
   {
     kind: "plugin",
-    title: "CopyAttack",
+    title: "敵の技コピープラグイン",
     summary:
       "敵の技をコピーして使えるようにする、RPGツクールMZ向けバトルプラグイン。",
     meta: "RPGツクールMZ",

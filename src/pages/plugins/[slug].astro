@@ -61,17 +61,22 @@ const subEmbedSrc = `https://www.youtube-nocookie.com/embed/${subVideoId}?rel=0&
           </div>
         </div>
 
-        <div class="card-surface overflow-hidden">
-          <div class="relative aspect-video w-full bg-forest-950">
-            <iframe
-              class="absolute inset-0 h-full w-full"
-              src={subEmbedSrc}
-              title={`${plugin.title} の解説動画`}
-              loading="lazy"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerpolicy="strict-origin-when-cross-origin"
-              allowfullscreen
-            />
+        <div class="space-y-2">
+          <p class="rounded-sm border border-gold-400/35 bg-gold-400/10 px-3 py-2 text-sm font-medium leading-relaxed text-gold-200">
+            ※この動画はプラグインの使い方講座です。再生すると音声・音が出ますのでご注意ください。
+          </p>
+          <div class="card-surface overflow-hidden">
+            <div class="relative aspect-video w-full bg-forest-950">
+              <iframe
+                class="absolute inset-0 h-full w-full"
+                src={subEmbedSrc}
+                title={`${plugin.title} の使い方講座`}
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen
+              />
+            </div>
           </div>
         </div>
       </div>
