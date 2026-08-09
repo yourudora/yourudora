@@ -1,0 +1,132 @@
+---
+/**
+ * Secondary button that opens plugin source in a modal (and new-tab link).
+ */
+interface Props {
+  href: string;
+  title?: string;
+  /** Stable id for dialog binding (e.g. plugin slug) */
+  id?: string;
+  class?: string;
+}
+
+const {
+  href,
+  title = "ソースコード",
+  id = "source",
+  class: className = "",
+} = Astro.props;
+const dialogId = `source-dialog-${id}`;
+---
+
+<div class:list={["contents", className]}>
+  <button
+    type="button"
+    class="inline-flex w-full items-center justify-center rounded-sm border border-forest-600 bg-transparent px-4 py-2.5 text-sm font-medium text-cream-200 transition hover:border-gold-400/40 hover:text-gold-300 sm:w-auto"
+    data-source-open={dialogId}
+  >
+    ソースコードを表示
+  </button>
+
+  <dialog
+    id={dialogId}
+    class="source-dialog m-auto w-[min(92vw,48rem)] max-h-[min(80dvh,40rem)] rounded-sm border border-forest-600 bg-forest-900 p-0 text-cream-100 shadow-xl backdrop:bg-forest-950/80"
+    data-source-dialog
+    data-source-href={href}
+    data-source-title={title}
+  >
+    <div class="flex items-center justify-between gap-3 border-b border-forest-600 px-4 py-3">
+      <p class="truncate text-sm font-bold text-cream-100">{title}</p>
+      <div class="flex shrink-0 items-center gap-2">
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-xs font-medium text-gold-300 hover:text-gold-400"
+        >
+          新しいタブで開く
+        </a>
+        <button
+          type="button"
+          class="rounded-sm border border-forest-600 px-2 py-1 text-xs text-mist-400 transition hover:border-gold-400/40 hover:text-gold-300"
+          data-source-close={dialogId}
+        >
+          閉じる
+        </button>
+      </div>
+    </div>
+    <pre
+      class="max-h-[min(65dvh,34rem)] overflow-auto px-4 py-3 text-left text-xs leading-relaxed text-mist-400 sm:text-sm"
+      data-source-body={dialogId}
+    ><code class="whitespace-pre font-mono text-cream-200">読み込み中…</code></pre>
+  </dialog>
+</div>
+
+<script>
+  const sourceCache = new Map<string, string>();
+
+  async function loadSource(href: string): Promise<string> {
+    const cached = sourceCache.get(href);
+    if (cached) return cached;
+
+    const response = await fetch(href);
+    if (!response.ok) {
+      throw new Error(`Failed to load source (${response.status})`);
+    }
+    const text = await response.text();
+    sourceCache.set(href, text);
+    return text;
+  }
+
+  function bindSourceDialogs() {
+    document.querySelectorAll<HTMLButtonElement>("[data-source-open]").forEach((button) => {
+      if (button.dataset.sourceBound === "1") return;
+      button.dataset.sourceBound = "1";
+
+      button.addEventListener("click", async () => {
+        const id = button.dataset.sourceOpen;
+        if (!id) return;
+        const dialog = document.getElementById(id) as HTMLDialogElement | null;
+        if (!dialog) return;
+
+        const href = dialog.dataset.sourceHref;
+        const body = dialog.querySelector<HTMLElement>(`[data-source-body="${id}"]`);
+        const code = body?.querySelector("code");
+        if (!href || !code) return;
+
+        dialog.showModal();
+        code.textContent = "読み込み中…";
+
+        try {
+          code.textContent = await loadSource(href);
+        } catch {
+          code.textContent =
+            "ソースコードの読み込みに失敗しました。「新しいタブで開く」から直接ご確認ください。";
+        }
+      });
+    });
+
+    document.querySelectorAll<HTMLButtonElement>("[data-source-close]").forEach((button) => {
+      if (button.dataset.sourceCloseBound === "1") return;
+      button.dataset.sourceCloseBound = "1";
+
+      button.addEventListener("click", () => {
+        const id = button.dataset.sourceClose;
+        const dialog = id ? (document.getElementById(id) as HTMLDialogElement | null) : null;
+        dialog?.close();
+      });
+    });
+
+    document.querySelectorAll<HTMLDialogElement>("[data-source-dialog]").forEach((dialog) => {
+      if (dialog.dataset.sourceBackdropBound === "1") return;
+      dialog.dataset.sourceBackdropBound = "1";
+
+      dialog.addEventListener("click", (event) => {
+        if (event.target === dialog) dialog.close();
+      });
+    });
+  }
+
+  bindSourceDialogs();
+  document.addEventListener("astro:page-load", bindSourceDialogs);
+</script>

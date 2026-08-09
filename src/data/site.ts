@@ -15,7 +15,6 @@ export const site = {
   logo: "/images/logo.png",
   social: {
     twitter: "https://twitter.com/",
-    github: "https://github.com/",
     youtube: "https://youtube.com/",
   },
   /**

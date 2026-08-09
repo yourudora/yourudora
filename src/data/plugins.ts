@@ -18,6 +18,12 @@ export type PluginItem = {
   /** 詳細ページ用の本文 */
   description: string;
   downloadHref: string;
+  /**
+   * ソースコード表示用のパス（public 配下の .js など）。
+   * 例: "/sources/CopyAttack.js"
+   * 省略時は「ソースコードを表示」ボタンを出しません。
+   */
+  sourceHref?: string;
   donationHref?: string;
   category: string;
   /** 公開・更新日（YYYY-MM-DD）。新着順ソートに使用 */
@@ -41,6 +47,7 @@ export const plugins: PluginItem[] = [
     description:
       "敵から技をコピーできるスキルを実装するバトルプラグインです。\nコピーした技を味方側で使用でき、敵の攻撃を活かした駆け引きのある戦闘を作れます。",
     downloadHref: "/downloads/CopyAttack.zip",
+    sourceHref: "/sources/CopyAttack.js",
     donationHref: ofuseDonationHref,
     category: "バトル系",
     updatedAt: "2026-08-06",
