@@ -1,0 +1,98 @@
+---
+/**
+ * Formats plugin help text with light markdown-like rules:
+ * - fenced ``` blocks → <pre><code>
+ * - inline `code` → <code>
+ * - lines starting with - / ・ / ■ → list-ish paragraphs kept with pre-wrap
+ */
+interface Props {
+  text: string;
+  class?: string;
+}
+
+const { text, class: className = "" } = Astro.props;
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function formatInline(value: string) {
+  return escapeHtml(value).replace(
+    /`([^`]+)`/g,
+    '<code class="plugin-help__code">$1</code>',
+  );
+}
+
+function renderHelp(raw: string): string {
+  const parts: string[] = [];
+  const fence = /```([\s\S]*?)```/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = fence.exec(raw)) !== null) {
+    const before = raw.slice(lastIndex, match.index);
+    if (before) {
+      parts.push(`<div class="plugin-help__block">${formatInline(before)}</div>`);
+    }
+    parts.push(
+      `<pre class="plugin-help__pre"><code>${escapeHtml(match[1].replace(/^\n/, ""))}</code></pre>`,
+    );
+    lastIndex = match.index + match[0].length;
+  }
+
+  const rest = raw.slice(lastIndex);
+  if (rest) {
+    parts.push(`<div class="plugin-help__block">${formatInline(rest)}</div>`);
+  }
+
+  return parts.join("");
+}
+
+const html = renderHelp(text);
+---
+
+<div class:list={["plugin-help", className]} set:html={html} />
+
+<style>
+  .plugin-help {
+    font-size: 0.875rem;
+    line-height: 1.7;
+    color: #cbd5e1;
+  }
+
+  .plugin-help__block {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .plugin-help__code {
+    border-radius: 0.2rem;
+    border: 1px solid rgba(61, 79, 102, 0.9);
+    background: #0f1726;
+    padding: 0.1rem 0.35rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.8em;
+    color: #7dd3fc;
+  }
+
+  .plugin-help__pre {
+    margin: 0.85rem 0;
+    overflow-x: auto;
+    border-radius: 0.25rem;
+    border: 1px solid rgba(61, 79, 102, 0.9);
+    background: #0b1220;
+    padding: 0.85rem 1rem;
+  }
+
+  .plugin-help__pre code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.8rem;
+    line-height: 1.55;
+    color: #e2e8f0;
+    white-space: pre;
+  }
+</style>

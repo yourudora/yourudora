@@ -2,8 +2,15 @@
 import Layout from "../../layouts/Layout.astro";
 import DonationSlot from "../../components/DonationSlot.astro";
 import DownloadLink from "../../components/DownloadLink.astro";
+import PluginHelpText from "../../components/PluginHelpText.astro";
 import SourceCodeButton from "../../components/SourceCodeButton.astro";
-import { getPluginBySlug, getPluginImage, plugins } from "../../data/plugins";
+import {
+  getPluginBySlug,
+  getPluginChangelog,
+  getPluginFeatures,
+  getPluginImage,
+  plugins,
+} from "../../data/plugins";
 
 export function getStaticPaths() {
   return plugins.map((plugin) => ({
@@ -20,6 +27,12 @@ if (!plugin) {
 
 const imageSrc = getPluginImage(plugin);
 const imageAlt = plugin.imageAlt ?? `${plugin.title}のアイキャッチ画像`;
+const features = getPluginFeatures(plugin);
+const helpText = plugin.help?.trim() || "";
+const changelog = getPluginChangelog(plugin);
+const hasOverview = features.length > 0;
+const hasHelp = Boolean(helpText);
+const hasChangelog = changelog.length > 0;
 ---
 
 <Layout title={plugin.title} description={plugin.shortDescription}>
@@ -30,8 +43,8 @@ const imageAlt = plugin.imageAlt ?? `${plugin.title}のアイキャッチ画像`
       <span class="text-cream-200">{plugin.title}</span>
     </p>
 
-    <div class="mt-6 grid gap-8 lg:grid-cols-[1.15fr_1fr] lg:items-start">
-      <div class="card-surface overflow-hidden">
+    <div class="mt-6 grid gap-8 lg:grid-cols-[1.05fr_1.2fr] lg:items-start">
+      <div class="card-surface overflow-hidden lg:sticky lg:top-24">
         <img
           src={imageSrc}
           alt={imageAlt}
@@ -41,25 +54,86 @@ const imageAlt = plugin.imageAlt ?? `${plugin.title}のアイキャッチ画像`
         />
       </div>
 
-      <div>
+      <div class="min-w-0">
+        <!-- 1. Date & genre / engine tags -->
         <div class="flex flex-wrap items-center gap-2">
-          <time class="font-mono text-xs text-mist-500" datetime={plugin.updatedAt}>
+          <time class="font-mono text-xs text-mist-500 sm:text-sm" datetime={plugin.updatedAt}>
             {plugin.updatedAt}
           </time>
           <span class="rounded-sm border border-moss-500/40 bg-moss-500/15 px-2 py-0.5 text-[0.7rem] font-medium text-moss-400">
             {plugin.category}
           </span>
-          <span class="text-xs text-mist-500">{plugin.engine}</span>
+          <span class="rounded-sm border border-gold-400/30 bg-gold-400/10 px-2 py-0.5 text-[0.7rem] font-medium text-gold-300">
+            {plugin.engine}
+          </span>
         </div>
 
+        <!-- 2. Title -->
         <h1 class="mt-3 text-3xl font-bold tracking-tight text-cream-100 sm:text-4xl">
           {plugin.title}
         </h1>
-        <p class="mt-4 whitespace-pre-line text-sm leading-relaxed text-mist-400 sm:text-base">
-          {plugin.description}
-        </p>
 
-        <div class="mt-6 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+        <!-- 3. Description sections -->
+        <div class="mt-6 space-y-4">
+          {
+            hasOverview && (
+              <section class="card-surface p-4 sm:p-5">
+                <h2 class="text-base font-bold text-cream-100 sm:text-lg">機能説明</h2>
+                <ul class="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-mist-400">
+                  {features.map((item) => (
+                    <li>{item}</li>
+                  ))}
+                </ul>
+              </section>
+            )
+          }
+
+          {
+            hasHelp && (
+              <section class="card-surface p-4 sm:p-5">
+                <h2 class="text-base font-bold text-cream-100 sm:text-lg">詳細説明</h2>
+                <div class="mt-3">
+                  <PluginHelpText text={helpText} />
+                </div>
+              </section>
+            )
+          }
+
+          {
+            hasChangelog && (
+              <section class="card-surface p-4 sm:p-5">
+                <h2 class="text-base font-bold text-cream-100 sm:text-lg">更新履歴</h2>
+                <ol class="mt-3 divide-y divide-forest-600 border-t border-forest-600">
+                  {changelog.map((entry) => (
+                    <li class="flex flex-col gap-1 py-3 sm:flex-row sm:items-baseline sm:gap-4">
+                      <div class="flex shrink-0 flex-wrap items-baseline gap-2">
+                        <span class="text-sm font-bold text-gold-300">{entry.version}</span>
+                        <time class="font-mono text-xs text-mist-500" datetime={entry.date}>
+                          {entry.date}
+                        </time>
+                      </div>
+                      <p class="text-sm leading-relaxed text-mist-400">{entry.description}</p>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )
+          }
+
+          {
+            !hasOverview && !hasHelp && !hasChangelog && plugin.description && (
+              <section class="card-surface p-4 sm:p-5">
+                <h2 class="text-base font-bold text-cream-100 sm:text-lg">説明</h2>
+                <p class="mt-3 whitespace-pre-line text-sm leading-relaxed text-mist-400">
+                  {plugin.description}
+                </p>
+              </section>
+            )
+          }
+        </div>
+
+        <!-- 4. Download / source / donation -->
+        <div class="mt-7 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
           <DownloadLink
             href={plugin.downloadHref}
             class="inline-flex w-full items-center justify-center rounded-sm border border-gold-400/50 bg-gold-400/15 px-4 py-2.5 text-sm font-bold text-gold-300 transition hover:bg-gold-400/25 hover:text-cream-100 sm:w-auto"
