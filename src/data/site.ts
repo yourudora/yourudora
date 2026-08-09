@@ -18,6 +18,12 @@ export const site = {
     youtube: "https://youtube.com/",
   },
   /**
+   * お問い合わせ用 Google フォームの埋め込みURL。
+   * `xxxxx` を実際のフォームIDに差し替えてください。
+   */
+  contactFormEmbedUrl:
+    "https://docs.google.com/forms/d/e/xxxxx/viewform?embedded=true",
+  /**
    * OFUSE（オフセ）の応援導線。
    * ofuseUserId を書き換えるか、公開URLが異なる場合は href を直接指定してください。
    */

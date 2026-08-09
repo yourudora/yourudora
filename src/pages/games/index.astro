@@ -1,6 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import CatalogControls from "../../components/CatalogControls.astro";
+import DonationSlot from "../../components/DonationSlot.astro";
 import GameCard from "../../components/GameCard.astro";
 import { getGameGenres, getGamesNewestFirst } from "../../data/games";
 
@@ -11,12 +12,7 @@ const genres = getGameGenres();
 <Layout title="ゲーム" description="開発中・リリース済みの自作ゲーム紹介。">
   <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
     <div class="flex flex-wrap items-end justify-between gap-4">
-      <div class="max-w-2xl">
-        <h1 class="text-3xl font-bold tracking-tight text-cream-100 sm:text-4xl">ゲーム一覧</h1>
-        <p class="mt-3 text-sm leading-relaxed text-mist-400 sm:text-base">
-          カードを選ぶと詳細ページへ移動します。進捗ステータスを随時更新します。
-        </p>
-      </div>
+      <h1 class="text-3xl font-bold tracking-tight text-cream-100 sm:text-4xl">ゲーム一覧</h1>
       <CatalogControls listId="games-page" genres={genres} />
     </div>
 
@@ -40,5 +36,9 @@ const genres = getGameGenres();
     <p class="mt-4 text-sm text-mist-400" data-filter-empty="games-page" hidden>
       該当するジャンルのゲームはありません。
     </p>
+
+    <div class="mt-12">
+      <DonationSlot />
+    </div>
   </section>
 </Layout>

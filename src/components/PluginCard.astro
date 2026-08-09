@@ -18,6 +18,6 @@ const { plugin, class: className = "" } = Astro.props;
   imageSrc={getPluginImage(plugin)}
   imageAlt={plugin.imageAlt ?? `${plugin.title}のアイキャッチ画像`}
   genre={plugin.category}
-  engine={plugin.engine}
+  meta={plugin.engine}
   class={className}
 />

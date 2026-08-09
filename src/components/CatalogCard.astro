@@ -9,9 +9,11 @@ interface Props {
   description: string;
   imageSrc: string;
   imageAlt: string;
-  /** Genre / category badge (e.g. バトル) */
+  /** Primary badge (genre / category) */
   genre?: string;
-  /** Engine or type badge (e.g. RPGツクールMZ) */
+  /** Secondary badge (engine / platform など) */
+  meta?: string;
+  /** @deprecated meta を使用してください */
   engine?: string;
   class?: string;
 }
@@ -23,11 +25,12 @@ const {
   imageSrc,
   imageAlt,
   genre,
+  meta,
   engine,
   class: className = "",
 } = Astro.props;
 
-const badges = [genre, engine].filter((value): value is string => Boolean(value));
+const badges = [genre, meta ?? engine].filter((value): value is string => Boolean(value));
 ---
 
 <article class:list={["cyber-card group", className]}>
