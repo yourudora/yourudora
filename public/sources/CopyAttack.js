@@ -1,224 +1,269 @@
+//=============================================================================
+// CopyAttack.js
+//=============================================================================
+// Copyright (c) ユルドラ
+//
+// This software is released under the MIT License.
+// http://opensource.org/licenses/mit-license.php
+//=============================================================================
 /*:
  * @target MZ
- * @plugindesc [CopyAttack] 戦闘中に敵の技をコピーして習得する
- * @author Open Source
+ * @plugindesc 敵の技コピープラグイン
+ * @author ユルドラ
  * @url
+ * @license MIT
  * @help CopyAttack.js
  *
- * 【概要】
- * 戦闘中に「コピー用スキル」を敵へ使うと、その敵が持つスキルから
- * 1つを選んでアクターのコピー技として習得できます。
+ * 戦闘中に「コピー用スキル」を敵へ使うと、その敵のスキルから
+ * 1つを選んでアクターに覚えさせられます。
+ * 保持数には上限があり、技忘れスキルやプラグインコマンドで整理できます。
  *
- * 【メモ欄タグ】（タグ名はパラメータで変更可／旧タグも互換対応）
- * ■ スキル
- *   <CopyAttack>           … コピー開始スキル
- *   <CopyAttackForget>     … 技忘れスキル（ターン非消費）
- *   <NoCopyAttack>         … コピー候補から除外
- *   <CopyAttackLearned>    … コピーで得た技の識別用（他プラグイン連携）
- * ■ 敵キャラ
- *   <CopyAttackHpRate:30>  … HPが最大の30%以下になるまでコピー対象にできない
+ * ■ 導入手順
+ * 1. プラグイン管理で本プラグインをONにする
+ * 2. データベースでコピー用スキルを作成する（効果範囲：敵単体）
+ *    ・パラメータ「コピー用スキル」に指定する
+ *      またはスキルのメモ欄に <CopyAttack> を書く
+ * 3. （任意）技忘れ用スキルを作成する（効果範囲：なし推奨）
+ *    ・パラメータ「技忘れ用スキル」に指定する
+ *      またはメモ欄に <CopyAttackForget> を書く
+ * 4. 戦闘でコピー用スキルを使い、覚える技を選ぶ
  *
- * 旧タグ互換: <CopySkill> <ForgetSkill> <NoCopy> <CopyHpRate:n> など
+ * ■ メモ欄タグ
+ * スキル:
+ *   <CopyAttack>         コピー用スキル
+ *   <CopyAttackForget>   技忘れスキル（戦闘中はターン非消費）
+ *   <NoCopyAttack>       コピー候補から除外
+ *   <CopyAttackLearned>  コピー習得技の識別用（他プラグイン連携向け）
+ * 敵キャラ:
+ *   <CopyAttackHpRate:30>  HPが最大の30%以下になるまでコピー不可
  *
- * 【使い方】
- * 1. パラメータ「コピー用スキルID」を設定するか、スキルに <CopyAttack> を書く
- * 2. コピー用スキルのスコープは「敵単体」にする
- * 3. 技忘れは <CopyAttackForget>（スコープ「なし」推奨）
+ * タグ名はパラメータで変更可能です。
+ * 旧タグ <CopySkill> <ForgetSkill> <NoCopy> <CopyHpRate:n> にも対応しています。
  *
- * 【保持上限】
- * コピー技が最大数に達している間はコピー用スキルを使用不可（グレーアウト）です。
- * 技忘れなどで枠を空けてから再度コピーしてください。
+ * ■ 仕様
+ * ・コピー技が上限のあいだはコピー用スキルは使用不可（グレーアウト）
+ * ・コピーできる技がない敵はターゲット不可。該当敵がいない場合も使用不可
+ * ・習得・忘却のバトルログは出さない（ウィンドウと成功アニメのみ）
+ * ・削除時は確認ウィンドウを表示（初期カーソルは「いいえ」）
+ * ・保持数の変更や技の追加／削除はセーブデータに保存される
  *
- * 【削除確認】
- * 技忘れ／手動削除時は「本当に消しますか？」確認が出ます（初期カーソルは「いいえ」）。
+ * ■ プラグインコマンド
+ * イベントの「プラグインコマンド」から呼び出します。
  *
- * 【プラグインコマンド】
- * - LearnCopiedSkillByPlayer … プレイヤー選択でコピー技を追加
- * - LearnCopiedSkillFromListByPlayer … 指定リストから選択・習得
- * - AddCopiedSkillDirect … 自動追加（画面なし）
- * - ForgetCopiedSkillByPlayer … プレイヤー選択で削除
- * - RemoveCopiedSkillDirect … 自動削除（画面なし）
- * - SetMaxCopiedSkills … 最大保持数を変更（セーブ対応）
+ * コピー技を選んで覚える
+ *   画面で技を1つ選んで覚える。上限時は開かない。
+ * リストからコピー技を選んで覚える
+ *   指定したスキル一覧から1つ選んで覚える。
+ * コピー技を自動で覚える
+ *   画面なしで指定スキルを追加。上限・重複時は何もしない。
+ * コピー技を選んで忘れる
+ *   保持中のコピー技から1つ選んで忘れる。
+ * コピー技を自動で忘れる
+ *   画面なしで指定スキルを削除。
+ * コピー技の最大保持数を変える
+ *   アクターごとの上限を変更（0指定でパーティ全員）。セーブ対応。
  *
- * ※ 習得・忘却のバトルログは出しません（ウィンドウと成功アニメのみ）。
+ * ライセンス: MITライセンス
+ *
+ * @param basicSettings
+ * @text ■ 基本設定
  *
  * @param copySkillId
- * @text コピー用スキルID
- * @desc コピー処理を開始するスキルのID。0の場合はメモタグのみで判定します。
+ * @text コピー用スキル
+ * @desc 敵に使って技コピーを開始するスキル。0のときはメモ欄タグのみで判定します。
  * @type skill
+ * @parent basicSettings
  * @default 0
  *
  * @param copySkillMetaTag
- * @text コピー用スキルタグ
- * @desc コピー用スキルとして扱うメモ欄タグ名
+ * @text コピー用スキルのメモタグ名
+ * @desc スキルメモ欄のタグ名。通常は変更不要です。
+ * @parent basicSettings
  * @default CopyAttack
  *
  * @param forgetSkillId
- * @text 技忘れ用スキルID
- * @desc コピー技を自発的に忘れるスキルのID。0の場合はメモタグのみで判定します。
+ * @text 技忘れ用スキル
+ * @desc コピー技を忘れるスキル。0のときはメモ欄タグのみで判定します。
  * @type skill
+ * @parent basicSettings
  * @default 0
  *
  * @param forgetSkillMetaTag
- * @text 技忘れ用スキルタグ
- * @desc 技忘れ用スキルとして扱うメモ欄タグ名
+ * @text 技忘れ用スキルのメモタグ名
+ * @desc スキルメモ欄のタグ名。通常は変更不要です。
+ * @parent basicSettings
  * @default CopyAttackForget
  *
- * @param copiedSkillMetaTag
- * @text コピー技タグ
- * @desc コピーで取得した技として参照するメモ欄タグ名（他プラグイン連携用）
- * @default CopyAttackLearned
- *
- * @param copyableSkillMetaTag
- * @text コピー可能スキルタグ
- * @desc 設定時、このタグを持つ敵スキルのみコピー候補になります。空欄ですべて対象。
- * @default
- *
- * @param uncopyableSkillMetaTag
- * @text コピー不可スキルタグ
- * @desc このメモ欄タグが書かれたスキルは、敵が所持していてもコピー候補一覧に表示されなくなります。
- * @default NoCopyAttack
- *
- * @param defaultRequiredHpRate
- * @text デフォルト必要HP割合
- * @desc 敵メモに割合指定がないときの必要HP%（現在HPがこの値以下で選択可）。100で制限なし。
- * @type number
- * @min 1
- * @max 100
- * @default 100
- *
- * @param requiredHpRateMetaTag
- * @text 必要HP割合メモタグ
- * @desc 敵メモ欄のタグ名。例: <CopyAttackHpRate: 30> でHP30%以下まで削ると対象にできる
- * @default CopyAttackHpRate
- *
  * @param maxCopiedSkills
- * @text 最大保持数
- * @desc コピー技として保持できる最大数（未変更アクターのデフォルト。プラグインコマンドで上書き可）
+ * @text コピー技の最大保持数
+ * @desc 1人あたりのコピー技の上限（初期値）。プラグインコマンドでも変更できます。
  * @type number
  * @min 1
  * @max 99
+ * @parent basicSettings
  * @default 5
  *
  * @param excludeBasicSkills
- * @text 通常攻撃・防御を除外
- * @desc 敵の通常攻撃・防御をコピー候補から除外する
+ * @text 通常攻撃・防御をコピー対象外にする
+ * @desc ONで敵の通常攻撃(ID1)・防御(ID2)を候補から外します。
  * @type boolean
+ * @parent basicSettings
  * @default true
  *
+ * @param tagSettings
+ * @text ■ メモ欄タグ・制限
+ *
+ * @param copiedSkillMetaTag
+ * @text コピー済み技タグ名（連携用）
+ * @desc コピーで覚えた技の識別用。他プラグイン連携向け。通常は変更不要です。
+ * @parent tagSettings
+ * @default CopyAttackLearned
+ *
+ * @param copyableSkillMetaTag
+ * @text コピー可能スキルタグ名（絞り込み）
+ * @desc 空欄＝候補を制限しない。入力すると、そのタグがあるスキルだけ候補になります。
+ * @parent tagSettings
+ * @default
+ *
+ * @param uncopyableSkillMetaTag
+ * @text コピー不可スキルタグ名
+ * @desc このタグがあるスキルはコピー候補に出ません。
+ * @parent tagSettings
+ * @default NoCopyAttack
+ *
+ * @param defaultRequiredHpRate
+ * @text デフォルト必要HP割合(%)
+ * @desc 敵メモ未指定時の条件。現在HPがこの%以下ならコピー可。100で制限なし。
+ * @type number
+ * @min 1
+ * @max 100
+ * @parent tagSettings
+ * @default 100
+ *
+ * @param requiredHpRateMetaTag
+ * @text 必要HP割合のメモタグ名
+ * @desc 敵メモ欄のタグ名。例: <CopyAttackHpRate:30>
+ * @parent tagSettings
+ * @default CopyAttackHpRate
+ *
+ * @param animationSettings
+ * @text ■ 成功時アニメーション
+ *
  * @param successAnimationId
- * @text コピー成功時アニメーションID
- * @desc コピー成功時に再生するアニメーション。0で非再生。
+ * @text コピー成功時のアニメーション
+ * @desc コピー成功時に再生。0で再生しません。
  * @type animation
+ * @parent animationSettings
  * @default 0
  *
  * @param successAnimationTarget
- * @text コピー成功時アニメーション対象
- * @desc アニメーションを再生する対象
+ * @text アニメーションの再生対象
+ * @desc 成功アニメの表示対象です。
  * @type select
  * @option 使用者（アクター）
  * @value actor
  * @option 対象の敵
  * @value enemy
+ * @parent animationSettings
  * @default actor
  *
  * @param selectWindow
- * @text ■ 技選択ウィンドウ
+ * @text ■ 覚える技の選択ウィンドウ
  *
  * @param selectWindowX
- * @text 技選択 X
- * @desc -1でデフォルト位置
+ * @text ウィンドウ X
+ * @desc -1で標準位置。
  * @type number
  * @min -9999
  * @parent selectWindow
  * @default -1
  *
  * @param selectWindowY
- * @text 技選択 Y
- * @desc -1でデフォルト位置
+ * @text ウィンドウ Y
+ * @desc -1で標準位置。
  * @type number
  * @min -9999
  * @parent selectWindow
  * @default -1
  *
  * @param selectWindowWidth
- * @text 技選択 幅
- * @desc 0でデフォルト幅
+ * @text ウィンドウ幅
+ * @desc 0で標準幅。
  * @type number
  * @min 0
  * @parent selectWindow
  * @default 0
  *
  * @param selectWindowHeight
- * @text 技選択 高さ
- * @desc 0でデフォルト高さ（行数が優先される場合あり）
+ * @text ウィンドウ高さ
+ * @desc 0で標準高さ（行数指定時は行数優先）。
  * @type number
  * @min 0
  * @parent selectWindow
  * @default 0
  *
  * @param selectWindowRows
- * @text 技選択 行数
- * @desc 0で高さから自動計算
+ * @text 表示行数
+ * @desc 0で高さから自動計算。
  * @type number
  * @min 0
  * @parent selectWindow
  * @default 0
  *
  * @param selectWindowCols
- * @text 技選択 列数
- * @desc ウィンドウの列数
+ * @text 表示列数
+ * @desc 一覧の列数です。
  * @type number
  * @min 1
  * @parent selectWindow
  * @default 1
  *
  * @param discardWindow
- * @text ■ 忘れるウィンドウ
+ * @text ■ 忘れる技の選択ウィンドウ
  *
  * @param discardWindowX
- * @text 忘れる技 X
- * @desc -1でデフォルト位置
+ * @text ウィンドウ X
+ * @desc -1で標準位置。
  * @type number
  * @min -9999
  * @parent discardWindow
  * @default -1
  *
  * @param discardWindowY
- * @text 忘れる技 Y
- * @desc -1でデフォルト位置
+ * @text ウィンドウ Y
+ * @desc -1で標準位置。
  * @type number
  * @min -9999
  * @parent discardWindow
  * @default -1
  *
  * @param discardWindowWidth
- * @text 忘れる技 幅
- * @desc 0でデフォルト幅
+ * @text ウィンドウ幅
+ * @desc 0で標準幅。
  * @type number
  * @min 0
  * @parent discardWindow
  * @default 0
  *
  * @param discardWindowHeight
- * @text 忘れる技 高さ
- * @desc 0でデフォルト高さ（行数が優先される場合あり）
+ * @text ウィンドウ高さ
+ * @desc 0で標準高さ（行数指定時は行数優先）。
  * @type number
  * @min 0
  * @parent discardWindow
  * @default 0
  *
  * @param discardWindowRows
- * @text 忘れる技 行数
- * @desc 0で高さから自動計算
+ * @text 表示行数
+ * @desc 0で高さから自動計算。
  * @type number
  * @min 0
  * @parent discardWindow
  * @default 0
  *
  * @param discardWindowCols
- * @text 忘れる技 列数
- * @desc ウィンドウの列数
+ * @text 表示列数
+ * @desc 一覧の列数です。
  * @type number
  * @min 1
  * @parent discardWindow
@@ -228,104 +273,104 @@
  * @text ■ 削除確認ウィンドウ
  *
  * @param confirmMessage
- * @text 削除確認メッセージ
- * @desc 技を忘れる直前にヘルプへ表示する文言
+ * @text 確認メッセージ
+ * @desc 忘れる直前にヘルプへ表示する文章。
  * @parent confirmWindow
  * @default 本当に消しますか？
  *
  * @param confirmYesText
- * @text 確認「はい」
- * @desc 削除を実行する選択肢の表示名
+ * @text 「はい」の表示名
+ * @desc 削除する選択肢の表示名。
  * @parent confirmWindow
  * @default はい
  *
  * @param confirmNoText
- * @text 確認「いいえ」
- * @desc 削除をやめる選択肢の表示名（初期カーソル位置）
+ * @text 「いいえ」の表示名
+ * @desc やめる選択肢の表示名。開いた直後に選択されます。
  * @parent confirmWindow
  * @default いいえ
  *
  * @command LearnCopiedSkillByPlayer
- * @text プレイヤー選択でコピー技を追加
- * @desc 指定アクターのコピー技習得画面を開きます。保持数上限時は開きません。
+ * @text コピー技を選んで覚える
+ * @desc 画面で技を1つ選んでコピー技として覚えます。上限時は開きません。
  *
  * @arg actorId
- * @text アクターID
- * @desc 対象アクター（0で先頭メンバー）
+ * @text 対象アクター
+ * @desc 0のときはパーティ先頭です。
  * @type actor
  * @default 1
  *
  * @command LearnCopiedSkillFromListByPlayer
- * @text 指定リストからコピー技を選択・習得
- * @desc 指定したスキルIDリストの中から1つ選んでコピー技として習得します。保持数上限時は開きません。
+ * @text リストからコピー技を選んで覚える
+ * @desc 指定スキル一覧から1つ選んで覚えます。上限時は開きません。
  *
  * @arg actorId
- * @text アクターID
- * @desc 対象アクター（0で先頭メンバー）
+ * @text 対象アクター
+ * @desc 0のときはパーティ先頭です。
  * @type actor
  * @default 1
  *
  * @arg skillIds
- * @text スキルリスト
- * @desc 選択肢として表示するスキル（複数選択可）
+ * @text 選べるスキル一覧
+ * @desc 選択肢として表示するスキルです。
  * @type skill[]
  * @default []
  *
  * @command AddCopiedSkillDirect
- * @text 内部処理で自動的にコピー技を追加
- * @desc 指定スキルをコピー技として直接登録します（画面なし）。上限時は追加しません。
+ * @text コピー技を自動で覚える
+ * @desc 画面なしで指定スキルを追加します。上限・重複時は何もしません。
  *
  * @arg actorId
- * @text アクターID
- * @desc 対象アクター（0で先頭メンバー）
+ * @text 対象アクター
+ * @desc 0のときはパーティ先頭です。
  * @type actor
  * @default 1
  *
  * @arg skillId
- * @text スキルID
- * @desc 追加するスキル
+ * @text 覚えるスキル
+ * @desc 追加するスキルです。
  * @type skill
  * @default 1
  *
  * @command ForgetCopiedSkillByPlayer
- * @text プレイヤー選択でコピー技を削除
- * @desc 保持中のコピー技から1つ選んで忘れさせる画面を開きます。
+ * @text コピー技を選んで忘れる
+ * @desc 保持中のコピー技から1つ選んで忘れます。
  *
  * @arg actorId
- * @text アクターID
- * @desc 対象アクター（0で先頭メンバー）
+ * @text 対象アクター
+ * @desc 0のときはパーティ先頭です。
  * @type actor
  * @default 1
  *
  * @command RemoveCopiedSkillDirect
- * @text 内部処理で自動的にコピー技を削除
- * @desc 指定スキルのコピー技を直接削除します（画面なし）。未保持なら何もしません。
+ * @text コピー技を自動で忘れる
+ * @desc 画面なしで指定スキルを削除します。未保持なら何もしません。
  *
  * @arg actorId
- * @text アクターID
- * @desc 対象アクター（0で先頭メンバー）
+ * @text 対象アクター
+ * @desc 0のときはパーティ先頭です。
  * @type actor
  * @default 1
  *
  * @arg skillId
- * @text スキルID
- * @desc 削除するスキル
+ * @text 忘れるスキル
+ * @desc 削除するスキルです。
  * @type skill
  * @default 1
  *
  * @command SetMaxCopiedSkills
- * @text コピー技の最大保持数を変更
- * @desc コピー技として保持できる最大数を変更します。セーブデータに保存されます。
+ * @text コピー技の最大保持数を変える
+ * @desc コピー技の上限を変更します。セーブデータに保存されます。
  *
  * @arg actorId
- * @text アクターID
- * @desc 対象アクター（0でパーティ全員）
+ * @text 対象アクター
+ * @desc 0のときはパーティ全員です。
  * @type actor
  * @default 0
  *
  * @arg maxCount
- * @text 最大保持数
- * @desc 変更後の最大保持数（1〜99）
+ * @text 新しい最大保持数
+ * @desc 1〜99で指定します。
  * @type number
  * @min 1
  * @max 99
@@ -334,225 +379,262 @@
 
 /*:ja
  * @target MZ
- * @plugindesc [CopyAttack] 戦闘中に敵の技をコピーして習得する
- * @author Open Source
+ * @plugindesc 敵の技コピープラグイン
+ * @author ユルドラ
  * @url
+ * @license MIT
  * @help CopyAttack.js
  *
- * 【概要】
- * 戦闘中に「コピー用スキル」を敵へ使うと、その敵が持つスキルから
- * 1つを選んでアクターのコピー技として習得できます。
+ * 戦闘中に「コピー用スキル」を敵へ使うと、その敵のスキルから
+ * 1つを選んでアクターに覚えさせられます。
+ * 保持数には上限があり、技忘れスキルやプラグインコマンドで整理できます。
  *
- * 【メモ欄タグ】（タグ名はパラメータで変更可／旧タグも互換対応）
- * ■ スキル
- *   <CopyAttack>           … コピー開始スキル
- *   <CopyAttackForget>     … 技忘れスキル（ターン非消費）
- *   <NoCopyAttack>         … コピー候補から除外
- *   <CopyAttackLearned>    … コピーで得た技の識別用（他プラグイン連携）
- * ■ 敵キャラ
- *   <CopyAttackHpRate:30>  … HPが最大の30%以下になるまでコピー対象にできない
+ * ■ 導入手順
+ * 1. プラグイン管理で本プラグインをONにする
+ * 2. データベースでコピー用スキルを作成する（効果範囲：敵単体）
+ *    ・パラメータ「コピー用スキル」に指定する
+ *      またはスキルのメモ欄に <CopyAttack> を書く
+ * 3. （任意）技忘れ用スキルを作成する（効果範囲：なし推奨）
+ *    ・パラメータ「技忘れ用スキル」に指定する
+ *      またはメモ欄に <CopyAttackForget> を書く
+ * 4. 戦闘でコピー用スキルを使い、覚える技を選ぶ
  *
- * 旧タグ互換: <CopySkill> <ForgetSkill> <NoCopy> <CopyHpRate:n> など
+ * ■ メモ欄タグ
+ * スキル:
+ *   <CopyAttack>         コピー用スキル
+ *   <CopyAttackForget>   技忘れスキル（戦闘中はターン非消費）
+ *   <NoCopyAttack>       コピー候補から除外
+ *   <CopyAttackLearned>  コピー習得技の識別用（他プラグイン連携向け）
+ * 敵キャラ:
+ *   <CopyAttackHpRate:30>  HPが最大の30%以下になるまでコピー不可
  *
- * 【使い方】
- * 1. パラメータ「コピー用スキルID」を設定するか、スキルに <CopyAttack> を書く
- * 2. コピー用スキルのスコープは「敵単体」にする
- * 3. 技忘れは <CopyAttackForget>（スコープ「なし」推奨）
+ * タグ名はパラメータで変更可能です。
+ * 旧タグ <CopySkill> <ForgetSkill> <NoCopy> <CopyHpRate:n> にも対応しています。
  *
- * 【保持上限】
- * コピー技が最大数に達している間はコピー用スキルを使用不可（グレーアウト）です。
- * 技忘れなどで枠を空けてから再度コピーしてください。
+ * ■ 仕様
+ * ・コピー技が上限のあいだはコピー用スキルは使用不可（グレーアウト）
+ * ・コピーできる技がない敵はターゲット不可。該当敵がいない場合も使用不可
+ * ・習得・忘却のバトルログは出さない（ウィンドウと成功アニメのみ）
+ * ・削除時は確認ウィンドウを表示（初期カーソルは「いいえ」）
+ * ・保持数の変更や技の追加／削除はセーブデータに保存される
  *
- * 【削除確認】
- * 技忘れ／手動削除時は「本当に消しますか？」確認が出ます（初期カーソルは「いいえ」）。
+ * ■ プラグインコマンド
+ * イベントの「プラグインコマンド」から呼び出します。
  *
- * 【プラグインコマンド】
- * - LearnCopiedSkillByPlayer … プレイヤー選択でコピー技を追加
- * - LearnCopiedSkillFromListByPlayer … 指定リストから選択・習得
- * - AddCopiedSkillDirect … 自動追加（画面なし）
- * - ForgetCopiedSkillByPlayer … プレイヤー選択で削除
- * - RemoveCopiedSkillDirect … 自動削除（画面なし）
- * - SetMaxCopiedSkills … 最大保持数を変更（セーブ対応）
+ * コピー技を選んで覚える
+ *   画面で技を1つ選んで覚える。上限時は開かない。
+ * リストからコピー技を選んで覚える
+ *   指定したスキル一覧から1つ選んで覚える。
+ * コピー技を自動で覚える
+ *   画面なしで指定スキルを追加。上限・重複時は何もしない。
+ * コピー技を選んで忘れる
+ *   保持中のコピー技から1つ選んで忘れる。
+ * コピー技を自動で忘れる
+ *   画面なしで指定スキルを削除。
+ * コピー技の最大保持数を変える
+ *   アクターごとの上限を変更（0指定でパーティ全員）。セーブ対応。
  *
- * ※ 習得・忘却のバトルログは出しません（ウィンドウと成功アニメのみ）。
+ * ライセンス: MITライセンス
+ *
+ * @param basicSettings
+ * @text ■ 基本設定
  *
  * @param copySkillId
- * @text コピー用スキルID
- * @desc コピー処理を開始するスキルのID。0の場合はメモタグのみで判定します。
+ * @text コピー用スキル
+ * @desc 敵に使って技コピーを開始するスキル。0のときはメモ欄タグのみで判定します。
  * @type skill
+ * @parent basicSettings
  * @default 0
  *
  * @param copySkillMetaTag
- * @text コピー用スキルタグ
- * @desc コピー用スキルとして扱うメモ欄タグ名
+ * @text コピー用スキルのメモタグ名
+ * @desc スキルメモ欄のタグ名。通常は変更不要です。
+ * @parent basicSettings
  * @default CopyAttack
  *
  * @param forgetSkillId
- * @text 技忘れ用スキルID
- * @desc コピー技を自発的に忘れるスキルのID。0の場合はメモタグのみで判定します。
+ * @text 技忘れ用スキル
+ * @desc コピー技を忘れるスキル。0のときはメモ欄タグのみで判定します。
  * @type skill
+ * @parent basicSettings
  * @default 0
  *
  * @param forgetSkillMetaTag
- * @text 技忘れ用スキルタグ
- * @desc 技忘れ用スキルとして扱うメモ欄タグ名
+ * @text 技忘れ用スキルのメモタグ名
+ * @desc スキルメモ欄のタグ名。通常は変更不要です。
+ * @parent basicSettings
  * @default CopyAttackForget
  *
- * @param copiedSkillMetaTag
- * @text コピー技タグ
- * @desc コピーで取得した技として参照するメモ欄タグ名（他プラグイン連携用）
- * @default CopyAttackLearned
- *
- * @param copyableSkillMetaTag
- * @text コピー可能スキルタグ
- * @desc 設定時、このタグを持つ敵スキルのみコピー候補になります。空欄ですべて対象。
- * @default
- *
- * @param uncopyableSkillMetaTag
- * @text コピー不可スキルタグ
- * @desc このメモ欄タグが書かれたスキルは、敵が所持していてもコピー候補一覧に表示されなくなります。
- * @default NoCopyAttack
- *
- * @param defaultRequiredHpRate
- * @text デフォルト必要HP割合
- * @desc 敵メモに割合指定がないときの必要HP%（現在HPがこの値以下で選択可）。100で制限なし。
- * @type number
- * @min 1
- * @max 100
- * @default 100
- *
- * @param requiredHpRateMetaTag
- * @text 必要HP割合メモタグ
- * @desc 敵メモ欄のタグ名。例: <CopyAttackHpRate: 30> でHP30%以下まで削ると対象にできる
- * @default CopyAttackHpRate
- *
  * @param maxCopiedSkills
- * @text 最大保持数
- * @desc コピー技として保持できる最大数（未変更アクターのデフォルト。プラグインコマンドで上書き可）
+ * @text コピー技の最大保持数
+ * @desc 1人あたりのコピー技の上限（初期値）。プラグインコマンドでも変更できます。
  * @type number
  * @min 1
  * @max 99
+ * @parent basicSettings
  * @default 5
  *
  * @param excludeBasicSkills
- * @text 通常攻撃・防御を除外
- * @desc 敵の通常攻撃・防御をコピー候補から除外する
+ * @text 通常攻撃・防御をコピー対象外にする
+ * @desc ONで敵の通常攻撃(ID1)・防御(ID2)を候補から外します。
  * @type boolean
+ * @parent basicSettings
  * @default true
  *
+ * @param tagSettings
+ * @text ■ メモ欄タグ・制限
+ *
+ * @param copiedSkillMetaTag
+ * @text コピー済み技タグ名（連携用）
+ * @desc コピーで覚えた技の識別用。他プラグイン連携向け。通常は変更不要です。
+ * @parent tagSettings
+ * @default CopyAttackLearned
+ *
+ * @param copyableSkillMetaTag
+ * @text コピー可能スキルタグ名（絞り込み）
+ * @desc 空欄＝候補を制限しない。入力すると、そのタグがあるスキルだけ候補になります。
+ * @parent tagSettings
+ * @default
+ *
+ * @param uncopyableSkillMetaTag
+ * @text コピー不可スキルタグ名
+ * @desc このタグがあるスキルはコピー候補に出ません。
+ * @parent tagSettings
+ * @default NoCopyAttack
+ *
+ * @param defaultRequiredHpRate
+ * @text デフォルト必要HP割合(%)
+ * @desc 敵メモ未指定時の条件。現在HPがこの%以下ならコピー可。100で制限なし。
+ * @type number
+ * @min 1
+ * @max 100
+ * @parent tagSettings
+ * @default 100
+ *
+ * @param requiredHpRateMetaTag
+ * @text 必要HP割合のメモタグ名
+ * @desc 敵メモ欄のタグ名。例: <CopyAttackHpRate:30>
+ * @parent tagSettings
+ * @default CopyAttackHpRate
+ *
+ * @param animationSettings
+ * @text ■ 成功時アニメーション
+ *
  * @param successAnimationId
- * @text コピー成功時アニメーションID
- * @desc コピー成功時に再生するアニメーション。0で非再生。
+ * @text コピー成功時のアニメーション
+ * @desc コピー成功時に再生。0で再生しません。
  * @type animation
+ * @parent animationSettings
  * @default 0
  *
  * @param successAnimationTarget
- * @text コピー成功時アニメーション対象
- * @desc アニメーションを再生する対象
+ * @text アニメーションの再生対象
+ * @desc 成功アニメの表示対象です。
  * @type select
  * @option 使用者（アクター）
  * @value actor
  * @option 対象の敵
  * @value enemy
+ * @parent animationSettings
  * @default actor
  *
  * @param selectWindow
- * @text ■ 技選択ウィンドウ
+ * @text ■ 覚える技の選択ウィンドウ
  *
  * @param selectWindowX
- * @text 技選択 X
- * @desc -1でデフォルト位置
+ * @text ウィンドウ X
+ * @desc -1で標準位置。
  * @type number
  * @min -9999
  * @parent selectWindow
  * @default -1
  *
  * @param selectWindowY
- * @text 技選択 Y
- * @desc -1でデフォルト位置
+ * @text ウィンドウ Y
+ * @desc -1で標準位置。
  * @type number
  * @min -9999
  * @parent selectWindow
  * @default -1
  *
  * @param selectWindowWidth
- * @text 技選択 幅
- * @desc 0でデフォルト幅
+ * @text ウィンドウ幅
+ * @desc 0で標準幅。
  * @type number
  * @min 0
  * @parent selectWindow
  * @default 0
  *
  * @param selectWindowHeight
- * @text 技選択 高さ
- * @desc 0でデフォルト高さ（行数が優先される場合あり）
+ * @text ウィンドウ高さ
+ * @desc 0で標準高さ（行数指定時は行数優先）。
  * @type number
  * @min 0
  * @parent selectWindow
  * @default 0
  *
  * @param selectWindowRows
- * @text 技選択 行数
- * @desc 0で高さから自動計算
+ * @text 表示行数
+ * @desc 0で高さから自動計算。
  * @type number
  * @min 0
  * @parent selectWindow
  * @default 0
  *
  * @param selectWindowCols
- * @text 技選択 列数
- * @desc ウィンドウの列数
+ * @text 表示列数
+ * @desc 一覧の列数です。
  * @type number
  * @min 1
  * @parent selectWindow
  * @default 1
  *
  * @param discardWindow
- * @text ■ 忘れるウィンドウ
+ * @text ■ 忘れる技の選択ウィンドウ
  *
  * @param discardWindowX
- * @text 忘れる技 X
- * @desc -1でデフォルト位置
+ * @text ウィンドウ X
+ * @desc -1で標準位置。
  * @type number
  * @min -9999
  * @parent discardWindow
  * @default -1
  *
  * @param discardWindowY
- * @text 忘れる技 Y
- * @desc -1でデフォルト位置
+ * @text ウィンドウ Y
+ * @desc -1で標準位置。
  * @type number
  * @min -9999
  * @parent discardWindow
  * @default -1
  *
  * @param discardWindowWidth
- * @text 忘れる技 幅
- * @desc 0でデフォルト幅
+ * @text ウィンドウ幅
+ * @desc 0で標準幅。
  * @type number
  * @min 0
  * @parent discardWindow
  * @default 0
  *
  * @param discardWindowHeight
- * @text 忘れる技 高さ
- * @desc 0でデフォルト高さ（行数が優先される場合あり）
+ * @text ウィンドウ高さ
+ * @desc 0で標準高さ（行数指定時は行数優先）。
  * @type number
  * @min 0
  * @parent discardWindow
  * @default 0
  *
  * @param discardWindowRows
- * @text 忘れる技 行数
- * @desc 0で高さから自動計算
+ * @text 表示行数
+ * @desc 0で高さから自動計算。
  * @type number
  * @min 0
  * @parent discardWindow
  * @default 0
  *
  * @param discardWindowCols
- * @text 忘れる技 列数
- * @desc ウィンドウの列数
+ * @text 表示列数
+ * @desc 一覧の列数です。
  * @type number
  * @min 1
  * @parent discardWindow
@@ -562,104 +644,104 @@
  * @text ■ 削除確認ウィンドウ
  *
  * @param confirmMessage
- * @text 削除確認メッセージ
- * @desc 技を忘れる直前にヘルプへ表示する文言
+ * @text 確認メッセージ
+ * @desc 忘れる直前にヘルプへ表示する文章。
  * @parent confirmWindow
  * @default 本当に消しますか？
  *
  * @param confirmYesText
- * @text 確認「はい」
- * @desc 削除を実行する選択肢の表示名
+ * @text 「はい」の表示名
+ * @desc 削除する選択肢の表示名。
  * @parent confirmWindow
  * @default はい
  *
  * @param confirmNoText
- * @text 確認「いいえ」
- * @desc 削除をやめる選択肢の表示名（初期カーソル位置）
+ * @text 「いいえ」の表示名
+ * @desc やめる選択肢の表示名。開いた直後に選択されます。
  * @parent confirmWindow
  * @default いいえ
  *
  * @command LearnCopiedSkillByPlayer
- * @text プレイヤー選択でコピー技を追加
- * @desc 指定アクターのコピー技習得画面を開きます。保持数上限時は開きません。
+ * @text コピー技を選んで覚える
+ * @desc 画面で技を1つ選んでコピー技として覚えます。上限時は開きません。
  *
  * @arg actorId
- * @text アクターID
- * @desc 対象アクター（0で先頭メンバー）
+ * @text 対象アクター
+ * @desc 0のときはパーティ先頭です。
  * @type actor
  * @default 1
  *
  * @command LearnCopiedSkillFromListByPlayer
- * @text 指定リストからコピー技を選択・習得
- * @desc 指定したスキルIDリストの中から1つ選んでコピー技として習得します。保持数上限時は開きません。
+ * @text リストからコピー技を選んで覚える
+ * @desc 指定スキル一覧から1つ選んで覚えます。上限時は開きません。
  *
  * @arg actorId
- * @text アクターID
- * @desc 対象アクター（0で先頭メンバー）
+ * @text 対象アクター
+ * @desc 0のときはパーティ先頭です。
  * @type actor
  * @default 1
  *
  * @arg skillIds
- * @text スキルリスト
- * @desc 選択肢として表示するスキル（複数選択可）
+ * @text 選べるスキル一覧
+ * @desc 選択肢として表示するスキルです。
  * @type skill[]
  * @default []
  *
  * @command AddCopiedSkillDirect
- * @text 内部処理で自動的にコピー技を追加
- * @desc 指定スキルをコピー技として直接登録します（画面なし）。上限時は追加しません。
+ * @text コピー技を自動で覚える
+ * @desc 画面なしで指定スキルを追加します。上限・重複時は何もしません。
  *
  * @arg actorId
- * @text アクターID
- * @desc 対象アクター（0で先頭メンバー）
+ * @text 対象アクター
+ * @desc 0のときはパーティ先頭です。
  * @type actor
  * @default 1
  *
  * @arg skillId
- * @text スキルID
- * @desc 追加するスキル
+ * @text 覚えるスキル
+ * @desc 追加するスキルです。
  * @type skill
  * @default 1
  *
  * @command ForgetCopiedSkillByPlayer
- * @text プレイヤー選択でコピー技を削除
- * @desc 保持中のコピー技から1つ選んで忘れさせる画面を開きます。
+ * @text コピー技を選んで忘れる
+ * @desc 保持中のコピー技から1つ選んで忘れます。
  *
  * @arg actorId
- * @text アクターID
- * @desc 対象アクター（0で先頭メンバー）
+ * @text 対象アクター
+ * @desc 0のときはパーティ先頭です。
  * @type actor
  * @default 1
  *
  * @command RemoveCopiedSkillDirect
- * @text 内部処理で自動的にコピー技を削除
- * @desc 指定スキルのコピー技を直接削除します（画面なし）。未保持なら何もしません。
+ * @text コピー技を自動で忘れる
+ * @desc 画面なしで指定スキルを削除します。未保持なら何もしません。
  *
  * @arg actorId
- * @text アクターID
- * @desc 対象アクター（0で先頭メンバー）
+ * @text 対象アクター
+ * @desc 0のときはパーティ先頭です。
  * @type actor
  * @default 1
  *
  * @arg skillId
- * @text スキルID
- * @desc 削除するスキル
+ * @text 忘れるスキル
+ * @desc 削除するスキルです。
  * @type skill
  * @default 1
  *
  * @command SetMaxCopiedSkills
- * @text コピー技の最大保持数を変更
- * @desc コピー技として保持できる最大数を変更します。セーブデータに保存されます。
+ * @text コピー技の最大保持数を変える
+ * @desc コピー技の上限を変更します。セーブデータに保存されます。
  *
  * @arg actorId
- * @text アクターID
- * @desc 対象アクター（0でパーティ全員）
+ * @text 対象アクター
+ * @desc 0のときはパーティ全員です。
  * @type actor
  * @default 0
  *
  * @arg maxCount
- * @text 最大保持数
- * @desc 変更後の最大保持数（1〜99）
+ * @text 新しい最大保持数
+ * @desc 1〜99で指定します。
  * @type number
  * @min 1
  * @max 99
@@ -669,24 +751,23 @@
 (() => {
     "use strict";
 
-    /**
-     * @namespace CopyAttack
-     */
+    // CopyAttack の公開API
     const CopyAttack = (window.CopyAttack = window.CopyAttack || {});
-    /** 二重ロード防止フラグ */
     if (CopyAttack.__loaded) {
         return;
     }
     CopyAttack.__loaded = true;
 
-    /**
-     * @returns {string}
-     */
     function pluginName() {
         const script = document.currentScript;
-        return script
-            ? decodeURIComponent(script.src.match(/([^/\\]+\.js)/)[1]).replace(/\.js$/, "")
-            : "CopyAttack";
+        if (!script || !script.src) {
+            return "CopyAttack";
+        }
+        const matched = script.src.match(/([^/\\]+\.js)/);
+        if (!matched) {
+            return "CopyAttack";
+        }
+        return decodeURIComponent(matched[1]).replace(/\.js$/i, "");
     }
 
     /**
@@ -764,10 +845,6 @@
     /** @type {Window_Selectable|null} ヘルプ所有ウィンドウ */
     CopyAttack._helpOwner = null;
 
-    /**
-     * @param {object|null} skill
-     * @returns {boolean}
-     */
     /**
      * メモ欄に指定タグ（または互換タグ）があるか
      * @param {object} data
@@ -959,10 +1036,6 @@
     };
 
     /**
-     * @param {object|null} skill
-     * @returns {boolean}
-     */
-    /**
      * 技忘れスキルかどうか
      * @param {object|null} skill
      * @returns {boolean}
@@ -1059,37 +1132,53 @@
     };
 
     /**
-     * @param {number} actorId
+     * アクターを取得する。0 ならパーティ先頭。見つからなければ null。
+     * @param {number|string} actorId
      * @returns {Game_Actor|null}
      */
     CopyAttack.resolveActor = function (actorId) {
-        const id = Number(actorId || 0);
+        if (!$gameActors || !$gameParty) {
+            return null;
+        }
+        const id = Number(actorId);
+        if (Number.isNaN(id) || id < 0) {
+            return null;
+        }
         if (id > 0) {
-            return $gameActors.actor(id);
+            return $gameActors.actor(id) || null;
         }
         return $gameParty.members()[0] || null;
     };
 
     /**
-     * プラグインコマンド用：actorId>0ならそのアクター、0ならパーティ全員
+     * 最大保持数変更用。0 ならパーティ全員。
      * @param {number|string} actorId
      * @returns {Game_Actor[]}
      */
     CopyAttack.resolveActorsForMax = function (actorId) {
-        const id = Number(actorId || 0);
+        if (!$gameActors || !$gameParty) {
+            return [];
+        }
+        const id = Number(actorId);
+        if (Number.isNaN(id) || id < 0) {
+            return [];
+        }
         if (id > 0) {
             const actor = $gameActors.actor(id);
             return actor ? [actor] : [];
         }
-        return $gameParty.members().filter((actor) => actor && actor.isActor());
+        return $gameParty.members().filter((a) => a && a.isActor());
     };
 
     /**
-     * イベント待機用にシーンを開く
+     * プラグインコマンド用の選択シーンを開く
      * @param {Function} SceneClass
      * @param {object} params
      */
     CopyAttack.pushCommandScene = function (SceneClass, params) {
+        if (typeof SceneClass !== "function") {
+            return;
+        }
         CopyAttack._commandSceneParams = params || {};
         SceneManager.push(SceneClass);
         const interpreter = $gameMap && $gameMap._interpreter;
@@ -1433,28 +1522,35 @@
     };
 
     /**
+     * コピー技を覚える
      * @param {number} skillId
      * @returns {boolean}
      */
     Game_Actor.prototype.addCopiedSkill = function (skillId) {
-        if (!this.canAddCopiedSkill(skillId)) {
+        const id = Number(skillId);
+        if (!id || !$dataSkills || !$dataSkills[id]) {
             return false;
         }
-        this.copiedSkillIds().push(skillId);
+        if (!this.canAddCopiedSkill(id)) {
+            return false;
+        }
+        this.copiedSkillIds().push(id);
         this.copiedSkillIds().sort((a, b) => a - b);
-        this.learnSkill(skillId);
+        this.learnSkill(id);
         return true;
     };
 
     /**
+     * コピー技を忘れる
      * @param {number} skillId
      */
     Game_Actor.prototype.removeCopiedSkill = function (skillId) {
-        if (!this.isCopiedSkill(skillId)) {
+        const id = Number(skillId);
+        if (!id || !this.isCopiedSkill(id)) {
             return;
         }
-        this.copiedSkillIds().remove(skillId);
-        this.forgetSkill(skillId);
+        this.copiedSkillIds().remove(id);
+        this.forgetSkill(id);
     };
 
     // -------------------------------------------------------------------------
