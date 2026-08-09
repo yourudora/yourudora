@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Tailwind v4: 全ページ・コンポーネントを確実にスキャン */
+@source "../**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}";
+
 @theme {
   /* Mid-tone dark surfaces (readable charcoal / midnight) */
   --color-forest-950: #121a26;
