@@ -168,27 +168,16 @@ export const plugins: PluginItem[] = [
 ライセンス: MITライセンス`,
     changelog: [
       {
-        version: "v1.1.0",
-        date: "2026-08-10",
-        description:
-          "グループ分け・味方からのコピー・全体範囲での候補統合、コピー回数タグなどに対応。",
-      },
-      {
-        version: "v1.0.1",
-        date: "2026-08-08",
-        description: "ヘルプ表示と入力ガード周りを調整。",
-      },
-      {
-        version: "v1.0.0",
+        version: "Ver 1.0.0",
         date: "2026-08-06",
-        description: "初版公開。敵技コピー／技忘れ／プラグインコマンドに対応。",
+        description: "初版リリース（新規公開）",
       },
     ],
     downloadHref: "/downloads/CopyAttack.zip",
     sourceHref: "/sources/CopyAttack.js",
     donationHref: ofuseDonationHref,
     category: "バトル系",
-    updatedAt: "2026-08-10",
+    updatedAt: "2026-08-06",
     hasMetaTags: true,
     // image: "/images/plugins/copyattack.webp",
     imageAlt: "敵の技コピーのアイキャッチ画像",
