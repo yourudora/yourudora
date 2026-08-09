@@ -57,13 +57,28 @@ export type PluginItem = {
   image?: string;
   imageAlt?: string;
   /**
-   * YouTube 解説動画のURL（watch / youtu.be / embed いずれも可）。
-   * 未設定かつ youtubeId も無い場合は動画枠を非表示にします。
+   * 詳細ページ左側・上段の動画（自動再生・ミュート用）。
+   * URL（watch / youtu.be / embed）または動画ID。
    */
+  mainVideoUrl?: string;
+  /**
+   * 詳細ページ左側・下段の動画（手動再生用）。
+   * URL（watch / youtu.be / embed）または動画ID。
+   */
+  subVideoUrl?: string;
+  /**
+   * 2本の動画を配列で指定する場合（[上段, 下段]）。
+   * mainVideoUrl / subVideoUrl より優先されません（個別指定が優先）。
+   */
+  youtubeUrls?: [string, string] | string[];
+  /** @deprecated mainVideoUrl を使用してください */
   youtubeUrl?: string;
-  /** YouTube 動画ID（11桁）。youtubeUrl より優先して使えます。 */
+  /** @deprecated mainVideoUrl を使用してください */
   youtubeId?: string;
 };
+
+/** 動作テスト用のデフォルト YouTube 動画ID */
+export const defaultPluginVideoId = "dQw4w9WgXcQ";
 
 export const plugins: PluginItem[] = [
   {
@@ -139,8 +154,9 @@ export const plugins: PluginItem[] = [
     updatedAt: "2026-08-06",
     // image: "/images/plugins/copyattack.webp",
     imageAlt: "CopyAttack のアイキャッチ画像",
-    // youtubeUrl: "https://www.youtube.com/watch?v=xxxxxxxxxxx",
-    // youtubeId: "xxxxxxxxxxx",
+    // mainVideoUrl: "https://www.youtube.com/watch?v=xxxxxxxxxxx",
+    // subVideoUrl: "https://www.youtube.com/watch?v=yyyyyyyyyyy",
+    // youtubeUrls: ["xxxxxxxxxxx", "yyyyyyyyyyy"],
   },
 ];
 
@@ -155,16 +171,14 @@ export function getPluginImage(plugin: PluginItem): string {
   return plugin.image ?? placeholderImage;
 }
 
-/** YouTube 埋め込み用の動画IDを取得（未設定なら null） */
-export function getPluginYoutubeId(plugin: PluginItem): string | null {
-  if (plugin.youtubeId?.trim()) {
-    return plugin.youtubeId.trim();
-  }
-  const url = plugin.youtubeUrl?.trim();
-  if (!url) return null;
+/** URL / ID 文字列から YouTube 動画IDを抽出 */
+export function parseYoutubeId(value?: string | null): string | null {
+  const raw = value?.trim();
+  if (!raw) return null;
+  if (/^[\w-]{11}$/.test(raw)) return raw;
 
   try {
-    const parsed = new URL(url);
+    const parsed = new URL(raw);
     if (parsed.hostname.includes("youtu.be")) {
       const id = parsed.pathname.split("/").filter(Boolean)[0];
       return id || null;
@@ -181,10 +195,33 @@ export function getPluginYoutubeId(plugin: PluginItem): string | null {
       return parts[shortsIndex + 1];
     }
   } catch {
-    // plain id fallback
-    if (/^[\w-]{11}$/.test(url)) return url;
+    return null;
   }
   return null;
+}
+
+/**
+ * 詳細ページ用の上下2本の動画ID。
+ * 未設定時はデフォルトのテスト用動画IDを2本とも返します。
+ */
+export function getPluginVideoIds(plugin: PluginItem): [string, string] {
+  const fromArray = plugin.youtubeUrls ?? [];
+  const main =
+    parseYoutubeId(plugin.mainVideoUrl) ||
+    parseYoutubeId(fromArray[0]) ||
+    parseYoutubeId(plugin.youtubeId) ||
+    parseYoutubeId(plugin.youtubeUrl) ||
+    defaultPluginVideoId;
+  const sub =
+    parseYoutubeId(plugin.subVideoUrl) ||
+    parseYoutubeId(fromArray[1]) ||
+    defaultPluginVideoId;
+  return [main, sub];
+}
+
+/** @deprecated getPluginVideoIds を使用してください */
+export function getPluginYoutubeId(plugin: PluginItem): string | null {
+  return getPluginVideoIds(plugin)[0];
 }
 
 /** features を表示用の文字列配列に正規化 */

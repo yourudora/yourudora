@@ -8,8 +8,7 @@ import {
   getPluginBySlug,
   getPluginChangelog,
   getPluginFeatures,
-  getPluginImage,
-  getPluginYoutubeId,
+  getPluginVideoIds,
   plugins,
 } from "../../data/plugins";
 
@@ -26,163 +25,166 @@ if (!plugin) {
   return Astro.redirect("/plugins/");
 }
 
-const imageSrc = getPluginImage(plugin);
-const imageAlt = plugin.imageAlt ?? `${plugin.title}のアイキャッチ画像`;
 const features = getPluginFeatures(plugin);
 const helpText = plugin.help?.trim() || "";
 const changelog = getPluginChangelog(plugin);
-const youtubeId = getPluginYoutubeId(plugin);
+const [mainVideoId, subVideoId] = getPluginVideoIds(plugin);
 const hasOverview = features.length > 0;
 const hasHelp = Boolean(helpText);
 const hasChangelog = changelog.length > 0;
+
+const mainEmbedSrc = `https://www.youtube-nocookie.com/embed/${mainVideoId}?autoplay=1&mute=1&playsinline=1&rel=0&enablejsapi=1`;
+const subEmbedSrc = `https://www.youtube-nocookie.com/embed/${subVideoId}?rel=0&enablejsapi=1`;
 ---
 
 <Layout title={plugin.title} description={plugin.shortDescription}>
-  <section class="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
+  <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
     <p class="text-sm">
       <a href="/plugins/" class="text-mist-400 hover:text-gold-300">プラグイン一覧</a>
       <span class="mx-2 text-mist-500" aria-hidden="true">/</span>
       <span class="text-cream-200">{plugin.title}</span>
     </p>
 
-    <div class="mt-6 min-w-0">
-      <!-- 1. Date & genre / engine tags -->
-      <div class="flex flex-wrap items-center gap-2">
-        <time class="font-mono text-xs text-mist-500 sm:text-sm" datetime={plugin.updatedAt}>
-          {plugin.updatedAt}
-        </time>
-        <span class="rounded-sm border border-moss-500/40 bg-moss-500/15 px-2 py-0.5 text-[0.7rem] font-medium text-moss-400">
-          {plugin.category}
-        </span>
-        <span class="rounded-sm border border-gold-400/30 bg-gold-400/10 px-2 py-0.5 text-[0.7rem] font-medium text-gold-300">
-          {plugin.engine}
-        </span>
-      </div>
-
-      <!-- 2. Title -->
-      <h1 class="mt-3 text-3xl font-bold tracking-tight text-cream-100 sm:text-4xl">
-        {plugin.title}
-      </h1>
-
-      <!-- 3. Action buttons (directly under title) -->
-      <div class="mt-5 flex flex-wrap items-center gap-2">
-        <DownloadLink
-          href={plugin.downloadHref}
-          class="inline-flex min-w-[9.5rem] flex-1 items-center justify-center rounded-sm border border-gold-400/50 bg-gold-400/15 px-4 py-2.5 text-sm font-bold text-gold-300 transition hover:bg-gold-400/25 hover:text-cream-100 sm:flex-none"
-        >
-          ダウンロード
-        </DownloadLink>
-        {
-          plugin.sourceHref && (
-            <SourceCodeButton
-              id={plugin.slug}
-              href={plugin.sourceHref}
-              title={`${plugin.title} のソースコード`}
-            />
-          )
-        }
-        {
-          plugin.donationHref && (
-            <a
-              href={plugin.donationHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex min-w-[9.5rem] flex-1 items-center justify-center rounded-sm border border-forest-600 bg-forest-700/50 px-4 py-2.5 text-sm text-cream-200 transition hover:border-gold-400/40 hover:text-gold-300 sm:flex-none"
-            >
-              OFUSEで応援
-            </a>
-          )
-        }
-      </div>
-
-      <!-- 4. Main visual: image + optional YouTube -->
-      <div class="mt-8 space-y-4">
+    <div class="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
+      <!-- Left: two stacked YouTube players -->
+      <div class="order-1 space-y-4 lg:sticky lg:top-24">
         <div class="card-surface overflow-hidden">
-          <img
-            src={imageSrc}
-            alt={imageAlt}
-            class="aspect-[16/10] w-full object-cover sm:aspect-[4/3]"
-            loading="eager"
-            decoding="async"
-          />
+          <div class="relative aspect-video w-full bg-forest-950">
+            <iframe
+              class="absolute inset-0 h-full w-full"
+              src={mainEmbedSrc}
+              title={`${plugin.title} の解説動画（自動再生）`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen
+            />
+          </div>
         </div>
 
-        {
-          youtubeId && (
-            <div class="card-surface overflow-hidden">
-              <div class="relative aspect-video w-full bg-forest-950">
-                <iframe
-                  class="absolute inset-0 h-full w-full"
-                  src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
-                  title={`${plugin.title} の解説動画`}
-                  loading="lazy"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  referrerpolicy="strict-origin-when-cross-origin"
-                  allowfullscreen
-                />
-              </div>
-            </div>
-          )
-        }
+        <div class="card-surface overflow-hidden">
+          <div class="relative aspect-video w-full bg-forest-950">
+            <iframe
+              class="absolute inset-0 h-full w-full"
+              src={subEmbedSrc}
+              title={`${plugin.title} の解説動画`}
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen
+            />
+          </div>
+        </div>
       </div>
 
-      <!-- 5. Description sections -->
-      <div class="mt-8 space-y-4">
-        {
-          hasOverview && (
-            <section class="card-surface p-4 sm:p-5">
-              <h2 class="text-base font-bold text-cream-100 sm:text-lg">機能</h2>
-              <ul class="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-mist-400">
-                {features.map((item) => (
-                  <li>{item}</li>
-                ))}
-              </ul>
-            </section>
-          )
-        }
+      <!-- Right: meta, actions, description -->
+      <div class="order-2 min-w-0">
+        <!-- 1. Date & genre / engine tags -->
+        <div class="flex flex-wrap items-center gap-2">
+          <time class="font-mono text-xs text-mist-500 sm:text-sm" datetime={plugin.updatedAt}>
+            {plugin.updatedAt}
+          </time>
+          <span class="rounded-sm border border-moss-500/40 bg-moss-500/15 px-2 py-0.5 text-[0.7rem] font-medium text-moss-400">
+            {plugin.category}
+          </span>
+          <span class="rounded-sm border border-gold-400/30 bg-gold-400/10 px-2 py-0.5 text-[0.7rem] font-medium text-gold-300">
+            {plugin.engine}
+          </span>
+        </div>
 
-        {
-          hasHelp && (
-            <section class="card-surface p-4 sm:p-5">
-              <h2 class="text-base font-bold text-cream-100 sm:text-lg">ヘルプ</h2>
-              <div class="mt-3">
-                <PluginHelpText text={helpText} />
-              </div>
-            </section>
-          )
-        }
+        <!-- 2. Title -->
+        <h1 class="mt-3 text-3xl font-bold tracking-tight text-cream-100 sm:text-4xl">
+          {plugin.title}
+        </h1>
 
-        {
-          hasChangelog && (
-            <section class="card-surface p-4 sm:p-5">
-              <h2 class="text-base font-bold text-cream-100 sm:text-lg">更新履歴</h2>
-              <ol class="mt-3 divide-y divide-forest-600 border-t border-forest-600">
-                {changelog.map((entry) => (
-                  <li class="flex flex-col gap-1 py-3 sm:flex-row sm:items-baseline sm:gap-4">
-                    <div class="flex shrink-0 flex-wrap items-baseline gap-2">
-                      <span class="text-sm font-bold text-gold-300">{entry.version}</span>
-                      <time class="font-mono text-xs text-mist-500" datetime={entry.date}>
-                        {entry.date}
-                      </time>
-                    </div>
-                    <p class="text-sm leading-relaxed text-mist-400">{entry.description}</p>
-                  </li>
-                ))}
-              </ol>
-            </section>
-          )
-        }
+        <!-- 3. Action buttons -->
+        <div class="mt-5 flex flex-wrap items-center gap-2">
+          <DownloadLink
+            href={plugin.downloadHref}
+            class="inline-flex min-w-[9.5rem] flex-1 items-center justify-center rounded-sm border border-gold-400/50 bg-gold-400/15 px-4 py-2.5 text-sm font-bold text-gold-300 transition hover:bg-gold-400/25 hover:text-cream-100 sm:flex-none"
+          >
+            ダウンロード
+          </DownloadLink>
+          {
+            plugin.sourceHref && (
+              <SourceCodeButton
+                id={plugin.slug}
+                href={plugin.sourceHref}
+                title={`${plugin.title} のソースコード`}
+              />
+            )
+          }
+          {
+            plugin.donationHref && (
+              <a
+                href={plugin.donationHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex min-w-[9.5rem] flex-1 items-center justify-center rounded-sm border border-forest-600 bg-forest-700/50 px-4 py-2.5 text-sm text-cream-200 transition hover:border-gold-400/40 hover:text-gold-300 sm:flex-none"
+              >
+                OFUSEで応援
+              </a>
+            )
+          }
+        </div>
 
-        {
-          !hasOverview && !hasHelp && !hasChangelog && plugin.description && (
-            <section class="card-surface p-4 sm:p-5">
-              <h2 class="text-base font-bold text-cream-100 sm:text-lg">説明</h2>
-              <p class="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-mist-400">
-                {plugin.description}
-              </p>
-            </section>
-          )
-        }
+        <!-- 4. Description sections -->
+        <div class="mt-8 space-y-4">
+          {
+            hasOverview && (
+              <section class="card-surface p-4 sm:p-5">
+                <h2 class="text-base font-bold text-cream-100 sm:text-lg">機能</h2>
+                <ul class="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-mist-400">
+                  {features.map((item) => (
+                    <li>{item}</li>
+                  ))}
+                </ul>
+              </section>
+            )
+          }
+
+          {
+            hasHelp && (
+              <section class="card-surface p-4 sm:p-5">
+                <h2 class="text-base font-bold text-cream-100 sm:text-lg">ヘルプ</h2>
+                <div class="mt-3">
+                  <PluginHelpText text={helpText} />
+                </div>
+              </section>
+            )
+          }
+
+          {
+            hasChangelog && (
+              <section class="card-surface p-4 sm:p-5">
+                <h2 class="text-base font-bold text-cream-100 sm:text-lg">更新履歴</h2>
+                <ol class="mt-3 divide-y divide-forest-600 border-t border-forest-600">
+                  {changelog.map((entry) => (
+                    <li class="flex flex-col gap-1 py-3 sm:flex-row sm:items-baseline sm:gap-4">
+                      <div class="flex shrink-0 flex-wrap items-baseline gap-2">
+                        <span class="text-sm font-bold text-gold-300">{entry.version}</span>
+                        <time class="font-mono text-xs text-mist-500" datetime={entry.date}>
+                          {entry.date}
+                        </time>
+                      </div>
+                      <p class="text-sm leading-relaxed text-mist-400">{entry.description}</p>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )
+          }
+
+          {
+            !hasOverview && !hasHelp && !hasChangelog && plugin.description && (
+              <section class="card-surface p-4 sm:p-5">
+                <h2 class="text-base font-bold text-cream-100 sm:text-lg">説明</h2>
+                <p class="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-mist-400">
+                  {plugin.description}
+                </p>
+              </section>
+            )
+          }
+        </div>
       </div>
     </div>
 
