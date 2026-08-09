@@ -89,7 +89,7 @@ export const defaultPluginVideoId = "dQw4w9WgXcQ";
 export const plugins: PluginItem[] = [
   {
     slug: "copyattack",
-    title: "敵の技コピープラグイン",
+    title: "敵の技コピー",
     fileName: "CopyAttack.js",
     engine: "RPGツクールMZ",
     shortDescription: "敵の技をコピーして使える、バトル向けプラグイン。",
@@ -160,7 +160,7 @@ export const plugins: PluginItem[] = [
     category: "バトル系",
     updatedAt: "2026-08-06",
     // image: "/images/plugins/copyattack.webp",
-    imageAlt: "敵の技コピープラグインのアイキャッチ画像",
+    imageAlt: "敵の技コピーのアイキャッチ画像",
     // mainVideoUrl: "https://www.youtube.com/watch?v=xxxxxxxxxxx",
     // subVideoUrl: "https://www.youtube.com/watch?v=yyyyyyyyyyy",
     // youtubeUrls: ["xxxxxxxxxxx", "yyyyyyyyyyy"],

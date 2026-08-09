@@ -17,12 +17,9 @@ export const site = {
     twitter: "https://twitter.com/",
     youtube: "https://youtube.com/",
   },
-  /**
-   * お問い合わせ用 Google フォームの埋め込みURL。
-   * `xxxxx` を実際のフォームIDに差し替えてください。
-   */
+  /** お問い合わせ用 Google フォームの埋め込みURL */
   contactFormEmbedUrl:
-    "https://docs.google.com/forms/d/e/xxxxx/viewform?embedded=true",
+    "https://docs.google.com/forms/d/e/1FAIpQLSfEN5qBv64anG-lKobL74vTFqxoZP8NY6myYJN-GV3rur-0SQ/viewform?embedded=true",
   /**
    * OFUSE（オフセ）の応援導線。
    * ofuseUserId を書き換えるか、公開URLが異なる場合は href を直接指定してください。
@@ -52,7 +49,7 @@ export type ChangelogItem = {
 export const changelog: ChangelogItem[] = [
   {
     date: "2026-08-06",
-    label: "ツクールMZ用プラグイン「敵の技コピープラグイン」を配布開始",
+    label: "ツクールMZ用プラグイン「敵の技コピー」を配布開始",
     href: "/plugins/copyattack/",
   },
   {
@@ -82,7 +79,7 @@ export type PickupItem = {
 export const pickupItems: PickupItem[] = [
   {
     kind: "plugin",
-    title: "敵の技コピープラグイン",
+    title: "敵の技コピー",
     summary:
       "敵の技をコピーして使えるようにする、RPGツクールMZ向けバトルプラグイン。",
     meta: "RPGツクールMZ",
