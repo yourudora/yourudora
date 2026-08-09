@@ -1,9 +1,7 @@
 ---
 /**
- * Formats plugin help text with light markdown-like rules:
- * - fenced ``` blocks → <pre><code>
- * - inline `code` → <code>
- * - lines starting with - / ・ / ■ → list-ish paragraphs kept with pre-wrap
+ * Formats plugin help text with light markdown-like rules.
+ * Uses :global styles so set:html content keeps white-space / code styling.
  */
 interface Props {
   text: string;
@@ -27,14 +25,20 @@ function formatInline(value: string) {
   );
 }
 
+function normalizeNewlines(raw: string) {
+  // Support both real newlines and escaped \n sequences in data
+  return raw.replace(/\r\n/g, "\n").replace(/\\n/g, "\n");
+}
+
 function renderHelp(raw: string): string {
+  const normalized = normalizeNewlines(raw);
   const parts: string[] = [];
   const fence = /```([\s\S]*?)```/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
-  while ((match = fence.exec(raw)) !== null) {
-    const before = raw.slice(lastIndex, match.index);
+  while ((match = fence.exec(normalized)) !== null) {
+    const before = normalized.slice(lastIndex, match.index);
     if (before) {
       parts.push(`<div class="plugin-help__block">${formatInline(before)}</div>`);
     }
@@ -44,7 +48,7 @@ function renderHelp(raw: string): string {
     lastIndex = match.index + match[0].length;
   }
 
-  const rest = raw.slice(lastIndex);
+  const rest = normalized.slice(lastIndex);
   if (rest) {
     parts.push(`<div class="plugin-help__block">${formatInline(rest)}</div>`);
   }
@@ -57,11 +61,12 @@ const html = renderHelp(text);
 
 <div class:list={["plugin-help", className]} set:html={html} />
 
-<style>
+<style is:global>
   .plugin-help {
     font-size: 0.875rem;
     line-height: 1.7;
     color: #cbd5e1;
+    white-space: normal;
   }
 
   .plugin-help__block {
@@ -77,6 +82,7 @@ const html = renderHelp(text);
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 0.8em;
     color: #7dd3fc;
+    white-space: pre-wrap;
   }
 
   .plugin-help__pre {
@@ -86,6 +92,7 @@ const html = renderHelp(text);
     border: 1px solid rgba(61, 79, 102, 0.9);
     background: #0b1220;
     padding: 0.85rem 1rem;
+    white-space: pre;
   }
 
   .plugin-help__pre code {
