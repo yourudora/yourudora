@@ -2,6 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import DonationSlot from "../../components/DonationSlot.astro";
 import DownloadLink from "../../components/DownloadLink.astro";
+import MetaTagGenerator from "../../components/MetaTagGenerator.astro";
 import PluginHelpText from "../../components/PluginHelpText.astro";
 import SourceCodeButton from "../../components/SourceCodeButton.astro";
 import {
@@ -32,6 +33,7 @@ const [mainVideoId, subVideoId] = getPluginVideoIds(plugin);
 const hasOverview = features.length > 0;
 const hasHelp = Boolean(helpText);
 const hasChangelog = changelog.length > 0;
+const showMetaTagTool = Boolean(plugin.hasMetaTags);
 
 const mainEmbedSrc = `https://www.youtube-nocookie.com/embed/${mainVideoId}?autoplay=1&mute=1&playsinline=1&rel=0&enablejsapi=1`;
 const subEmbedSrc = `https://www.youtube-nocookie.com/embed/${subVideoId}?rel=0&enablejsapi=1`;
@@ -147,6 +149,8 @@ const subEmbedSrc = `https://www.youtube-nocookie.com/embed/${subVideoId}?rel=0&
               </section>
             )
           }
+
+          {showMetaTagTool && <MetaTagGenerator id={`${plugin.slug}-meta-tag`} />}
 
           {
             hasHelp && (

@@ -1,0 +1,320 @@
+---
+/**
+ * メモ欄タグ自動生成ツール（CopyAttack 等）。
+ * hasMetaTags が true のプラグイン詳細でのみ描画してください。
+ */
+interface Props {
+  id?: string;
+  class?: string;
+}
+
+const { id = "meta-tag-tool", class: className = "" } = Astro.props;
+---
+
+<section
+  class:list={["meta-tag-tool card-surface p-4 sm:p-5", className]}
+  data-meta-tag-tool={id}
+  aria-labelledby={`${id}-heading`}
+>
+  <h2 id={`${id}-heading`} class="text-base font-bold text-cream-100 sm:text-lg">
+    メモ欄タグ自動生成
+  </h2>
+  <p class="mt-2 text-sm leading-relaxed text-mist-400">
+    設定したい機能を選ぶと、ツクールのメモ欄に貼り付けるタグが自動で生成されます。
+  </p>
+
+  <div class="meta-tag-tool__form mt-4 space-y-4">
+    <div class="meta-tag-tool__field">
+      <label for={`${id}-feature`} class="meta-tag-tool__label">
+        設定したい機能を選択してください
+      </label>
+      <select id={`${id}-feature`} class="meta-tag-tool__select" data-mtg-feature>
+        <option value="" selected>選択してください</option>
+        <option value="count">一度の発動でコピーできる数を変更</option>
+        <option value="hpRate">HPが一定割合以下になるまでコピー不可にする</option>
+        <option value="copyAttack">コピー用スキルとして設定</option>
+        <option value="forget">技忘れ用スキルとして設定</option>
+        <option value="noCopy">コピー対象から除外</option>
+      </select>
+    </div>
+
+    <div class="meta-tag-tool__field" data-mtg-param="count" hidden>
+      <label for={`${id}-count`} class="meta-tag-tool__label">
+        コピーできる回数（1〜9）
+      </label>
+      <select id={`${id}-count`} class="meta-tag-tool__select" data-mtg-count>
+        <option value="" selected>選択してください</option>
+        {Array.from({ length: 9 }, (_, i) => i + 1).map((n) => (
+          <option value={String(n)}>{n}回</option>
+        ))}
+      </select>
+    </div>
+
+    <div class="meta-tag-tool__field" data-mtg-param="hpRate" hidden>
+      <label for={`${id}-hp`} class="meta-tag-tool__label">
+        必要HP割合（10%〜90% / 10%刻み）
+      </label>
+      <select id={`${id}-hp`} class="meta-tag-tool__select" data-mtg-hp>
+        <option value="" selected>選択してください</option>
+        {Array.from({ length: 9 }, (_, i) => (i + 1) * 10).map((n) => (
+          <option value={String(n)}>{n}%</option>
+        ))}
+      </select>
+    </div>
+
+    <div class="meta-tag-tool__output" data-mtg-output hidden>
+      <label for={`${id}-result`} class="meta-tag-tool__label">生成されたタグ</label>
+      <div class="meta-tag-tool__result-row">
+        <input
+          id={`${id}-result`}
+          type="text"
+          class="meta-tag-tool__result"
+          data-mtg-result
+          readonly
+          value=""
+          aria-live="polite"
+        />
+        <button type="button" class="meta-tag-tool__copy" data-mtg-copy>
+          コピーする
+        </button>
+      </div>
+      <p class="meta-tag-tool__hint" data-mtg-feedback aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .meta-tag-tool__label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #94a3b8;
+  }
+
+  .meta-tag-tool__select,
+  .meta-tag-tool__result {
+    width: 100%;
+    border-radius: 0.2rem;
+    border: 1px solid #3d4f66;
+    background: #121a26;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.875rem;
+    color: #f8fafc;
+    outline: none;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .meta-tag-tool__select:focus,
+  .meta-tag-tool__result:focus {
+    border-color: rgba(56, 189, 248, 0.7);
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.15);
+  }
+
+  .meta-tag-tool__result {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: #7dd3fc;
+    letter-spacing: 0.02em;
+  }
+
+  .meta-tag-tool__result-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  @media (min-width: 480px) {
+    .meta-tag-tool__result-row {
+      flex-direction: row;
+      align-items: stretch;
+    }
+
+    .meta-tag-tool__result {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .meta-tag-tool__copy {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+  }
+
+  .meta-tag-tool__copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.2rem;
+    border: 1px solid rgba(56, 189, 248, 0.5);
+    background: rgba(56, 189, 248, 0.15);
+    padding: 0.65rem 1.1rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #7dd3fc;
+    cursor: pointer;
+    transition:
+      background 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .meta-tag-tool__copy:hover {
+    background: rgba(56, 189, 248, 0.25);
+    color: #f8fafc;
+  }
+
+  .meta-tag-tool__copy.is-done {
+    border-color: rgba(45, 212, 191, 0.55);
+    background: rgba(45, 212, 191, 0.18);
+    color: #5eead4;
+  }
+
+  .meta-tag-tool__hint {
+    min-height: 1.25rem;
+    margin-top: 0.45rem;
+    font-size: 0.75rem;
+    color: #5eead4;
+  }
+
+  .meta-tag-tool__hint.is-error {
+    color: #fca5a5;
+  }
+</style>
+
+<script>
+  type FeatureKey = "count" | "hpRate" | "copyAttack" | "forget" | "noCopy" | "";
+
+  function buildTag(feature: FeatureKey, count: string, hp: string): string | null {
+    if (!feature) return null;
+    if (feature === "count") {
+      if (!count) return null;
+      return `<CopyAttackCount:${count}>`;
+    }
+    if (feature === "hpRate") {
+      if (!hp) return null;
+      return `<CopyAttackHpRate:${hp}>`;
+    }
+    if (feature === "copyAttack") return "<CopyAttack>";
+    if (feature === "forget") return "<CopyAttackForget>";
+    if (feature === "noCopy") return "<NoCopyAttack>";
+    return null;
+  }
+
+  async function copyText(text: string): Promise<boolean> {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch {
+      /* fallback below */
+    }
+
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  function bindMetaTagTool(root: HTMLElement) {
+    if (root.dataset.mtgBound === "1") return;
+    root.dataset.mtgBound = "1";
+
+    const featureSelect = root.querySelector<HTMLSelectElement>("[data-mtg-feature]");
+    const countWrap = root.querySelector<HTMLElement>('[data-mtg-param="count"]');
+    const hpWrap = root.querySelector<HTMLElement>('[data-mtg-param="hpRate"]');
+    const countSelect = root.querySelector<HTMLSelectElement>("[data-mtg-count]");
+    const hpSelect = root.querySelector<HTMLSelectElement>("[data-mtg-hp]");
+    const output = root.querySelector<HTMLElement>("[data-mtg-output]");
+    const resultInput = root.querySelector<HTMLInputElement>("[data-mtg-result]");
+    const copyBtn = root.querySelector<HTMLButtonElement>("[data-mtg-copy]");
+    const feedback = root.querySelector<HTMLElement>("[data-mtg-feedback]");
+
+    if (!featureSelect || !output || !resultInput || !copyBtn) return;
+
+    let feedbackTimer = 0;
+
+    const setFeedback = (message: string, isError = false) => {
+      if (!feedback) return;
+      feedback.textContent = message;
+      feedback.classList.toggle("is-error", isError);
+      window.clearTimeout(feedbackTimer);
+      if (message) {
+        feedbackTimer = window.setTimeout(() => {
+          feedback.textContent = "";
+          feedback.classList.remove("is-error");
+        }, 2200);
+      }
+    };
+
+    const update = () => {
+      const feature = (featureSelect.value || "") as FeatureKey;
+      const needsCount = feature === "count";
+      const needsHp = feature === "hpRate";
+
+      if (countWrap) countWrap.hidden = !needsCount;
+      if (hpWrap) hpWrap.hidden = !needsHp;
+
+      if (!needsCount && countSelect) countSelect.value = "";
+      if (!needsHp && hpSelect) hpSelect.value = "";
+
+      const tag = buildTag(feature, countSelect?.value ?? "", hpSelect?.value ?? "");
+      if (tag) {
+        output.hidden = false;
+        resultInput.value = tag;
+      } else {
+        output.hidden = true;
+        resultInput.value = "";
+        copyBtn.classList.remove("is-done");
+        copyBtn.textContent = "コピーする";
+        setFeedback("");
+      }
+    };
+
+    featureSelect.addEventListener("change", update);
+    countSelect?.addEventListener("change", update);
+    hpSelect?.addEventListener("change", update);
+
+    copyBtn.addEventListener("click", async () => {
+      const tag = resultInput.value.trim();
+      if (!tag) return;
+
+      const ok = await copyText(tag);
+      if (ok) {
+        copyBtn.classList.add("is-done");
+        copyBtn.textContent = "コピーしました！";
+        setFeedback("クリップボードにコピーしました。");
+        window.setTimeout(() => {
+          copyBtn.classList.remove("is-done");
+          copyBtn.textContent = "コピーする";
+        }, 2000);
+      } else {
+        setFeedback("コピーに失敗しました。手動で選択してコピーしてください。", true);
+        resultInput.focus();
+        resultInput.select();
+      }
+    });
+
+    update();
+  }
+
+  function initAll() {
+    document.querySelectorAll<HTMLElement>("[data-meta-tag-tool]").forEach(bindMetaTagTool);
+  }
+
+  initAll();
+  document.addEventListener("astro:page-load", initAll);
+</script>

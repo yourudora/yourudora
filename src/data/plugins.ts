@@ -42,6 +42,11 @@ export type PluginItem = {
    * ツクールMZのプラグイン管理画面のヘルプに相当する内容。
    */
   help?: string;
+  /**
+   * メモ欄タグ（Metaタグ）を使うプラグインの場合 true。
+   * true のとき詳細ページにタグ自動生成ツールを表示します。
+   */
+  hasMetaTags?: boolean;
   /** このプラグイン単体の更新履歴（新しい順推奨） */
   changelog?: PluginChangelogEntry[];
   downloadHref: string;
@@ -159,6 +164,7 @@ export const plugins: PluginItem[] = [
     donationHref: ofuseDonationHref,
     category: "バトル系",
     updatedAt: "2026-08-06",
+    hasMetaTags: true,
     // image: "/images/plugins/copyattack.webp",
     imageAlt: "敵の技コピーのアイキャッチ画像",
     // mainVideoUrl: "https://www.youtube.com/watch?v=xxxxxxxxxxx",
