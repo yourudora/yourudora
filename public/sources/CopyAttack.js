@@ -5,7 +5,6 @@
  * @target MZ
  * @plugindesc 敵の技コピープラグイン
  * @author ユルドラ
- * @url
  * @license MIT
  * @help CopyAttack.js
  *
@@ -20,38 +19,87 @@
  * 2. データベースでコピー用スキルを作成する
  *    ・敵から: 効果範囲「敵単体」「敵全体」など
  *    ・味方から: 効果範囲「味方単体」「味方全体」など
- *    ・メモ欄に <CopyAttack> を書く（またはパラメータでスキル指定）
- * 3. （任意）技忘れ用スキルを作成（効果範囲「なし」推奨）
+ *    ・制限なし: メモ欄に <CopyAttack>
+ *    ・グループ限定: メモ欄に <CopyGroup:グループ名> だけ書く（CopyAttack は不要）
+ * 3. （任意）グループ限定コピーを使うとき
+ *    ・候補にしたいスキルにも同じ <CopyGroup:グループ名> を書く
+ * 4. （任意）技忘れ用スキルを作成（効果範囲「なし」推奨）
  *    ・メモ欄に <CopyAttackForget> を書く
- * 4. 戦闘でコピー用スキルを使い、覚える技を選ぶ
+ *    ・特定グループだけ忘れさせたいときは <CopyGroup:グループ名> も併記
+ * 5. 戦闘でコピー用スキルを使い、覚える技を選ぶ
  *
  * ---------------------------------------------------------------------------
  * ■ メモ欄タグ
  * ---------------------------------------------------------------------------
- * 【スキル】
- *   <CopyAttack>                 コピー用スキル（デフォルトグループ）
- *   <CopyAttack:青魔法>          コピー用スキル（グループ「青魔法」）
- *   <CopyAttackGroup:ラーニング> 同上（グループ専用タグ。こちらを優先）
- *   <CopyAttackForget>           技忘れ（全グループ対象）
- *   <CopyAttackForget:青魔法>    技忘れ（グループ「青魔法」のみ）
- *   <CopyAttackForgetGroup:青魔法> 同上（グループ専用タグ。こちらを優先）
+ * 【コピー実行スキル】
+ *   <CopyAttack>                 全スキル対象のコピー（グループ制限なし）
+ *   <CopyGroup:A>                グループ A 専用のコピー
+ *                                ※この場合 <CopyAttack> の併記は不要です
  *   <CopyAttackCount:2>          1回の使用で選ぶ回数（<CopyCount:n> でも可）
- *   <NoCopyAttack>               コピー候補から除外
- *   <CopyAttackLearned>          コピー習得技の識別用（他プラグイン連携向け）
+ *
+ * 【コピーされるスキル】
+ *   <CopyGroup:A>                グループ A に所属するスキル
+ *   タグなし                     通常スキル（<CopyAttack> からのみコピー可）
+ *   <NoCopyAttack>               コピー禁止
+ *
+ * 【コピー技忘れスキル】
+ *   <CopyAttackForget>           保持中のコピー技を忘れる
+ *   <CopyGroup:A>                （任意）グループ A のコピー技だけ忘れる
+ *                                ※ <CopyAttackForget> と併記。無いときは全コピー技が対象
  *
  * 【敵キャラ】
  *   <CopyAttackHpRate:30>        HPが最大の30%以下になるまでコピー不可
  *
- * ※ グループ名は日本語など直感的な名前を推奨します（例: 青魔法 / ラーニング）。
- *    グループ名を付けない <CopyAttack> は常にデフォルトグループとして扱います。
+ * ---------------------------------------------------------------------------
+ * ■ グループによる候補の制限（任意）
+ * ---------------------------------------------------------------------------
+ * グループ指定はすべて <CopyGroup:名前> で行います。
+ * <CopyAttackGroup> や <CopyAttack:名前> は使いません。
+ *
+ * 【制限なし（基本）】
+ *   コピー用スキル … <CopyAttack>
+ *   ファイア       … タグなし
+ *   → ファイアはコピー候補になります（NoCopyAttack 等が無い限り）
+ *
+ * 【グループで限定する】
+ *   コピー用スキル … <CopyGroup:A>     （CopyAttack は書かない）
+ *   ファイア       … <CopyGroup:A>  → コピー可
+ *   ヒール         … <CopyGroup:B>  → コピー不可（不一致）
+ *   サンダー       … タグなし       → コピー不可（グループコピーではタグ必須）
+ *
+ * ---------------------------------------------------------------------------
+ * ■ 技忘れとグループ
+ * ---------------------------------------------------------------------------
+ * 技忘れは「コピーで覚えた技」だけが対象です（通常習得スキルは消えません）。
+ *
+ * 【全コピー技を対象（デフォルト）】
+ *   技忘れスキル … <CopyAttackForget>
+ *   → 保持中のコピー技すべてが一覧に出ます
+ *
+ * 【グループ A だけ忘れる】
+ *   技忘れスキル … <CopyAttackForget>
+ *                   <CopyGroup:A>
+ *   → <CopyGroup:A> が付いたコピー技だけが一覧に出ます
+ *   → グループ B やタグなしのコピー技はそのまま残ります
+ *
+ * 【プラグインコマンド例】ForgetCopiedSkillByPlayer
+ *   ・対象アクター … 1
+ *   ・フィルタグループ … A（空欄なら全コピー技）
+ *
+ * ※ 覚えた技の保持は共通の1つの上限（パラメータ「コピー技の最大保持数」）です。
+ * ※ グループ名は日本語でも構いません（例: 青魔法 / ラーニング）。
+ * ※ タグ名はプラグインパラメータで変更できます。
  *
  * ---------------------------------------------------------------------------
  * ■ 仕様メモ
  * ---------------------------------------------------------------------------
- * ・グループごとにコピー技の保持上限を分けられます（例: 青魔法／ラーニング）
- * ・グループ名はメモ欄やプラグインコマンドで自由に指定できます（日本語可）
+ * ・<CopyAttack> はグループ制限なし。<CopyGroup:名前> 単体はグループ限定コピーです
+ * ・グループ限定コピーでは、候補スキル側にも同じ <CopyGroup:名前> が必要です
+ * ・NoCopyAttack が付いたスキルは、グループに関係なくコピーできません
+ * ・技忘れに CopyGroup を書くと、そのグループのコピー技だけが忘却対象です
+ * ・技忘れに CopyGroup が無いときは、全コピー技が忘却対象です
  * ・効果範囲が全体のとき、対象全員の候補スキルを1つの一覧にまとめて表示します
- * ・コピー技が上限のあいだは、そのグループのコピー用スキルは使用できません
+ * ・コピー技が上限のあいだは、コピー用スキルは使用できません
  * ・コピーできる技がない対象は選べません
  * ・敵対象: 敵の行動パターンのスキルが候補
  * ・味方対象: その味方が習得中のスキルが候補
@@ -59,6 +107,16 @@
  * ・1回のコピー回数が2以上でも、候補が1つあれば使用可能（実際の回数は候補数までに自動調整）
  * ・技忘れ時は確認ウィンドウを表示（初期カーソルは「いいえ」）
  * ・保持データはスキルIDの数値配列としてセーブされます
+ * ・コピー用スキルは戦闘中専用です（メニューからは使用できません）
+ *
+ * ---------------------------------------------------------------------------
+ * ■ 利用規約
+ * ---------------------------------------------------------------------------
+ * ・本プラグインは MIT ライセンスです
+ * 商用利用：可能
+ * 改変：可能
+ * 再配布：可能
+ * クレジット：任意
  *
  * ---------------------------------------------------------------------------
  * ■ プラグインコマンド
@@ -67,25 +125,24 @@
  *
  * 【コピー技を選んで覚える】LearnCopiedSkillByPlayer
  *   ・対象アクター … 0ならパーティ先頭
- *   ・グループ … 空欄ならデフォルトグループ（例: 青魔法）
+ *   ・フィルタグループ … 空欄なら制限なし。例: A
  *
  * 【リストからコピー技を選んで覚える】LearnCopiedSkillFromListByPlayer
- *   ・対象アクター / スキルリスト / グループ
+ *   ・対象アクター / スキルリスト / フィルタグループ
  *
  * 【コピー技を自動で覚える】AddCopiedSkillDirect
- *   ・対象アクター / 覚えるスキル / グループ
+ *   ・対象アクター / 覚えるスキル
  *
  * 【コピー技を選んで忘れる】ForgetCopiedSkillByPlayer
- *   ・対象アクター / グループ（空欄なら全グループ）
+ *   ・対象アクター … 0ならパーティ先頭
+ *   ・フィルタグループ … 空欄なら全コピー技。例: A
  *
  * 【コピー技を自動で忘れる】RemoveCopiedSkillDirect
  *   ・対象アクター / 忘れるスキル
  *
  * 【コピー技の最大保持数を変える】SetMaxCopiedSkills
  *   ・対象アクター … 0ならパーティ全員
- *   ・新しい最大保持数 / グループ
- *
- * ライセンス: MITライセンス
+ *   ・新しい最大保持数
  *
  * @param basicSettings
  * @text ■ 基本設定
@@ -99,7 +156,7 @@
  *
  * @param copySkillMetaTag
  * @text コピー用スキルのメモタグ名
- * @desc スキルメモ欄のタグ名。通常は変更不要です。
+ * @desc パラメータなしの <CopyAttack> として使います。グループ名は付けません。
  * @parent basicSettings
  * @default CopyAttack
  *
@@ -147,32 +204,14 @@
  * @parent basicSettings
  * @default CopyAttackCount
  *
- * @param groupMaxSettings
- * @text グループ別の最大保持数
- * @desc 書式例: 青魔法:5,ラーニング:3 （未指定グループは「コピー技の最大保持数」を使用）
- * @parent basicSettings
- * @default
- *
  * @param tagSettings
  * @text ■ メモ欄タグ・制限
  *
- * @param copiedSkillMetaTag
- * @text コピー済み技タグ名（連携用）
- * @desc コピーで覚えた技の識別用。他プラグイン連携向け。通常は変更不要です。
- * @parent tagSettings
- * @default CopyAttackLearned
- *
  * @param copyGroupMetaTag
- * @text コピーグループ指定タグ名
- * @desc 例: <CopyAttackGroup:青魔法> 。<CopyAttack:青魔法> でも指定できます。
+ * @text グループ指定タグ名
+ * @desc 例: <CopyGroup:A> 。コピー実行・候補所属・技忘れ絞り込みで共通に使います。
  * @parent tagSettings
- * @default CopyAttackGroup
- *
- * @param forgetGroupMetaTag
- * @text 技忘れグループ指定タグ名
- * @desc 例: <CopyAttackForgetGroup:青魔法> 。<CopyAttackForget:青魔法> でも指定できます。
- * @parent tagSettings
- * @default CopyAttackForgetGroup
+ * @default CopyGroup
  *
  * @param copyableSkillMetaTag
  * @text コピー可能スキルタグ名（絞り込み）
@@ -356,8 +395,8 @@
  * @default 1
  *
  * @arg groupId
- * @text グループ
- * @desc 空欄ならデフォルトグループ。例: 青魔法
+ * @text フィルタグループ
+ * @desc 空欄なら制限なし。候補を <CopyGroup:名前> で絞るときのグループ名。例: A
  * @default
  *
  * @command LearnCopiedSkillFromListByPlayer
@@ -377,8 +416,8 @@
  * @default []
  *
  * @arg groupId
- * @text グループ
- * @desc 空欄ならデフォルトグループ。例: 青魔法
+ * @text フィルタグループ
+ * @desc 空欄なら制限なし。リスト内をさらに <CopyGroup:名前> で絞るときのグループ名。
  * @default
  *
  * @command AddCopiedSkillDirect
@@ -397,14 +436,9 @@
  * @type skill
  * @default 1
  *
- * @arg groupId
- * @text グループ
- * @desc 空欄ならデフォルトグループ。例: 青魔法
- * @default
- *
  * @command ForgetCopiedSkillByPlayer
  * @text コピー技を選んで忘れる
- * @desc 保持中のコピー技から1つ選んで忘れます。
+ * @desc 保持中のコピー技から選んで忘れます。グループ指定時はそのグループのみ。
  *
  * @arg actorId
  * @text 対象アクター
@@ -413,8 +447,8 @@
  * @default 1
  *
  * @arg groupId
- * @text グループ
- * @desc 空欄なら全グループ。指定時はそのグループのみ。例: 青魔法
+ * @text フィルタグループ
+ * @desc 空欄なら全コピー技。<CopyGroup:名前> と同じグループ名を指定。例: A
  * @default
  *
  * @command RemoveCopiedSkillDirect
@@ -450,11 +484,6 @@
  * @min 1
  * @max 99
  * @default 5
- *
- * @arg groupId
- * @text グループ
- * @desc 空欄ならデフォルトグループ。例: 青魔法
- * @default
  */
 
 (() => {
@@ -503,9 +532,7 @@
             copySkillMetaTag: String(params.copySkillMetaTag || "CopyAttack"),
             forgetSkillId: numberParam(params, "forgetSkillId", 0),
             forgetSkillMetaTag: String(params.forgetSkillMetaTag || "CopyAttackForget"),
-            copyGroupMetaTag: String(params.copyGroupMetaTag || "CopyAttackGroup"),
-            forgetGroupMetaTag: String(params.forgetGroupMetaTag || "CopyAttackForgetGroup"),
-            copiedSkillMetaTag: String(params.copiedSkillMetaTag || "CopyAttackLearned"),
+            copyGroupMetaTag: String(params.copyGroupMetaTag || "CopyGroup"),
             copyableSkillMetaTag: String(params.copyableSkillMetaTag || ""),
             uncopyableSkillMetaTag: String(params.uncopyableSkillMetaTag || "NoCopyAttack"),
             defaultRequiredHpRate: Math.max(
@@ -517,19 +544,6 @@
             excludeBasicSkills: params.excludeBasicSkills !== "false",
             defaultCopyCount: Math.max(1, Math.min(99, numberParam(params, "defaultCopyCount", 1))),
             copyCountMetaTag: String(params.copyCountMetaTag || "CopyAttackCount"),
-            groupMaxMap: (function () {
-                const map = {};
-                const raw = String(params.groupMaxSettings || "");
-                for (const part of raw.split(/[,;\n]/)) {
-                    const matched = part.trim().match(/^([^:：]+)\s*[:：]\s*(\d+)\s*$/);
-                    if (!matched) {
-                        continue;
-                    }
-                    const key = String(matched[1]).trim().toLowerCase() || "default";
-                    map[key] = Math.max(1, Math.min(99, Number(matched[2])));
-                }
-                return map;
-            })(),
             successAnimationId: numberParam(params, "successAnimationId", 0),
             successAnimationTarget: String(params.successAnimationTarget || "actor"),
             selectWindowX: numberParam(params, "selectWindowX", -1),
@@ -567,6 +581,8 @@
     CopyAttack._pendingTarget = null;
     /** @type {string} */
     CopyAttack._pendingGroup = CopyAttack.DEFAULT_GROUP;
+    /** @type {string|null} コピー候補のフィルタグループ。null なら制限なし */
+    CopyAttack._pendingFilterGroup = null;
     /** @type {number} */
     CopyAttack._pendingCopyRemain = 1;
     /** @type {number} */
@@ -617,25 +633,9 @@
     };
 
     /**
-     * メモ欄の文字列タグを取得（無ければ null。単独タグは空文字）
-     * @param {object} data
-     * @param {string} tagName
-     * @returns {string|null}
-     */
-    CopyAttack.readMetaText = function (data, tagName) {
-        if (!data || !data.meta || !tagName || data.meta[tagName] == null) {
-            return null;
-        }
-        const raw = data.meta[tagName];
-        if (raw === true) {
-            return "";
-        }
-        return String(raw).trim();
-    };
-
-    /**
      * グループ名を正規化（空・true は default）
      * 日本語など任意の名前をそのまま使えます（英字は小文字化して揺れを吸収）
+     * 予約キー（__proto__ 等）は拒否して default に落とす
      * @param {*} raw
      * @returns {string}
      */
@@ -644,11 +644,39 @@
             return CopyAttack.DEFAULT_GROUP;
         }
         const text = String(raw).trim().toLowerCase();
-        return text || CopyAttack.DEFAULT_GROUP;
+        if (
+            !text ||
+            text === "__proto__" ||
+            text === "constructor" ||
+            text === "prototype"
+        ) {
+            return CopyAttack.DEFAULT_GROUP;
+        }
+        return text;
     };
 
     /**
-     * 引数のグループ。空欄は default。forgetAll 用に空を null にしたい場合は allowNull
+     * グループ辞書用の安全な空オブジェクト
+     * @returns {Object}
+     */
+    CopyAttack.createGroupMap = function () {
+        return Object.create(null);
+    };
+
+    /**
+     * 引数のフィルタグループ。空欄は null（制限なし）
+     * @param {*} raw
+     * @returns {string|null}
+     */
+    CopyAttack.parseFilterGroupArg = function (raw) {
+        if (raw == null || String(raw).trim() === "") {
+            return null;
+        }
+        return CopyAttack.normalizeGroupId(raw);
+    };
+
+    /**
+     * 引数のグループ（互換用）。空欄は default。allowNull 時は空欄で null
      * @param {*} raw
      * @param {boolean} [allowNull]
      * @returns {string|null}
@@ -690,9 +718,36 @@
         return result;
     };
 
-    /** コピー開始スキルか */
+    /**
+     * メモ欄タグの値をグループ名として読む（空・true なら null）
+     * @param {object|null} data
+     * @param {string} tagName
+     * @returns {string|null}
+     */
+    CopyAttack.readGroupMetaValue = function (data, tagName) {
+        if (!data || !tagName || !CopyAttack.hasMetaTag(data, tagName)) {
+            return null;
+        }
+        const raw = data.meta[tagName];
+        if (raw == null || raw === true || String(raw).trim() === "") {
+            return null;
+        }
+        return CopyAttack.normalizeGroupId(raw);
+    };
+
+    /**
+     * コピー開始スキルか
+     * ・<CopyAttack> … グループ制限なしのコピー
+     * ・<CopyGroup:名前> … そのグループ専用のコピー（CopyAttack 併記不要）
+     * ・技忘れスキルは除外
+     * @param {object|null} skill
+     * @returns {boolean}
+     */
     CopyAttack.isCopySkill = function (skill) {
         if (!skill) {
+            return false;
+        }
+        if (CopyAttack.isForgetSkill(skill)) {
             return false;
         }
         if (CopyAttack.params.copySkillId > 0 && skill.id === CopyAttack.params.copySkillId) {
@@ -701,34 +756,78 @@
         if (CopyAttack.hasMetaTag(skill, CopyAttack.params.copySkillMetaTag)) {
             return true;
         }
-        // <CopyAttackGroup:グループ名> 単独でもコピー用スキルとみなす
-        const groupTag = CopyAttack.params.copyGroupMetaTag;
-        return !!(groupTag && CopyAttack.hasMetaTag(skill, groupTag));
+        // <CopyGroup:A> 単体でもコピー用スキル
+        return !!CopyAttack.readGroupMetaValue(skill, CopyAttack.params.copyGroupMetaTag);
     };
 
     /**
-     * コピー用スキルのグループID
-     * 優先順: CopyAttackGroup → CopyAttack の値 → デフォルト
+     * コピー実行用として「開始スキル」扱いするか（canUse の制限用）
+     * すでにコピーで覚えた技は通常使用するため除外する
+     * @param {Game_Battler} user
      * @param {object|null} skill
+     * @returns {boolean}
+     */
+    CopyAttack.isCopySkillForUse = function (user, skill) {
+        if (!CopyAttack.isCopySkill(skill)) {
+            return false;
+        }
+        if (user && user.isActor && user.isActor() && user.isCopiedSkill(skill.id)) {
+            return false;
+        }
+        return true;
+    };
+
+    /**
+     * コピー技の保管先ID（常にデフォルト。保管枠の分割は廃止）
+     * @param {object|null} [_skill]
      * @returns {string}
      */
-    CopyAttack.getCopyGroup = function (skill) {
-        if (!skill) {
-            return CopyAttack.DEFAULT_GROUP;
-        }
-        const groupTag = CopyAttack.params.copyGroupMetaTag;
-        if (groupTag) {
-            const explicit = CopyAttack.readMetaText(skill, groupTag);
-            if (explicit != null && explicit !== "") {
-                return CopyAttack.normalizeGroupId(explicit);
-            }
-        }
-        const tag = CopyAttack.params.copySkillMetaTag;
-        if (CopyAttack.hasMetaTag(skill, tag)) {
-            // <CopyAttack> → default / <CopyAttack:青魔法> → 青魔法
-            return CopyAttack.normalizeGroupId(skill.meta[tag]);
-        }
+    CopyAttack.getCopyGroup = function (/* skill */) {
         return CopyAttack.DEFAULT_GROUP;
+    };
+
+    /**
+     * コピー用スキル側のフィルタグループを取得する
+     * <CopyGroup:A> → "a"
+     * <CopyAttack> のみ（CopyGroup なし）→ null（制限なし）
+     * @param {object|null} skill
+     * @returns {string|null}
+     */
+    CopyAttack.getCopyFilterGroup = function (skill) {
+        if (!skill) {
+            return null;
+        }
+        return CopyAttack.readGroupMetaValue(skill, CopyAttack.params.copyGroupMetaTag);
+    };
+
+    /**
+     * 候補スキルが属するフィルタグループを取得する
+     * <CopyGroup:A> → "a" / タグ無し → null
+     * @param {object|null} skill
+     * @returns {string|null}
+     */
+    CopyAttack.getSkillBelongGroup = function (skill) {
+        if (!skill) {
+            return null;
+        }
+        return CopyAttack.readGroupMetaValue(skill, CopyAttack.params.copyGroupMetaTag);
+    };
+
+    /**
+     * 候補スキルが、指定フィルタグループに属する（または制限なし）か
+     * @param {object|null} skill
+     * @param {string|null|undefined} filterGroup null/undefined なら常に許可
+     * @returns {boolean}
+     */
+    CopyAttack.skillMatchesFilterGroup = function (skill, filterGroup) {
+        if (filterGroup == null || filterGroup === "") {
+            return true;
+        }
+        const belong = CopyAttack.getSkillBelongGroup(skill);
+        if (belong == null) {
+            return false;
+        }
+        return belong === CopyAttack.normalizeGroupId(filterGroup);
     };
 
     /** 技忘れスキルか */
@@ -739,42 +838,45 @@
         if (CopyAttack.params.forgetSkillId > 0 && skill.id === CopyAttack.params.forgetSkillId) {
             return true;
         }
-        if (CopyAttack.hasMetaTag(skill, CopyAttack.params.forgetSkillMetaTag)) {
-            return true;
-        }
-        const groupTag = CopyAttack.params.forgetGroupMetaTag;
-        return !!(groupTag && CopyAttack.hasMetaTag(skill, groupTag));
+        return CopyAttack.hasMetaTag(skill, CopyAttack.params.forgetSkillMetaTag);
     };
 
     /**
-     * 技忘れスキルのグループ。タグ値が空なら null（全グループ）
-     * 優先順: CopyAttackForgetGroup → CopyAttackForget の値 → 全グループ
-     * @param {object|null} skill
+     * 技忘れスキル／コマンドが対象にするフィルタグループ
+     * 技忘れ側の <CopyGroup:A> → "a" / タグ無し → null（全コピー技）
+     * @param {object|null} skill 技忘れスキル（無い場合は null）
      * @returns {string|null}
      */
     CopyAttack.getForgetGroup = function (skill) {
         if (!skill) {
             return null;
         }
-        const groupTag = CopyAttack.params.forgetGroupMetaTag;
-        if (groupTag && CopyAttack.hasMetaTag(skill, groupTag)) {
-            const explicit = CopyAttack.readMetaText(skill, groupTag);
-            if (explicit) {
-                return CopyAttack.normalizeGroupId(explicit);
-            }
-            // <CopyAttackForgetGroup> 単独は全グループ
-            return null;
+        return CopyAttack.readGroupMetaValue(skill, CopyAttack.params.copyGroupMetaTag);
+    };
+
+    /**
+     * 技忘れ一覧用: コピーで保持中のスキルだけを返す（通常習得は含まない）
+     * @param {Game_Actor|null} actor
+     * @param {string|null} [filterGroup] null なら全コピー技
+     * @returns {object[]}
+     */
+    CopyAttack.forgetableCopiedSkills = function (actor, filterGroup) {
+        if (!actor) {
+            return [];
         }
-        const tag = CopyAttack.params.forgetSkillMetaTag;
-        if (!CopyAttack.hasMetaTag(skill, tag)) {
-            // パラメータ指定の技忘れは全グループ
-            return null;
-        }
-        const raw = skill.meta[tag];
-        if (raw == null || raw === true || String(raw).trim() === "") {
-            return null;
-        }
-        return CopyAttack.normalizeGroupId(raw);
+        return actor.copiedSkills(null).filter((skill) =>
+            CopyAttack.skillMatchesFilterGroup(skill, filterGroup)
+        );
+    };
+
+    /**
+     * 技忘れ可能なコピー技が1つ以上あるか
+     * @param {Game_Actor|null} actor
+     * @param {string|null} [filterGroup]
+     * @returns {boolean}
+     */
+    CopyAttack.hasForgetableCopiedSkills = function (actor, filterGroup) {
+        return CopyAttack.forgetableCopiedSkills(actor, filterGroup).length > 0;
     };
 
     /**
@@ -796,26 +898,52 @@
     /** 現在入力中の行動がコピー用スキルか */
     CopyAttack.isSelectingCopySkillTarget = function () {
         const action = BattleManager.inputtingAction && BattleManager.inputtingAction();
-        return !!(action && CopyAttack.isCopySkill(action.item()));
+        if (!action || !action.item()) {
+            return false;
+        }
+        const user =
+            (BattleManager.actor && BattleManager.actor()) ||
+            (action.subject && action.subject());
+        return CopyAttack.isCopySkillForUse(user, action.item());
     };
 
     /**
-     * 入力中／実行中のコピー用スキルのグループ
+     * 入力中／実行中のコピー技保管先（常にデフォルト）
      * @returns {string}
      */
     CopyAttack.currentCopyGroup = function () {
-        if (CopyAttack._pendingMode === CopyAttack.MODE_COPY && CopyAttack._pendingGroup) {
-            return CopyAttack._pendingGroup;
+        return CopyAttack.DEFAULT_GROUP;
+    };
+
+    /**
+     * 入力中／実行中のコピー用スキルのフィルタグループ（未指定なら null＝制限なし）
+     * @returns {string|null}
+     */
+    CopyAttack.currentCopyFilterGroup = function () {
+        if (CopyAttack._pendingMode === CopyAttack.MODE_COPY) {
+            if (CopyAttack._pendingFilterGroup !== undefined) {
+                return CopyAttack._pendingFilterGroup;
+            }
+            if (CopyAttack._pendingCopySkill) {
+                return CopyAttack.getCopyFilterGroup(CopyAttack._pendingCopySkill);
+            }
         }
         const input = BattleManager.inputtingAction && BattleManager.inputtingAction();
-        if (input && CopyAttack.isCopySkill(input.item())) {
-            return CopyAttack.getCopyGroup(input.item());
+        if (input && input.item()) {
+            const user =
+                (BattleManager.actor && BattleManager.actor()) ||
+                (input.subject && input.subject());
+            if (CopyAttack.isCopySkillForUse(user, input.item())) {
+                return CopyAttack.getCopyFilterGroup(input.item());
+            }
         }
         const action = BattleManager._action;
-        if (action && CopyAttack.isCopySkill(action.item())) {
-            return CopyAttack.getCopyGroup(action.item());
+        if (action && action.item() && BattleManager._subject) {
+            if (CopyAttack.isCopySkillForUse(BattleManager._subject, action.item())) {
+                return CopyAttack.getCopyFilterGroup(action.item());
+            }
         }
-        return CopyAttack.DEFAULT_GROUP;
+        return null;
     };
 
     /**
@@ -877,22 +1005,27 @@
      * コピー用スキルのターゲットとして選択可能か
      * @param {Game_Battler|null} target
      * @param {Game_Actor|null} [learner]
-     * @param {string} [group]
+     * @param {string} [storageGroup]
+     * @param {string|null} [filterGroup] undefined なら currentCopyFilterGroup()
      * @returns {boolean}
      */
-    CopyAttack.canCopyTarget = function (target, learner, group) {
+    CopyAttack.canCopyTarget = function (target, learner, storageGroup, filterGroup) {
         if (!target || !target.isAlive()) {
             return false;
         }
         if (target.isEnemy() && !CopyAttack.meetsCopyHpRate(target)) {
             return false;
         }
-        const g = group || CopyAttack.currentCopyGroup();
+        const storage = storageGroup || CopyAttack.currentCopyGroup();
+        const filter =
+            filterGroup !== undefined ? filterGroup : CopyAttack.currentCopyFilterGroup();
         const user = learner || CopyAttack.resolveCopyUserActor();
         if (user && user.isActor()) {
-            return CopyAttack.availableCopySkillIds(target, user, g).length > 0;
+            return (
+                CopyAttack.availableCopySkillIds(target, user, storage, filter).length > 0
+            );
         }
-        return CopyAttack.sourceCopySkillIds(target).length > 0;
+        return CopyAttack.sourceCopySkillIds(target, filter).length > 0;
     };
 
     /**
@@ -902,13 +1035,15 @@
      * @returns {boolean}
      */
     CopyAttack.hasValidCopyTarget = function (user, skill) {
-        if (!$gameParty.inBattle() || !$gameTroop) {
-            return true;
+        // コピー処理は戦闘専用（メニュー等では使用不可）
+        if (!$gameParty || !$gameParty.inBattle() || !$gameTroop) {
+            return false;
         }
         if (!user || !skill) {
             return false;
         }
-        const group = CopyAttack.getCopyGroup(skill);
+        const storage = CopyAttack.getCopyGroup(skill);
+        const filter = CopyAttack.getCopyFilterGroup(skill);
         const action = new Game_Action(user);
         action.setItemObject(skill);
         // 使用可否判定時は単体でも「候補になり得る対象」を全員見る
@@ -916,7 +1051,9 @@
         const sources = CopyAttack.resolveCopySources(user, action, {
             forUsability: true
         });
-        return sources.some((battler) => CopyAttack.canCopyTarget(battler, user, group));
+        return sources.some((battler) =>
+            CopyAttack.canCopyTarget(battler, user, storage, filter)
+        );
     };
 
     // -------------------------------------------------------------------------
@@ -933,20 +1070,24 @@
         if (!this.isActor() || !DataManager.isSkill(item)) {
             return true;
         }
-        if (CopyAttack.isCopySkill(item)) {
+        if (CopyAttack.isCopySkillForUse(this, item)) {
             const group = CopyAttack.getCopyGroup(item);
             // 保持枠が埋まっているときのみ不可
             if (this.isCopiedSkillFull(group)) {
                 return false;
             }
+            // 戦闘外ではコピー不可（コストだけ消費する事故を防ぐ）
+            if (!$gameParty || !$gameParty.inBattle()) {
+                return false;
+            }
             // 候補が1つも無いときのみ不可（回数2以上でも候補1つなら可）
-            if ($gameParty.inBattle() && !CopyAttack.hasValidCopyTarget(this, item)) {
+            if (!CopyAttack.hasValidCopyTarget(this, item)) {
                 return false;
             }
         }
         if (CopyAttack.isForgetSkill(item)) {
-            const group = CopyAttack.getForgetGroup(item);
-            if (this.copiedSkillIds(group).length === 0) {
+            const filter = CopyAttack.getForgetGroup(item);
+            if (!CopyAttack.hasForgetableCopiedSkills(this, filter)) {
                 return false;
             }
         }
@@ -964,7 +1105,7 @@
     Game_Action.prototype.apply = function (target) {
         _Game_Action_apply.call(this, target);
         const item = this.item();
-        if (!CopyAttack.isCopySkill(item)) {
+        if (!CopyAttack.isCopySkillForUse(this.subject(), item)) {
             return;
         }
         const result = target.result();
@@ -975,18 +1116,39 @@
 
     /**
      * コピー候補として有効なスキルか（敵／味方共通）
-     * 除外: 基本スキル・コピー用／技忘れ用・使用不可(occasion=3)・除外タグ
-     * @param {object|null} skill
+     *
+     * 判定の流れ:
+     *  1. 基本除外（攻撃/防御・CopyAttack付き実行スキル・技忘れ・使用不可）
+     *  2. コピー禁止タグ（uncopyableSkillMetaTag / NoCopyAttack）→ 常に除外
+     *  3. 任意の絞り込みタグ（copyableSkillMetaTag）
+     *  4. フィルタグループ（filterGroup 指定時のみ）
+     *     - null/省略 → グループ制限なし
+     *     - 指定あり → 候補に <CopyGroup:同名> が必要
+     *  ※候補側の <CopyGroup> だけでは除外しない（所属タグとして必要）
+     *
+     * @param {object|null} skill コピーされる側のスキル
+     * @param {string|null} [filterGroup] フィルタグループ。null/省略で制限なし
      * @returns {boolean}
      */
-    CopyAttack.isCopyableSkill = function (skill) {
+    CopyAttack.isCopyableSkill = function (skill, filterGroup) {
         if (!skill) {
             return false;
         }
         if (CopyAttack.params.excludeBasicSkills && (skill.id === 1 || skill.id === 2)) {
             return false;
         }
-        if (CopyAttack.isCopySkill(skill) || CopyAttack.isForgetSkill(skill)) {
+        if (CopyAttack.isForgetSkill(skill)) {
+            return false;
+        }
+        // <CopyAttack> 付きの実行スキル／パラメータ指定のコピー用スキルは候補外
+        // （<CopyGroup> のみのスキルは候補になり得る）
+        if (CopyAttack.hasMetaTag(skill, CopyAttack.params.copySkillMetaTag)) {
+            return false;
+        }
+        if (
+            CopyAttack.params.copySkillId > 0 &&
+            skill.id === CopyAttack.params.copySkillId
+        ) {
             return false;
         }
         // 3 = 使用不可（パッシブ扱いスキル等）
@@ -996,9 +1158,12 @@
         if (CopyAttack.hasMetaTag(skill, CopyAttack.params.uncopyableSkillMetaTag)) {
             return false;
         }
-        const filterTag = CopyAttack.params.copyableSkillMetaTag;
-        if (filterTag) {
-            return CopyAttack.hasMetaTag(skill, filterTag);
+        const allowTag = CopyAttack.params.copyableSkillMetaTag;
+        if (allowTag && !CopyAttack.hasMetaTag(skill, allowTag)) {
+            return false;
+        }
+        if (!CopyAttack.skillMatchesFilterGroup(skill, filterGroup)) {
+            return false;
         }
         return true;
     };
@@ -1006,17 +1171,23 @@
     /**
      * データベース上の手動習得候補スキルID一覧
      * @param {Game_Actor} actor
+     * @param {string|null} [filterGroup] フィルタ。null なら制限なし
      * @returns {number[]}
      */
-    CopyAttack.manualLearnSkillIds = function (actor, group) {
+    CopyAttack.manualLearnSkillIds = function (actor, filterGroup) {
         if (!actor) {
             return [];
         }
-        const g = group || CopyAttack.DEFAULT_GROUP;
+        const storage = CopyAttack.DEFAULT_GROUP;
+        const filter = filterGroup == null || filterGroup === "" ? null : filterGroup;
         const ids = [];
         for (let i = 1; i < $dataSkills.length; i++) {
             const skill = $dataSkills[i];
-            if (skill && CopyAttack.isCopyableSkill(skill) && actor.canAddCopiedSkill(skill.id, g)) {
+            if (
+                skill &&
+                CopyAttack.isCopyableSkill(skill, filter) &&
+                actor.canAddCopiedSkill(skill.id, storage)
+            ) {
                 ids.push(i);
             }
         }
@@ -1122,6 +1293,30 @@
      */
     CopyAttack.setHelpOwner = function (owner) {
         CopyAttack._helpOwner = owner || null;
+        if (owner) {
+            owner._copyHelpIndex = null;
+        }
+    };
+
+    /**
+     * ヘルプ所有ウィンドウの説明を必要なときだけ更新する
+     * （毎フレーム updateHelp しない）
+     * @param {Window_Help|null} helpWindow
+     */
+    CopyAttack.refreshOwnedHelp = function (helpWindow) {
+        const owner = CopyAttack._helpOwner;
+        if (!owner || !owner.active || !helpWindow) {
+            return;
+        }
+        helpWindow.visible = true;
+        const index = typeof owner.index === "function" ? owner.index() : -1;
+        if (owner._copyHelpIndex === index) {
+            return;
+        }
+        owner._copyHelpIndex = index;
+        if (typeof owner.updateHelp === "function") {
+            owner.updateHelp();
+        }
     };
 
     /**
@@ -1161,10 +1356,12 @@
     CopyAttack.reserveCopySelect = function (actor, sources, copySkill) {
         const list = (sources || []).filter((b) => b && b.isAlive());
         const group = CopyAttack.getCopyGroup(copySkill);
+        const filter = CopyAttack.getCopyFilterGroup(copySkill);
         CopyAttack._pendingActor = actor;
         CopyAttack._pendingSources = list;
         CopyAttack._pendingTarget = list[0] || null;
         CopyAttack._pendingGroup = group;
+        CopyAttack._pendingFilterGroup = filter;
         CopyAttack._pendingCopySkill = copySkill || null;
         CopyAttack._pendingPickedIds = [];
         CopyAttack._pendingMode = CopyAttack.MODE_COPY;
@@ -1191,7 +1388,8 @@
             CopyAttack._pendingCandidateIds = [];
             return;
         }
-        const group = CopyAttack._pendingGroup || CopyAttack.DEFAULT_GROUP;
+        const storage = CopyAttack._pendingGroup || CopyAttack.DEFAULT_GROUP;
+        const filter = CopyAttack._pendingFilterGroup;
         const picked = CopyAttack._pendingPickedIds || [];
         const pickedSet = Object.create(null);
         for (let i = 0; i < picked.length; i++) {
@@ -1200,7 +1398,8 @@
         const ids = CopyAttack.mergeAvailableCopySkillIds(
             CopyAttack._pendingSources || [],
             actor,
-            group
+            storage,
+            filter
         ).filter((id) => !pickedSet[id]);
         CopyAttack._pendingCandidateIds = ids;
     };
@@ -1259,6 +1458,7 @@
         CopyAttack._pendingSources = [];
         CopyAttack._pendingTarget = null;
         CopyAttack._pendingGroup = CopyAttack.DEFAULT_GROUP;
+        CopyAttack._pendingFilterGroup = null;
         CopyAttack._pendingCopySkill = null;
         CopyAttack._pendingCopyTotal = 1;
         CopyAttack._pendingCopyRemain = 0;
@@ -1348,6 +1548,7 @@
         CopyAttack._pendingSources = [];
         CopyAttack._pendingTarget = null;
         CopyAttack._pendingGroup = CopyAttack.DEFAULT_GROUP;
+        CopyAttack._pendingFilterGroup = null;
         CopyAttack._pendingCopyTotal = 1;
         CopyAttack._pendingCopyRemain = 0;
         CopyAttack._pendingPickedIds = [];
@@ -1443,9 +1644,10 @@
     /**
      * 敵の行動パターンからコピー候補スキルIDを収集
      * @param {Game_Enemy} enemy
+     * @param {string|null} [filterGroup] null ならグループ制限なし
      * @returns {number[]}
      */
-    CopyAttack.enemyCopySkillIds = function (enemy) {
+    CopyAttack.enemyCopySkillIds = function (enemy, filterGroup) {
         if (!enemy || !enemy.enemy()) {
             return [];
         }
@@ -1456,7 +1658,7 @@
                 continue;
             }
             const skill = $dataSkills[skillId];
-            if (CopyAttack.isCopyableSkill(skill)) {
+            if (CopyAttack.isCopyableSkill(skill, filterGroup)) {
                 skillIds.push(skillId);
             }
         }
@@ -1466,9 +1668,10 @@
     /**
      * 味方が習得中のスキルからコピー候補スキルIDを収集
      * @param {Game_Actor} actor
+     * @param {string|null} [filterGroup] null ならグループ制限なし
      * @returns {number[]}
      */
-    CopyAttack.actorCopySkillIds = function (actor) {
+    CopyAttack.actorCopySkillIds = function (actor, filterGroup) {
         if (!actor || !actor.isActor() || typeof actor.skills !== "function") {
             return [];
         }
@@ -1477,7 +1680,7 @@
             if (!skill || skillIds.includes(skill.id)) {
                 continue;
             }
-            if (CopyAttack.isCopyableSkill(skill)) {
+            if (CopyAttack.isCopyableSkill(skill, filterGroup)) {
                 skillIds.push(skill.id);
             }
         }
@@ -1486,34 +1689,39 @@
 
     /**
      * @param {Game_Battler} source
+     * @param {string|null} [filterGroup]
      * @returns {number[]}
      */
-    CopyAttack.sourceCopySkillIds = function (source) {
+    CopyAttack.sourceCopySkillIds = function (source, filterGroup) {
         if (!source) {
             return [];
         }
         if (source.isEnemy()) {
-            return CopyAttack.enemyCopySkillIds(source);
+            return CopyAttack.enemyCopySkillIds(source, filterGroup);
         }
         if (source.isActor()) {
-            return CopyAttack.actorCopySkillIds(source);
+            return CopyAttack.actorCopySkillIds(source, filterGroup);
         }
         return [];
     };
 
     /**
+     * 習得可能なコピー候補ID一覧
      * @param {Game_Battler} source
      * @param {Game_Actor} actor
-     * @param {string} [group]
+     * @param {string} [storageGroup] 保管枠
+     * @param {string|null} [filterGroup] フィルタ。undefined なら currentCopyFilterGroup()
      * @returns {number[]}
      */
-    CopyAttack.availableCopySkillIds = function (source, actor, group) {
+    CopyAttack.availableCopySkillIds = function (source, actor, storageGroup, filterGroup) {
         if (!source || !actor) {
             return [];
         }
-        const g = group || CopyAttack.DEFAULT_GROUP;
-        return CopyAttack.sourceCopySkillIds(source).filter((skillId) =>
-            actor.canAddCopiedSkill(skillId, g)
+        const storage = CopyAttack.normalizeGroupId(storageGroup);
+        const filter =
+            filterGroup !== undefined ? filterGroup : CopyAttack.currentCopyFilterGroup();
+        return CopyAttack.sourceCopySkillIds(source, filter).filter((skillId) =>
+            actor.canAddCopiedSkill(skillId, storage)
         );
     };
 
@@ -1521,34 +1729,56 @@
      * 複数ソースの候補を重複なく統合
      * @param {Game_Battler[]} sources
      * @param {Game_Actor} actor
-     * @param {string} [group]
+     * @param {string} [storageGroup]
+     * @param {string|null} [filterGroup]
      * @returns {number[]}
      */
-    CopyAttack.mergeAvailableCopySkillIds = function (sources, actor, group) {
+    CopyAttack.mergeAvailableCopySkillIds = function (
+        sources,
+        actor,
+        storageGroup,
+        filterGroup
+    ) {
         if (!actor || !sources || sources.length === 0) {
             return [];
         }
-        const g = group || CopyAttack.DEFAULT_GROUP;
-        const ids = [];
+        const storage = CopyAttack.normalizeGroupId(storageGroup);
+        const filter =
+            filterGroup !== undefined ? filterGroup : CopyAttack.currentCopyFilterGroup();
+        const merged = [];
+        const seen = Object.create(null);
         for (const source of sources) {
-            for (const skillId of CopyAttack.availableCopySkillIds(source, actor, g)) {
-                if (!ids.includes(skillId)) {
-                    ids.push(skillId);
+            if (!source) {
+                continue;
+            }
+            for (const skillId of CopyAttack.availableCopySkillIds(
+                source,
+                actor,
+                storage,
+                filter
+            )) {
+                if (!seen[skillId]) {
+                    seen[skillId] = true;
+                    merged.push(skillId);
                 }
             }
         }
-        return ids.sort((a, b) => a - b);
+        return merged.sort((a, b) => a - b);
     };
 
     /**
      * @param {Game_Actor} actor
      * @param {Game_Battler[]|Game_Battler} sources
-     * @param {string} [group]
+     * @param {string} [storageGroup]
+     * @param {string|null} [filterGroup]
      * @returns {boolean}
      */
-    CopyAttack.needsCopySelect = function (actor, sources, group) {
+    CopyAttack.needsCopySelect = function (actor, sources, storageGroup, filterGroup) {
         const list = Array.isArray(sources) ? sources : sources ? [sources] : [];
-        return CopyAttack.mergeAvailableCopySkillIds(list, actor, group).length > 0;
+        return (
+            CopyAttack.mergeAvailableCopySkillIds(list, actor, storageGroup, filterGroup)
+                .length > 0
+        );
     };
 
     /**
@@ -1583,11 +1813,17 @@
         if (!actor || !sources || !sources.length) {
             return 0;
         }
-        const group = CopyAttack.getCopyGroup(copySkill);
-        let ids = CopyAttack.mergeAvailableCopySkillIds(sources, actor, group);
+        const storage = CopyAttack.getCopyGroup(copySkill);
+        const filter = CopyAttack.getCopyFilterGroup(copySkill);
+        let ids = CopyAttack.mergeAvailableCopySkillIds(
+            sources,
+            actor,
+            storage,
+            filter
+        );
         const count = CopyAttack.clampCopySessionCount(
             actor,
-            group,
+            storage,
             copySkill,
             ids.length
         );
@@ -1599,7 +1835,7 @@
             const pick = Math.randomInt(ids.length);
             const skillId = ids[pick];
             ids.splice(pick, 1);
-            if (actor.addCopiedSkill(skillId, group)) {
+            if (actor.addCopiedSkill(skillId, storage)) {
                 learned++;
             } else {
                 break;
@@ -1728,12 +1964,31 @@
     const _Game_Actor_initMembers = Game_Actor.prototype.initMembers;
     Game_Actor.prototype.initMembers = function () {
         _Game_Actor_initMembers.call(this);
-        this._copiedSkillGroups = {};
-        this._maxCopiedSkillsByGroup = {};
+        this._copiedSkillGroups = CopyAttack.createGroupMap();
+        this._maxCopiedSkillsByGroup = CopyAttack.createGroupMap();
+        this._copiedSkillIdSet = null;
         this._copyAttackGroupsReady = false;
         // 旧形式互換用（ensure でグループへ移行）
         this._copiedSkills = [];
         this._maxCopiedSkills = null;
+    };
+
+    /**
+     * 保持中コピー技IDの Set を再構築（isCopiedSkill 高速化用）
+     */
+    Game_Actor.prototype.rebuildCopiedSkillIdSet = function () {
+        this.ensureCopiedSkillGroups();
+        const set = new Set();
+        for (const key of Object.keys(this._copiedSkillGroups)) {
+            const list = this._copiedSkillGroups[key];
+            if (!list) {
+                continue;
+            }
+            for (let i = 0; i < list.length; i++) {
+                set.add(list[i]);
+            }
+        }
+        this._copiedSkillIdSet = set;
     };
 
     /**
@@ -1745,28 +2000,56 @@
             return;
         }
         if (!this._copiedSkillGroups || typeof this._copiedSkillGroups !== "object") {
-            this._copiedSkillGroups = {};
+            this._copiedSkillGroups = CopyAttack.createGroupMap();
         }
         if (!this._maxCopiedSkillsByGroup || typeof this._maxCopiedSkillsByGroup !== "object") {
-            this._maxCopiedSkillsByGroup = {};
+            this._maxCopiedSkillsByGroup = CopyAttack.createGroupMap();
         }
         if (Array.isArray(this._copiedSkills) && this._copiedSkills.length > 0) {
             const migrated = CopyAttack.normalizeSkillIdList(this._copiedSkills);
             const def = CopyAttack.DEFAULT_GROUP;
             const current = CopyAttack.normalizeSkillIdList(this._copiedSkillGroups[def]);
+            const seen = new Set(current);
             for (const id of migrated) {
-                if (!current.includes(id)) {
+                if (!seen.has(id)) {
                     current.push(id);
+                    seen.add(id);
                 }
             }
             this._copiedSkillGroups[def] = current.sort((a, b) => a - b);
             this._copiedSkills = [];
         }
+        const cleaned = CopyAttack.createGroupMap();
+        const def = CopyAttack.DEFAULT_GROUP;
+        const merged = [];
+        const seen = new Set();
+        // 旧保管枠分割データを1つの保持リストへ統合
         for (const key of Object.keys(this._copiedSkillGroups)) {
-            this._copiedSkillGroups[key] = CopyAttack.normalizeSkillIdList(
-                this._copiedSkillGroups[key]
-            );
+            const list = CopyAttack.normalizeSkillIdList(this._copiedSkillGroups[key]);
+            for (const id of list) {
+                if (!seen.has(id)) {
+                    merged.push(id);
+                    seen.add(id);
+                }
+            }
         }
+        cleaned[def] = merged.sort((a, b) => a - b);
+        this._copiedSkillGroups = cleaned;
+        // 上限も default へ寄せる（最大値を採用）
+        let maxCap = 0;
+        for (const key of Object.keys(this._maxCopiedSkillsByGroup)) {
+            const v = Number(this._maxCopiedSkillsByGroup[key]) || 0;
+            if (v > maxCap) {
+                maxCap = v;
+            }
+        }
+        const maxMap = CopyAttack.createGroupMap();
+        if (maxCap > 0) {
+            maxMap[def] = maxCap;
+            this._maxCopiedSkills = maxCap;
+        }
+        this._maxCopiedSkillsByGroup = maxMap;
+        this._copiedSkillIdSet = null;
         this._copyAttackGroupsReady = true;
     };
 
@@ -1777,20 +2060,10 @@
     Game_Actor.prototype.copiedSkillIds = function (group) {
         this.ensureCopiedSkillGroups();
         if (group == null) {
-            const all = [];
-            for (const key of Object.keys(this._copiedSkillGroups)) {
-                const list = this._copiedSkillGroups[key];
-                if (!list) {
-                    continue;
-                }
-                for (let i = 0; i < list.length; i++) {
-                    const id = list[i];
-                    if (!all.includes(id)) {
-                        all.push(id);
-                    }
-                }
+            if (!this._copiedSkillIdSet) {
+                this.rebuildCopiedSkillIdSet();
             }
-            return all.sort((a, b) => a - b);
+            return Array.from(this._copiedSkillIdSet).sort((a, b) => a - b);
         }
         const g = CopyAttack.normalizeGroupId(group);
         if (!this._copiedSkillGroups[g]) {
@@ -1816,9 +2089,6 @@
             this._maxCopiedSkills > 0
         ) {
             return this._maxCopiedSkills;
-        }
-        if (CopyAttack.params.groupMaxMap[g] > 0) {
-            return CopyAttack.params.groupMaxMap[g];
         }
         return CopyAttack.params.maxCopiedSkills;
     };
@@ -1852,7 +2122,15 @@
      * @returns {boolean}
      */
     Game_Actor.prototype.isCopiedSkill = function (skillId) {
-        return this.copiedSkillIds(null).includes(Number(skillId));
+        const id = Number(skillId);
+        if (!id) {
+            return false;
+        }
+        this.ensureCopiedSkillGroups();
+        if (!this._copiedSkillIdSet) {
+            this.rebuildCopiedSkillIdSet();
+        }
+        return this._copiedSkillIdSet.has(id);
     };
 
     /**
@@ -1874,13 +2152,14 @@
         if (!id || !$dataSkills || !$dataSkills[id]) {
             return false;
         }
+        const g = CopyAttack.normalizeGroupId(group);
         if (this.isCopiedSkill(id)) {
             return false;
         }
         if (this.isLearnedSkill(id)) {
             return false;
         }
-        if (this.isCopiedSkillFull(group)) {
+        if (this.isCopiedSkillFull(g)) {
             return false;
         }
         return true;
@@ -1900,6 +2179,11 @@
         const list = this.copiedSkillIds(g);
         list.push(id);
         list.sort((a, b) => a - b);
+        if (!this._copiedSkillIdSet) {
+            this.rebuildCopiedSkillIdSet();
+        } else {
+            this._copiedSkillIdSet.add(id);
+        }
         this.learnSkill(id);
         return true;
     };
@@ -1919,7 +2203,32 @@
                 list.remove(id);
             }
         }
+        if (this._copiedSkillIdSet) {
+            this._copiedSkillIdSet.delete(id);
+        }
         this.forgetSkill(id);
+    };
+
+    // -------------------------------------------------------------------------
+    // セーブ読込後にグループ正規化フラグをリセット
+    // -------------------------------------------------------------------------
+
+    const _DataManager_extractSaveContents = DataManager.extractSaveContents;
+    /** @override */
+    DataManager.extractSaveContents = function (contents) {
+        _DataManager_extractSaveContents.call(this, contents);
+        if (!$gameActors || typeof $gameActors._data === "undefined") {
+            return;
+        }
+        const actors = $gameActors._data;
+        for (let i = 0; i < actors.length; i++) {
+            const actor = actors[i];
+            if (!actor) {
+                continue;
+            }
+            actor._copyAttackGroupsReady = false;
+            actor._copiedSkillIdSet = null;
+        }
     };
 
     // -------------------------------------------------------------------------
@@ -1941,6 +2250,7 @@
         this._source = null;
         this._actor = null;
         this._group = CopyAttack.DEFAULT_GROUP;
+        this._filterGroup = null;
         this._manualMode = false;
         this._skillIdFilter = null;
         this._data = [];
@@ -1969,28 +2279,23 @@
     };
 
     /**
-     * @param {Game_Battler} source
-     * @param {Game_Actor} actor
-     * @param {string} [group]
-     */
-    Window_CopyAttackSkillList.prototype.setBattler = function (source, actor, group) {
-        const g = group || CopyAttack.DEFAULT_GROUP;
-        const ids = CopyAttack.availableCopySkillIds(source, actor, g);
-        this.setCopySession(actor, ids, g);
-        this._source = source;
-    };
-
-    /**
      * イベント手動習得用
      * @param {Game_Actor} actor
      * @param {number[]|null} [skillIds]
-     * @param {string} [group]
+     * @param {string} [storageGroup]
+     * @param {string|null} [filterGroup]
      */
-    Window_CopyAttackSkillList.prototype.setManualActor = function (actor, skillIds, group) {
+    Window_CopyAttackSkillList.prototype.setManualActor = function (
+        actor,
+        skillIds,
+        storageGroup,
+        filterGroup
+    ) {
         this._manualMode = true;
         this._source = null;
         this._actor = actor;
-        this._group = group || CopyAttack.DEFAULT_GROUP;
+        this._group = storageGroup || CopyAttack.DEFAULT_GROUP;
+        this._filterGroup = filterGroup === undefined ? null : filterGroup;
         this._skillIdFilter =
             skillIds && skillIds.length > 0 ? skillIds.slice() : null;
         this.refresh();
@@ -2047,16 +2352,17 @@
             return;
         }
         const group = this._group || CopyAttack.DEFAULT_GROUP;
+        const filter = this._filterGroup;
         if (this._manualMode) {
             if (this._skillIdFilter) {
                 for (let i = 0; i < this._skillIdFilter.length; i++) {
                     const skill = $dataSkills[this._skillIdFilter[i]];
-                    if (skill) {
+                    if (skill && CopyAttack.isCopyableSkill(skill, filter)) {
                         this._data.push(skill);
                     }
                 }
             } else {
-                const ids = CopyAttack.manualLearnSkillIds(this._actor, group);
+                const ids = CopyAttack.manualLearnSkillIds(this._actor, filter);
                 for (let i = 0; i < ids.length; i++) {
                     const skill = $dataSkills[ids[i]];
                     if (skill) {
@@ -2153,11 +2459,11 @@
 
     /**
      * @param {Game_Actor} actor
-     * @param {string|null} [group]
+     * @param {string|null} [filterGroup] 技忘れ側 CopyGroup。null なら全コピー技
      */
-    Window_CopyAttackForgetList.prototype.setActor = function (actor, group) {
+    Window_CopyAttackForgetList.prototype.setActor = function (actor, filterGroup) {
         this._actor = actor;
-        this._group = group === undefined ? null : group;
+        this._group = filterGroup === undefined ? null : filterGroup;
         this.refresh();
         this.scrollTo(0, 0);
     };
@@ -2180,14 +2486,6 @@
         this.activate();
         this.updateHelp();
         return true;
-    };
-
-    /**
-     * @param {number} [prevIndex]
-     * @returns {boolean}
-     */
-    Window_CopyAttackForgetList.prototype.refreshAfterRemove = function (prevIndex) {
-        return this.reloadAndActivate(prevIndex);
     };
 
     /** @override */
@@ -2220,7 +2518,10 @@
 
     /** @override */
     Window_CopyAttackForgetList.prototype.makeItemList = function () {
-        this._data = this._actor ? this._actor.copiedSkills(this._group) : [];
+        // コピー保持中のスキルのみ。通常習得スキルは混ざらない
+        this._data = this._actor
+            ? CopyAttack.forgetableCopiedSkills(this._actor, this._group)
+            : [];
     };
 
     /** @override */
@@ -2418,11 +2719,20 @@
         const subject = this._subject;
         let shouldOpenSelect = false;
 
-        if (action && subject && subject.isActor() && CopyAttack.isCopySkill(action.item())) {
+        if (
+            action &&
+            subject &&
+            subject.isActor() &&
+            CopyAttack.isCopySkillForUse(subject, action.item())
+        ) {
             const copySkill = action.item();
             const sources = CopyAttack.resolveCopySources(subject, action);
             const group = CopyAttack.getCopyGroup(copySkill);
-            if (sources.length > 0 && CopyAttack.needsCopySelect(subject, sources, group)) {
+            const filter = CopyAttack.getCopyFilterGroup(copySkill);
+            if (
+                sources.length > 0 &&
+                CopyAttack.needsCopySelect(subject, sources, group, filter)
+            ) {
                 if (CopyAttack.shouldSkipCopySelectUi(subject)) {
                     CopyAttack.applyAutoCopy(subject, sources, copySkill);
                     CopyAttack.clearPending();
@@ -2450,14 +2760,22 @@
     const _BattleManager_updatePhase = BattleManager.updatePhase;
     /** @override */
     BattleManager.updatePhase = function (timeActive) {
-        // 複数回コピーの選択中は戦闘フェーズを進めない
-        if (CopyAttack.isCopySessionActive() || CopyAttack._pendingMode === CopyAttack.MODE_COPY) {
-            if (CopyAttack._pendingActor) {
-                this._phase = CopyAttack.PHASE;
-            }
+        // コピー選択セッション中のみフェーズを固定（孤立状態では復帰）
+        if (CopyAttack.isCopySessionActive()) {
+            this._phase = CopyAttack.PHASE;
             return;
         }
+        // 技忘れUI中は戦闘進行を止める
+        if (CopyAttack.isForgetSelectOpen()) {
+            return;
+        }
+        // 孤立した copyAttackSelect フェーズはターンへ戻す
         if (this._phase === CopyAttack.PHASE) {
+            if (CopyAttack.pendingActor() && CopyAttack._pendingMode === CopyAttack.MODE_COPY) {
+                return;
+            }
+            CopyAttack.clearPending();
+            this._phase = "turn";
             return;
         }
         _BattleManager_updatePhase.call(this, timeActive);
@@ -2638,17 +2956,10 @@
     };
 
     /**
-     * 毎フレーム、所有ウィンドウの説明文を再セットしヘルプを表示維持
+     * 所有ウィンドウの説明を必要なときだけ更新しヘルプを表示維持
      */
     Scene_Battle.prototype.refreshCopyAttackHelp = function () {
-        const owner = CopyAttack._helpOwner;
-        if (!owner || !owner.active) {
-            return;
-        }
-        if (this._helpWindow) {
-            this._helpWindow.visible = true;
-        }
-        owner.updateHelp();
+        CopyAttack.refreshOwnedHelp(this._helpWindow);
     };
 
     /**
@@ -2824,8 +3135,8 @@
 
     Scene_Battle.prototype.startCopySkillDiscard = function () {
         const actor = CopyAttack.pendingActor();
-        const group = CopyAttack.pendingForgetGroup();
-        if (!actor || actor.copiedSkillIds(group).length === 0) {
+        const filter = CopyAttack.pendingForgetGroup();
+        if (!actor || !CopyAttack.hasForgetableCopiedSkills(actor, filter)) {
             this.endInputForgetSelection(true);
             return;
         }
@@ -2833,7 +3144,7 @@
             this._copySkillConfirmWindow.closeConfirm();
         }
         this._pendingDiscardSkill = null;
-        this._copySkillDiscardWindow.setActor(actor, group);
+        this._copySkillDiscardWindow.setActor(actor, filter);
         this._copySkillDiscardWindow.show();
         this._copySkillDiscardWindow.activate();
         this._copySkillDiscardWindow.select(0);
@@ -2876,7 +3187,7 @@
         }
 
         const usedSkill = CopyAttack.pendingForgetSkill();
-        const group = CopyAttack.pendingForgetGroup();
+        const filter = CopyAttack.pendingForgetGroup();
         actor.removeCopiedSkill(forgetSkill.id);
 
         // コスト消費のみ（SEは確認ウィンドウの playOk に統一。playUseSkill は鳴らさない）
@@ -2885,8 +3196,8 @@
             CopyAttack._forgetCostPaid = true;
         }
 
-        // 0個になったときだけ閉じる
-        if (actor.copiedSkillIds(group).length === 0) {
+        // 対象グループ内が0個になったときだけ閉じる
+        if (!CopyAttack.hasForgetableCopiedSkills(actor, filter)) {
             this.endInputForgetSelection(false);
             return;
         }
@@ -2901,20 +3212,20 @@
      */
     Scene_Battle.prototype.returnToBattleForgetList = function (prevIndex) {
         const actor = CopyAttack.pendingActor();
-        const group = CopyAttack.pendingForgetGroup();
+        const filter = CopyAttack.pendingForgetGroup();
         this._pendingDiscardSkill = null;
 
         if (this._copySkillConfirmWindow) {
             this._copySkillConfirmWindow.closeConfirm();
         }
 
-        if (!actor || actor.copiedSkillIds(group).length === 0) {
+        if (!actor || !CopyAttack.hasForgetableCopiedSkills(actor, filter)) {
             this.endInputForgetSelection(false);
             return;
         }
 
         const win = this._copySkillDiscardWindow;
-        win.setActor(actor, group);
+        win.setActor(actor, filter);
         if (!win.reloadAndActivate(prevIndex)) {
             this.endInputForgetSelection(false);
             return;
@@ -2988,7 +3299,7 @@
             return;
         }
         // canUse で既に弾いているが、念のため（ブザーは鳴らさない）
-        if (actor.copiedSkillIds(CopyAttack.getForgetGroup(skill)).length === 0) {
+        if (!CopyAttack.hasForgetableCopiedSkills(actor, CopyAttack.getForgetGroup(skill))) {
             this._skillWindow.activate();
             return;
         }
@@ -3059,8 +3370,8 @@
     Scene_ItemBase.prototype.isItemEffectsValid = function () {
         if (CopyAttack.isForgetSkill(this.item())) {
             const user = this.user();
-            const group = CopyAttack.getForgetGroup(this.item());
-            return !!(user && user.isActor() && user.copiedSkillIds(group).length > 0);
+            const filter = CopyAttack.getForgetGroup(this.item());
+            return !!(user && user.isActor() && CopyAttack.hasForgetableCopiedSkills(user, filter));
         }
         return _Scene_ItemBase_isItemEffectsValid.call(this);
     };
@@ -3095,11 +3406,7 @@
     /** @override */
     Scene_Skill.prototype.update = function () {
         _Scene_Skill_update.call(this);
-        const owner = CopyAttack._helpOwner;
-        if (owner && owner.active && this._helpWindow) {
-            this._helpWindow.visible = true;
-            owner.updateHelp();
-        }
+        CopyAttack.refreshOwnedHelp(this._helpWindow);
     };
 
     const _Scene_Skill_determineItem = Scene_Skill.prototype.determineItem;
@@ -3114,8 +3421,8 @@
 
     Scene_Skill.prototype.startMenuCopyForget = function () {
         const actor = this.user();
-        const group = CopyAttack.getForgetGroup(this.item());
-        if (!actor || actor.copiedSkillIds(group).length === 0) {
+        const filter = CopyAttack.getForgetGroup(this.item());
+        if (!actor || !CopyAttack.hasForgetableCopiedSkills(actor, filter)) {
             this.activateItemWindow();
             return;
         }
@@ -3123,8 +3430,8 @@
         this._copyForgetConfirmWindow.closeConfirm();
         this._pendingForgetSkill = null;
         this._menuForgetCostPaid = false;
-        this._copyForgetGroup = group;
-        this._copyForgetWindow.setActor(actor, group);
+        this._copyForgetGroup = filter;
+        this._copyForgetWindow.setActor(actor, filter);
         this._copyForgetWindow.show();
         this._copyForgetWindow.activate();
         this._copyForgetWindow.select(0);
@@ -3151,7 +3458,7 @@
         const forgetSkill = this._pendingForgetSkill;
         const usedSkill = this.item();
         const prevIndex = this._copyForgetWindow ? this._copyForgetWindow.index() : 0;
-        const group = this._copyForgetGroup;
+        const filter = this._copyForgetGroup;
         this._pendingForgetSkill = null;
 
         if (this._copyForgetWindow) {
@@ -3176,8 +3483,8 @@
             this._statusWindow.refresh();
         }
 
-        // 0個になったときだけ閉じる
-        if (actor.copiedSkillIds(group).length === 0) {
+        // 対象グループ内が0個になったときだけ閉じる
+        if (!CopyAttack.hasForgetableCopiedSkills(actor, filter)) {
             this.finishMenuCopyForget();
             return;
         }
@@ -3192,16 +3499,16 @@
      */
     Scene_Skill.prototype.returnToMenuForgetList = function (prevIndex) {
         const actor = this.user();
-        const group = this._copyForgetGroup;
+        const filter = this._copyForgetGroup;
         this._pendingForgetSkill = null;
         if (this._copyForgetConfirmWindow) {
             this._copyForgetConfirmWindow.closeConfirm();
         }
-        if (!actor || actor.copiedSkillIds(group).length === 0) {
+        if (!actor || !CopyAttack.hasForgetableCopiedSkills(actor, filter)) {
             this.finishMenuCopyForget();
             return;
         }
-        this._copyForgetWindow.setActor(actor, group);
+        this._copyForgetWindow.setActor(actor, filter);
         if (!this._copyForgetWindow.reloadAndActivate(prevIndex)) {
             this.finishMenuCopyForget();
             return;
@@ -3260,7 +3567,8 @@
         Scene_MenuBase.prototype.initialize.call(this);
         const params = CopyAttack._commandSceneParams || {};
         this._targetActor = CopyAttack.resolveActor(params.actorId);
-        this._group = CopyAttack.parseGroupArg(params.groupId);
+        this._group = CopyAttack.DEFAULT_GROUP;
+        this._filterGroup = CopyAttack.parseFilterGroupArg(params.groupId);
         this._skillIdFilter =
             params.skillIds && params.skillIds.length > 0 ? params.skillIds.slice() : null;
     };
@@ -3289,12 +3597,16 @@
             return false;
         }
         if (this._skillIdFilter) {
-            return this._skillIdFilter.some(
-                (id) =>
-                    !!$dataSkills[id] && this._targetActor.canAddCopiedSkill(id, this._group)
-            );
+            return this._skillIdFilter.some((id) => {
+                const skill = $dataSkills[id];
+                return (
+                    !!skill &&
+                    CopyAttack.isCopyableSkill(skill, this._filterGroup) &&
+                    this._targetActor.canAddCopiedSkill(id, this._group)
+                );
+            });
         }
-        return CopyAttack.manualLearnSkillIds(this._targetActor, this._group).length > 0;
+        return CopyAttack.manualLearnSkillIds(this._targetActor, this._filterGroup).length > 0;
     };
 
     Scene_CopyAttackLearn.prototype.createLearnWindow = function () {
@@ -3306,7 +3618,12 @@
     };
 
     Scene_CopyAttackLearn.prototype.startLearnSelection = function () {
-        this._learnWindow.setManualActor(this._targetActor, this._skillIdFilter, this._group);
+        this._learnWindow.setManualActor(
+            this._targetActor,
+            this._skillIdFilter,
+            this._group,
+            this._filterGroup
+        );
         this._learnWindow.show();
         this._learnWindow.activate();
         this._learnWindow.select(0);
@@ -3318,11 +3635,7 @@
     const _Scene_CopyAttackLearn_update = Scene_CopyAttackLearn.prototype.update;
     Scene_CopyAttackLearn.prototype.update = function () {
         _Scene_CopyAttackLearn_update.call(this);
-        const owner = CopyAttack._helpOwner;
-        if (owner && owner.active && this._helpWindow) {
-            this._helpWindow.visible = true;
-            owner.updateHelp();
-        }
+        CopyAttack.refreshOwnedHelp(this._helpWindow);
     };
 
     Scene_CopyAttackLearn.prototype.onLearnOk = function () {
@@ -3366,7 +3679,8 @@
         Scene_MenuBase.prototype.initialize.call(this);
         const params = CopyAttack._commandSceneParams || {};
         this._targetActor = CopyAttack.resolveActor(params.actorId);
-        this._group = CopyAttack.parseGroupArg(params.groupId, true);
+        // null = 全コピー技 / 文字列 = その CopyGroup のみ
+        this._group = CopyAttack.parseFilterGroupArg(params.groupId);
     };
 
     Scene_CopyAttackForget.prototype.create = function () {
@@ -3374,7 +3688,10 @@
         this.createHelpWindow();
         this.createForgetWindow();
         this.createConfirmWindow();
-        if (!this._targetActor || this._targetActor.copiedSkillIds(this._group).length === 0) {
+        if (
+            !this._targetActor ||
+            !CopyAttack.hasForgetableCopiedSkills(this._targetActor, this._group)
+        ) {
             this.popScene();
             return;
         }
@@ -3414,11 +3731,7 @@
     const _Scene_CopyAttackForget_update = Scene_CopyAttackForget.prototype.update;
     Scene_CopyAttackForget.prototype.update = function () {
         _Scene_CopyAttackForget_update.call(this);
-        const owner = CopyAttack._helpOwner;
-        if (owner && owner.active && this._helpWindow) {
-            this._helpWindow.visible = true;
-            owner.updateHelp();
-        }
+        CopyAttack.refreshOwnedHelp(this._helpWindow);
     };
 
     Scene_CopyAttackForget.prototype.onForgetOk = function () {
@@ -3452,8 +3765,8 @@
             actor.removeCopiedSkill(skill.id);
         }
 
-        // 0個になったときだけ閉じる
-        if (!actor || actor.copiedSkillIds(this._group).length === 0) {
+        // 対象グループ内が0個になったときだけ閉じる
+        if (!actor || !CopyAttack.hasForgetableCopiedSkills(actor, this._group)) {
             this.finishScene();
             return;
         }
@@ -3472,7 +3785,7 @@
         if (this._confirmWindow) {
             this._confirmWindow.closeConfirm();
         }
-        if (!actor || actor.copiedSkillIds(this._group).length === 0) {
+        if (!actor || !CopyAttack.hasForgetableCopiedSkills(actor, this._group)) {
             this.finishScene();
             return;
         }
@@ -3518,60 +3831,69 @@
 
     PluginManager.registerCommand(PLUGIN_NAME, "LearnCopiedSkillByPlayer", (args) => {
         const actor = CopyAttack.resolveActor(args.actorId);
-        const group = CopyAttack.parseGroupArg(args.groupId);
+        const storage = CopyAttack.DEFAULT_GROUP;
+        const filter = CopyAttack.parseFilterGroupArg(args.groupId);
         if (
             !actor ||
-            actor.isCopiedSkillFull(group) ||
-            CopyAttack.manualLearnSkillIds(actor, group).length === 0
+            actor.isCopiedSkillFull(storage) ||
+            CopyAttack.manualLearnSkillIds(actor, filter).length === 0
         ) {
             return;
         }
         CopyAttack.pushCommandScene(Scene_CopyAttackLearn, {
             actorId: Number(args.actorId || 0),
-            groupId: group,
+            groupId: filter,
         });
     });
 
     PluginManager.registerCommand(PLUGIN_NAME, "LearnCopiedSkillFromListByPlayer", (args) => {
         const actor = CopyAttack.resolveActor(args.actorId);
-        const group = CopyAttack.parseGroupArg(args.groupId);
+        const storage = CopyAttack.DEFAULT_GROUP;
+        const filter = CopyAttack.parseFilterGroupArg(args.groupId);
         const skillIds = CopyAttack.parseSkillIdList(args.skillIds);
-        if (!actor || actor.isCopiedSkillFull(group) || skillIds.length === 0) {
+        if (!actor || actor.isCopiedSkillFull(storage) || skillIds.length === 0) {
             return;
         }
-        const learnable = skillIds.filter((id) => actor.canAddCopiedSkill(id, group));
+        const learnable = skillIds.filter((id) => {
+            const skill = $dataSkills[id];
+            return (
+                !!skill &&
+                CopyAttack.isCopyableSkill(skill, filter) &&
+                actor.canAddCopiedSkill(id, storage)
+            );
+        });
         if (learnable.length === 0) {
             return;
         }
         CopyAttack.pushCommandScene(Scene_CopyAttackLearn, {
             actorId: Number(args.actorId || 0),
             skillIds: skillIds,
-            groupId: group,
+            groupId: filter,
         });
     });
 
     PluginManager.registerCommand(PLUGIN_NAME, "AddCopiedSkillDirect", (args) => {
         const actor = CopyAttack.resolveActor(args.actorId);
-        const group = CopyAttack.parseGroupArg(args.groupId);
+        const storage = CopyAttack.DEFAULT_GROUP;
         const skillId = Number(args.skillId || 0);
         if (!actor || skillId <= 0 || !$dataSkills[skillId]) {
             return;
         }
-        if (actor.isCopiedSkillFull(group)) {
+        if (actor.isCopiedSkillFull(storage)) {
             return;
         }
-        actor.addCopiedSkill(skillId, group);
+        actor.addCopiedSkill(skillId, storage);
     });
 
     PluginManager.registerCommand(PLUGIN_NAME, "ForgetCopiedSkillByPlayer", (args) => {
         const actor = CopyAttack.resolveActor(args.actorId);
-        const group = CopyAttack.parseGroupArg(args.groupId, true);
-        if (!actor || actor.copiedSkillIds(group).length === 0) {
+        const filter = CopyAttack.parseFilterGroupArg(args.groupId);
+        if (!actor || !CopyAttack.hasForgetableCopiedSkills(actor, filter)) {
             return;
         }
         CopyAttack.pushCommandScene(Scene_CopyAttackForget, {
             actorId: Number(args.actorId || 0),
-            groupId: group,
+            groupId: filter,
         });
     });
 
@@ -3586,10 +3908,10 @@
 
     PluginManager.registerCommand(PLUGIN_NAME, "SetMaxCopiedSkills", (args) => {
         const maxCount = Math.max(1, Math.min(99, Number(args.maxCount || 1)));
-        const group = CopyAttack.parseGroupArg(args.groupId);
+        const storage = CopyAttack.DEFAULT_GROUP;
         const actors = CopyAttack.resolveActorsForMax(args.actorId);
         for (const actor of actors) {
-            actor.setMaxCopiedSkills(maxCount, group);
+            actor.setMaxCopiedSkills(maxCount, storage);
         }
     });
 

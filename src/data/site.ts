@@ -81,7 +81,7 @@ export const pickupItems: PickupItem[] = [
     kind: "plugin",
     title: "敵の技コピー",
     summary:
-      "敵・味方の技をコピーして覚える、グループ分け対応のRPGツクールMZ向けバトルプラグイン。",
+      "敵・味方の技をコピーして覚える、グループ限定コピー対応のRPGツクールMZ向けバトルプラグイン。",
     meta: "RPGツクールMZ",
     href: "/plugins/copyattack/",
     status: "無料配布中",

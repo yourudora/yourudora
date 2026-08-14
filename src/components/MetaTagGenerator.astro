@@ -30,25 +30,26 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
       </label>
       <select id={`${id}-feature`} class="meta-tag-tool__select" data-mtg-feature>
         <option value="" selected>選択してください</option>
-        <option value="copyAttack">コピー用スキルとして設定</option>
+        <option value="copyAttack">制限なしのコピー用スキルとして設定</option>
+        <option value="copyGroup">グループ限定のコピー用スキルとして設定</option>
+        <option value="skillGroup">スキルをグループに所属させる</option>
         <option value="forget">技忘れ用スキルとして設定</option>
         <option value="count">一度の発動でコピーできる数を変更</option>
         <option value="hpRate">HPが一定割合以下になるまでコピー不可にする</option>
-        <option value="noCopy">コピー対象から除外</option>
-        <option value="learned">コピーで覚えた技の識別タグを付ける</option>
+        <option value="noCopy">コピー対象から除外（コピー禁止）</option>
       </select>
     </div>
 
     <div class="meta-tag-tool__field" data-mtg-param="group" hidden>
       <label for={`${id}-group`} class="meta-tag-tool__label" data-mtg-group-label>
-        グループ名（任意）
+        グループ名
       </label>
       <input
         id={`${id}-group`}
         type="text"
         class="meta-tag-tool__select"
         data-mtg-group
-        placeholder="例: 青魔法（空欄可）"
+        placeholder="例: 青魔法"
         autocomplete="off"
       />
       <p class="meta-tag-tool__note" data-mtg-group-note></p>
@@ -81,15 +82,14 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
     <div class="meta-tag-tool__output" data-mtg-output hidden>
       <label for={`${id}-result`} class="meta-tag-tool__label">生成されたタグ</label>
       <div class="meta-tag-tool__result-row">
-        <input
+        <textarea
           id={`${id}-result`}
-          type="text"
           class="meta-tag-tool__result"
           data-mtg-result
           readonly
-          value=""
+          rows="2"
           aria-live="polite"
-        />
+        ></textarea>
         <button type="button" class="meta-tag-tool__copy" data-mtg-copy>
           コピーする
         </button>
@@ -137,6 +137,9 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     color: #7dd3fc;
     letter-spacing: 0.02em;
+    resize: vertical;
+    min-height: 2.75rem;
+    line-height: 1.45;
   }
 
   .meta-tag-tool__note {
@@ -166,6 +169,7 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
     .meta-tag-tool__copy {
       flex: 0 0 auto;
       white-space: nowrap;
+      align-self: stretch;
     }
   }
 
@@ -212,12 +216,13 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
 
 <script>
   type FeatureKey =
+    | "copyAttack"
+    | "copyGroup"
+    | "skillGroup"
+    | "forget"
     | "count"
     | "hpRate"
-    | "copyAttack"
-    | "forget"
     | "noCopy"
-    | "learned"
     | "";
 
   function sanitizeGroupName(raw: string): string {
@@ -233,6 +238,15 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
     if (!feature) return null;
     const group = sanitizeGroupName(groupRaw);
 
+    if (feature === "copyAttack") return "<CopyAttack>";
+    if (feature === "copyGroup" || feature === "skillGroup") {
+      if (!group) return null;
+      return `<CopyGroup:${group}>`;
+    }
+    if (feature === "forget") {
+      if (!group) return "<CopyAttackForget>";
+      return `<CopyAttackForget>\n<CopyGroup:${group}>`;
+    }
     if (feature === "count") {
       if (!count) return null;
       return `<CopyAttackCount:${count}>`;
@@ -241,14 +255,7 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
       if (!hp) return null;
       return `<CopyAttackHpRate:${hp}>`;
     }
-    if (feature === "copyAttack") {
-      return group ? `<CopyAttack:${group}>` : "<CopyAttack>";
-    }
-    if (feature === "forget") {
-      return group ? `<CopyAttackForget:${group}>` : "<CopyAttackForget>";
-    }
     if (feature === "noCopy") return "<NoCopyAttack>";
-    if (feature === "learned") return "<CopyAttackLearned>";
     return null;
   }
 
@@ -293,7 +300,7 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
     const countSelect = root.querySelector<HTMLSelectElement>("[data-mtg-count]");
     const hpSelect = root.querySelector<HTMLSelectElement>("[data-mtg-hp]");
     const output = root.querySelector<HTMLElement>("[data-mtg-output]");
-    const resultInput = root.querySelector<HTMLInputElement>("[data-mtg-result]");
+    const resultInput = root.querySelector<HTMLTextAreaElement>("[data-mtg-result]");
     const copyBtn = root.querySelector<HTMLButtonElement>("[data-mtg-copy]");
     const feedback = root.querySelector<HTMLElement>("[data-mtg-feedback]");
 
@@ -315,27 +322,45 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
     };
 
     const updateGroupUi = (feature: FeatureKey) => {
-      const needsGroup = feature === "copyAttack" || feature === "forget";
-      if (groupWrap) groupWrap.hidden = !needsGroup;
+      const needsGroupRequired = feature === "copyGroup" || feature === "skillGroup";
+      const needsGroupOptional = feature === "forget";
+      const showGroup = needsGroupRequired || needsGroupOptional;
 
-      if (!needsGroup) {
+      if (groupWrap) groupWrap.hidden = !showGroup;
+      if (!showGroup) {
         if (groupInput) groupInput.value = "";
         return;
       }
 
-      if (feature === "copyAttack") {
-        if (groupLabel) groupLabel.textContent = "グループ名（任意・空欄ならデフォルトグループ）";
-        if (groupInput) groupInput.placeholder = "例: 青魔法";
+      if (feature === "copyGroup") {
+        if (groupLabel) groupLabel.textContent = "グループ名（必須）";
+        if (groupInput) {
+          groupInput.placeholder = "例: 青魔法";
+          groupInput.required = true;
+        }
         if (groupNote) {
           groupNote.textContent =
-            "空欄 → <CopyAttack> ／ 入力あり → <CopyAttack:グループ名>（専用タグ <CopyAttackGroup:名前> でも可）";
+            "出力: <CopyGroup:名前> 。この場合 <CopyAttack> は不要です。候補スキル側にも同じタグが必要です。";
+        }
+      } else if (feature === "skillGroup") {
+        if (groupLabel) groupLabel.textContent = "グループ名（必須）";
+        if (groupInput) {
+          groupInput.placeholder = "例: 青魔法";
+          groupInput.required = true;
+        }
+        if (groupNote) {
+          groupNote.textContent =
+            "出力: <CopyGroup:名前> 。グループ限定コピーの候補スキルに付けます。";
         }
       } else if (feature === "forget") {
-        if (groupLabel) groupLabel.textContent = "グループ名（任意・空欄なら全グループ対象）";
-        if (groupInput) groupInput.placeholder = "例: 青魔法";
+        if (groupLabel) groupLabel.textContent = "グループ名（任意・空欄なら全コピー技）";
+        if (groupInput) {
+          groupInput.placeholder = "例: 青魔法（空欄可）";
+          groupInput.required = false;
+        }
         if (groupNote) {
           groupNote.textContent =
-            "空欄 → <CopyAttackForget>（全グループ）／ 入力あり → <CopyAttackForget:グループ名>";
+            "空欄 → <CopyAttackForget> のみ ／ 入力あり → Forget と <CopyGroup:名前> を併記";
         }
       }
     };
@@ -362,6 +387,7 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
       if (tag) {
         output.hidden = false;
         resultInput.value = tag;
+        resultInput.rows = tag.includes("\n") ? 3 : 2;
       } else {
         output.hidden = true;
         resultInput.value = "";
