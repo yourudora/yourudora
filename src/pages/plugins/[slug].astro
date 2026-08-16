@@ -1,4 +1,6 @@
 ---
+import { existsSync, statSync } from "node:fs";
+import { join } from "node:path";
 import Layout from "../../layouts/Layout.astro";
 import DonationSlot from "../../components/DonationSlot.astro";
 import DownloadLink from "../../components/DownloadLink.astro";
@@ -18,6 +20,15 @@ export function getStaticPaths() {
   return plugins.map((plugin) => ({
     params: { slug: plugin.slug },
   }));
+}
+
+/** public 配下ファイルの更新時刻でキャッシュバスティング */
+function withAssetVersion(publicPath: string): string {
+  const clean = publicPath.split("?")[0];
+  const filePath = join(process.cwd(), "public", clean.replace(/^\//, ""));
+  if (!existsSync(filePath)) return clean;
+  const v = Math.floor(statSync(filePath).mtimeMs);
+  return `${clean}?v=${v}`;
 }
 
 const { slug } = Astro.params;
@@ -40,6 +51,8 @@ const hasOverview = features.length > 0;
 const hasHelp = Boolean(helpText);
 const hasChangelog = changelog.length > 0;
 const showMetaTagTool = Boolean(plugin.hasMetaTags);
+const downloadHref = withAssetVersion(plugin.downloadHref);
+const sourceHref = plugin.sourceHref ? withAssetVersion(plugin.sourceHref) : undefined;
 ---
 
 <Layout title={plugin.title} description={plugin.shortDescription}>
@@ -138,16 +151,17 @@ const showMetaTagTool = Boolean(plugin.hasMetaTags);
         <!-- 3. Action buttons -->
         <div class="mt-5 flex flex-wrap items-center gap-2">
           <DownloadLink
-            href={plugin.downloadHref}
+            href={downloadHref}
+            filename={plugin.fileName}
             class="inline-flex min-w-[9.5rem] flex-1 items-center justify-center rounded-sm border border-gold-400/50 bg-gold-400/15 px-4 py-2.5 text-sm font-bold text-gold-300 transition hover:bg-gold-400/25 hover:text-cream-100 sm:flex-none"
           >
             ダウンロード
           </DownloadLink>
           {
-            plugin.sourceHref && (
+            sourceHref && (
               <SourceCodeButton
                 id={plugin.slug}
-                href={plugin.sourceHref}
+                href={sourceHref}
                 title={`${plugin.title} のソースコード`}
               />
             )

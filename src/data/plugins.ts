@@ -207,7 +207,7 @@ export const plugins: PluginItem[] = [
         description: "初版リリース（新規公開）",
       },
     ],
-    downloadHref: "/downloads/CopyAttack.zip",
+    downloadHref: "/downloads/CopyAttack.js",
     sourceHref: "/sources/CopyAttack.js",
     donationHref: ofuseDonationHref,
     category: "バトル系",

@@ -6,7 +6,10 @@
     "node": ">=22.12.0"
   },
   "scripts": {
+    "sync:downloads": "node scripts/sync-plugin-downloads.mjs",
+    "predev": "npm run sync:downloads",
     "dev": "astro dev",
+    "prebuild": "npm run sync:downloads",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",

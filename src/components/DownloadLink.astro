@@ -2,6 +2,7 @@
 /**
  * 同一オリジンの配布ファイルを確実にファイル保存するリンク。
  * fetch → Blob 経由でダウンロードし、ブラウザ内表示や文字化けを避ける。
+ * キャッシュで古い配布物が残らないよう no-store で取得する。
  */
 interface Props {
   href: string;
@@ -35,14 +36,16 @@ const filename =
         const filename = anchor.dataset.filename || "download";
         const url = anchor.href;
 
-        // 同一オリジンのみ Blob 強制（CORS 制約回避）
         const sameOrigin = url.startsWith(window.location.origin) || url.startsWith("/");
         if (!sameOrigin) return;
 
         event.preventDefault();
 
         try {
-          const response = await fetch(url, { credentials: "same-origin" });
+          const response = await fetch(url, {
+            credentials: "same-origin",
+            cache: "no-store",
+          });
           if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
           }
