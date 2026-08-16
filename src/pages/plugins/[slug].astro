@@ -56,14 +56,17 @@ const showMetaTagTool = Boolean(plugin.hasMetaTags);
         <div class="card-surface overflow-hidden">
           <div class="relative aspect-video w-full bg-forest-950">
             <video
-              class="absolute inset-0 h-full w-full object-cover"
+              class="absolute inset-0 h-full w-full object-contain bg-forest-950"
               src={previewVideoSrc}
               autoplay
               muted
               loop
+              controls
               playsinline
-              preload="metadata"
+              preload="auto"
+              controlslist="nodownload"
               aria-label={`${plugin.title} のプレビュー動画`}
+              data-plugin-preview-video
             >
               お使いのブラウザは動画再生に対応していません。
             </video>
@@ -232,3 +235,41 @@ const showMetaTagTool = Boolean(plugin.hasMetaTags);
     </div>
   </section>
 </Layout>
+
+<script>
+  function bindPluginPreviewVideos() {
+    document.querySelectorAll<HTMLVideoElement>("video[data-plugin-preview-video]").forEach((video) => {
+      if (video.dataset.previewBound === "1") return;
+      video.dataset.previewBound = "1";
+
+      // 自動再生ポリシー用に初期ミュート。音量バー操作で解除できるようにする
+      video.muted = true;
+      video.defaultMuted = true;
+      video.playsInline = true;
+
+      const tryPlay = () => {
+        const playPromise = video.play();
+        if (playPromise?.catch) {
+          playPromise.catch(() => {
+            /* 自動再生が拒否された場合はユーザー操作待ち */
+          });
+        }
+      };
+
+      tryPlay();
+      video.addEventListener("loadeddata", tryPlay, { once: true });
+
+      video.addEventListener("volumechange", () => {
+        if (video.volume > 0 && video.muted) {
+          video.muted = false;
+        }
+        if (video.volume === 0) {
+          video.muted = true;
+        }
+      });
+    });
+  }
+
+  bindPluginPreviewVideos();
+  document.addEventListener("astro:page-load", bindPluginPreviewVideos);
+</script>
