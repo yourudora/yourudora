@@ -64,7 +64,6 @@ const showMetaTagTool = Boolean(plugin.hasMetaTags);
               controls
               playsinline
               preload="auto"
-              controlslist="nodownload"
               aria-label={`${plugin.title} のプレビュー動画`}
               data-plugin-preview-video
             >
@@ -242,12 +241,15 @@ const showMetaTagTool = Boolean(plugin.hasMetaTags);
       if (video.dataset.previewBound === "1") return;
       video.dataset.previewBound = "1";
 
-      // 自動再生ポリシー用に初期ミュート。音量バー操作で解除できるようにする
-      video.muted = true;
-      video.defaultMuted = true;
+      // 自動再生ポリシー用: 初期はミュート。音量は 0 にしない（スピーカー解除で音が出るように）
       video.playsInline = true;
+      video.muted = true;
+      if (video.volume <= 0) {
+        video.volume = 1;
+      }
 
       const tryPlay = () => {
+        if (!video.paused) return;
         const playPromise = video.play();
         if (playPromise?.catch) {
           playPromise.catch(() => {
@@ -259,12 +261,11 @@ const showMetaTagTool = Boolean(plugin.hasMetaTags);
       tryPlay();
       video.addEventListener("loadeddata", tryPlay, { once: true });
 
+      // ネイティブのミュート切替を邪魔しない。
+      // ミュート解除時だけ volume が 0 の場合に音量を復元する。
       video.addEventListener("volumechange", () => {
-        if (video.volume > 0 && video.muted) {
-          video.muted = false;
-        }
-        if (video.volume === 0) {
-          video.muted = true;
+        if (!video.muted && video.volume === 0) {
+          video.volume = 1;
         }
       });
     });
