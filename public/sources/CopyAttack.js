@@ -20,9 +20,10 @@
  *    ・敵から: 効果範囲「敵単体」「敵全体」など
  *    ・味方から: 効果範囲「味方単体」「味方全体」など
  *    ・制限なし: メモ欄に <CopyAttack>
- *    ・グループ限定: メモ欄に <CopyGroup:グループ名> だけ書く（CopyAttack は不要）
+ *    ・グループ限定: メモ欄に <CopyAttack> と <CopyGroup:グループ名> を併用
  * 3. （任意）グループ限定コピーを使うとき
  *    ・候補にしたいスキルにも同じ <CopyGroup:グループ名> を書く
+ *      （候補側には <CopyAttack> は付けない）
  * 4. （任意）技忘れ用スキルを作成（効果範囲「なし」推奨）
  *    ・メモ欄に <CopyAttackForget> を書く
  *    ・特定グループだけ忘れさせたいときは <CopyGroup:グループ名> も併記
@@ -33,19 +34,19 @@
  * ---------------------------------------------------------------------------
  * 【コピー実行スキル】
  *   <CopyAttack>                 全スキル対象のコピー（グループ制限なし）
- *   <CopyGroup:A>                グループ A 専用のコピー
- *                                ※この場合 <CopyAttack> の併記は不要です
+ *   <CopyAttack> <CopyGroup:A>   グループ A 専用のコピー（※併用して記述）
  *   <CopyAttackCount:2>          1回の使用で選ぶ回数（<CopyCount:n> でも可）
  *
  * 【コピーされるスキル】
  *   <CopyGroup:A>                グループ A に所属するスキル
- *   タグなし                     通常スキル（<CopyAttack> からのみコピー可）
+ *   タグなし                     通常スキル（制限なし <CopyAttack> からのみコピー可）
  *   <NoCopyAttack>               コピー禁止
  *
  * 【コピー技忘れスキル】
  *   <CopyAttackForget>           保持中のコピー技を忘れる
- *   <CopyGroup:A>                （任意）グループ A のコピー技だけ忘れる
- *                                ※ <CopyAttackForget> と併記。無いときは全コピー技が対象
+ *   <CopyAttackForget> <CopyGroup:A>
+ *                                グループ A のコピー技だけ忘れる（※併用して記述）
+ *                                （指定が無い場合は全コピー技が対象）
  *
  * 【敵キャラ】
  *   <CopyAttackHpRate:30>        HPが最大の30%以下になるまでコピー不可
@@ -55,6 +56,7 @@
  * ---------------------------------------------------------------------------
  * グループ指定はすべて <CopyGroup:名前> で行います。
  * <CopyAttackGroup> や <CopyAttack:名前> は使いません。
+ * コピー実行スキルには必ず <CopyAttack> が必要です。
  *
  * 【制限なし（基本）】
  *   コピー用スキル … <CopyAttack>
@@ -62,7 +64,8 @@
  *   → ファイアはコピー候補になります（NoCopyAttack 等が無い限り）
  *
  * 【グループで限定する】
- *   コピー用スキル … <CopyGroup:A>     （CopyAttack は書かない）
+ *   コピー用スキル … <CopyAttack>
+ *                     <CopyGroup:A>
  *   ファイア       … <CopyGroup:A>  → コピー可
  *   ヒール         … <CopyGroup:B>  → コピー不可（不一致）
  *   サンダー       … タグなし       → コピー不可（グループコピーではタグ必須）
@@ -93,8 +96,10 @@
  * ---------------------------------------------------------------------------
  * ■ 仕様メモ
  * ---------------------------------------------------------------------------
- * ・<CopyAttack> はグループ制限なし。<CopyGroup:名前> 単体はグループ限定コピーです
+ * ・コピー実行には <CopyAttack> が必須です（<CopyGroup> 単体では実行しません）
+ * ・グループ限定コピーは <CopyAttack> と <CopyGroup:名前> の併用です
  * ・グループ限定コピーでは、候補スキル側にも同じ <CopyGroup:名前> が必要です
+ * ・候補側の <CopyGroup:名前> だけでは通常スキル扱いです（コピー実行にはなりません）
  * ・NoCopyAttack が付いたスキルは、グループに関係なくコピーできません
  * ・技忘れに CopyGroup を書くと、そのグループのコピー技だけが忘却対象です
  * ・技忘れに CopyGroup が無いときは、全コピー技が忘却対象です
@@ -156,7 +161,7 @@
  *
  * @param copySkillMetaTag
  * @text コピー用スキルのメモタグ名
- * @desc パラメータなしの <CopyAttack> として使います。グループ名は付けません。
+ * @desc コピー実行の必須タグ（例: <CopyAttack>）。グループ限定は <CopyGroup:名前> を併用します。
  * @parent basicSettings
  * @default CopyAttack
  *
@@ -209,7 +214,7 @@
  *
  * @param copyGroupMetaTag
  * @text グループ指定タグ名
- * @desc 例: <CopyGroup:A> 。コピー実行・候補所属・技忘れ絞り込みで共通に使います。
+ * @desc 例: <CopyGroup:A> 。実行側は <CopyAttack> と併用、候補所属・技忘れ絞り込みにも使います。
  * @parent tagSettings
  * @default CopyGroup
  *
@@ -737,9 +742,11 @@
 
     /**
      * コピー開始スキルか
-     * ・<CopyAttack> … グループ制限なしのコピー
-     * ・<CopyGroup:名前> … そのグループ専用のコピー（CopyAttack 併記不要）
+     * ・<CopyAttack> … グループ制限なしのコピー（必須の基底タグ）
+     * ・<CopyAttack> + <CopyGroup:名前> … そのグループ専用のコピー
+     * ・<CopyGroup:名前> 単体は候補所属タグであり、コピー実行スキルではない
      * ・技忘れスキルは除外
+     * ・パラメータ copySkillId 指定時はそのスキルIDも実行スキル扱い
      * @param {object|null} skill
      * @returns {boolean}
      */
@@ -753,11 +760,8 @@
         if (CopyAttack.params.copySkillId > 0 && skill.id === CopyAttack.params.copySkillId) {
             return true;
         }
-        if (CopyAttack.hasMetaTag(skill, CopyAttack.params.copySkillMetaTag)) {
-            return true;
-        }
-        // <CopyGroup:A> 単体でもコピー用スキル
-        return !!CopyAttack.readGroupMetaValue(skill, CopyAttack.params.copyGroupMetaTag);
+        // <CopyAttack> 必須。<CopyGroup> 単体では実行スキルにしない
+        return CopyAttack.hasMetaTag(skill, CopyAttack.params.copySkillMetaTag);
     };
 
     /**
@@ -788,8 +792,9 @@
 
     /**
      * コピー用スキル側のフィルタグループを取得する
-     * <CopyGroup:A> → "a"
+     * <CopyAttack> + <CopyGroup:A> → "a"
      * <CopyAttack> のみ（CopyGroup なし）→ null（制限なし）
+     * ※実行スキル判定は isCopySkill（<CopyAttack> 必須）。本関数は併用時の絞り込み用
      * @param {object|null} skill
      * @returns {string|null}
      */
@@ -803,6 +808,7 @@
     /**
      * 候補スキルが属するフィルタグループを取得する
      * <CopyGroup:A> → "a" / タグ無し → null
+     * ※候補側は <CopyGroup> のみで所属を表す（<CopyAttack> は付けない）
      * @param {object|null} skill
      * @returns {string|null}
      */
@@ -843,7 +849,8 @@
 
     /**
      * 技忘れスキル／コマンドが対象にするフィルタグループ
-     * 技忘れ側の <CopyGroup:A> → "a" / タグ無し → null（全コピー技）
+     * <CopyAttackForget> + <CopyGroup:A> → "a"
+     * <CopyAttackForget> のみ（CopyGroup 無し）→ null（全コピー技）
      * @param {object|null} skill 技忘れスキル（無い場合は null）
      * @returns {string|null}
      */
@@ -1141,7 +1148,7 @@
             return false;
         }
         // <CopyAttack> 付きの実行スキル／パラメータ指定のコピー用スキルは候補外
-        // （<CopyGroup> のみのスキルは候補になり得る）
+        // （<CopyGroup> のみのスキルは所属タグ付きの候補になり得る）
         if (CopyAttack.hasMetaTag(skill, CopyAttack.params.copySkillMetaTag)) {
             return false;
         }

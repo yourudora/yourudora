@@ -109,12 +109,12 @@ export const plugins: PluginItem[] = [
     fileName: "CopyAttack.js",
     engine: "RPGツクールMZ",
     shortDescription:
-      "敵・味方の技をコピーして覚えるバトルプラグイン。グループ限定コピーや全体コピーにも対応。",
+      "敵・味方の技をコピーして覚えるバトルプラグイン。CopyAttack＋CopyGroup によるグループ限定にも対応。",
     description:
-      "戦闘中にコピー用スキルを使うと、対象が持つスキルから選んでアクターに覚えさせられます。\n敵だけでなく味方からもコピーでき、<CopyGroup> によるグループ限定コピーにも対応します。",
+      "戦闘中にコピー用スキルを使うと、対象が持つスキルから選んでアクターに覚えさせられます。\n敵だけでなく味方からもコピーでき、<CopyAttack> と <CopyGroup> の併用によるグループ限定コピーにも対応します。",
     features: [
       "戦闘中に敵／味方の技をコピーし、アクターのコピー技として習得できる",
-      "制限なしコピー（<CopyAttack>）とグループ限定コピー（<CopyGroup:名前>）を使い分けできる",
+      "制限なしコピー（<CopyAttack>）と、グループ限定コピー（<CopyAttack>＋<CopyGroup:名前>）を使い分けできる",
       "効果範囲が全体のとき、対象全員の候補を1つの一覧にまとめて選べる",
       "1回の発動で複数技を選ぶ回数指定、必要HP割合、コピー除外などのメモ欄タグに対応",
       "技忘れスキル（グループ絞り込み可）・削除確認、プラグインコマンド操作に対応",
@@ -130,9 +130,10 @@ export const plugins: PluginItem[] = [
    ・敵から: 効果範囲「敵単体」「敵全体」など
    ・味方から: 効果範囲「味方単体」「味方全体」など
    ・制限なし: メモ欄に <CopyAttack>
-   ・グループ限定: メモ欄に <CopyGroup:グループ名> だけ書く（CopyAttack は不要）
+   ・グループ限定: メモ欄に <CopyAttack> と <CopyGroup:グループ名> を併用
 3. （任意）グループ限定コピーを使うとき
    ・候補にしたいスキルにも同じ <CopyGroup:グループ名> を書く
+     （候補側には <CopyAttack> は付けない）
 4. （任意）技忘れ用スキルを作成（効果範囲「なし」推奨）
    ・メモ欄に <CopyAttackForget> を書く
    ・特定グループだけ忘れさせたいときは <CopyGroup:グループ名> も併記
@@ -140,27 +141,29 @@ export const plugins: PluginItem[] = [
 
 【メモ欄タグ】（タグ名はパラメータで変更可）
 ■ コピー実行スキル
-  <CopyAttack>           … 全スキル対象のコピー（グループ制限なし）
-  <CopyGroup:A>          … グループ A 専用のコピー（CopyAttack の併記は不要）
-  <CopyAttackCount:2>    … 1回の使用で選ぶ回数（<CopyCount:n> でも可）
+  <CopyAttack>                 … 全スキル対象のコピー（グループ制限なし）
+  <CopyAttack> <CopyGroup:A>   … グループ A 専用のコピー（※併用して記述）
+  <CopyAttackCount:2>          … 1回の使用で選ぶ回数（<CopyCount:n> でも可）
 ■ コピーされるスキル
-  <CopyGroup:A>          … グループ A に所属するスキル
-  タグなし               … 通常スキル（<CopyAttack> からのみコピー可）
-  <NoCopyAttack>         … コピー禁止
+  <CopyGroup:A>                … グループ A に所属するスキル
+  タグなし                     … 通常スキル（制限なし <CopyAttack> からのみコピー可）
+  <NoCopyAttack>               … コピー禁止
 ■ コピー技忘れスキル
-  <CopyAttackForget>     … 保持中のコピー技を忘れる
-  <CopyGroup:A>          … （任意）グループ A のコピー技だけ忘れる（Forget と併記）
+  <CopyAttackForget>           … 保持中のコピー技を忘れる
+  <CopyAttackForget> <CopyGroup:A>
+                               … グループ A のコピー技だけ忘れる（※併用）
 ■ 敵キャラ
-  <CopyAttackHpRate:30>  … HPが最大の30%以下になるまでコピー不可
+  <CopyAttackHpRate:30>        … HPが最大の30%以下になるまでコピー不可
 
 ※ グループ指定はすべて <CopyGroup:名前> で行います。
    <CopyAttackGroup> や <CopyAttack:名前> は使いません。
+※ コピー実行スキルには必ず <CopyAttack> が必要です。
 ※ グループ名は日本語でも可（例: 青魔法 / ラーニング）。
 ※ 覚えた技の保持は共通の1つの上限（パラメータ「コピー技の最大保持数」）です。
 
 【グループによる候補の制限（任意）】
 ・制限なし: コピー用スキルに <CopyAttack> → タグなしスキルも候補
-・グループ限定: コピー用スキルに <CopyGroup:A>（CopyAttack は書かない）
+・グループ限定: コピー用スキルに <CopyAttack> と <CopyGroup:A> を併用
   → 同じ <CopyGroup:A> があるスキルだけ候補（タグなしは不可）
 
 【技忘れとグループ】
@@ -169,6 +172,9 @@ export const plugins: PluginItem[] = [
 ・<CopyAttackForget> + <CopyGroup:A> → グループ A のコピー技だけ対象
 
 【仕様メモ】
+・コピー実行には <CopyAttack> が必須です（<CopyGroup> 単体では実行しません）
+・グループ限定コピーでは、候補スキル側にも同じ <CopyGroup:名前> が必要です
+・候補側の <CopyGroup:名前> だけでは通常スキル扱いです（コピー実行にはなりません）
 ・効果範囲が全体のとき、対象全員の候補スキルを1つの一覧にまとめます
 ・コピー技が上限のあいだは、コピー用スキルは使用できません
 ・敵対象: 敵の行動パターンのスキルが候補

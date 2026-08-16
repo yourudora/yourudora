@@ -20,7 +20,7 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
     メモ欄タグ自動生成
   </h2>
   <p class="mt-2 text-sm leading-relaxed text-mist-400">
-    設定したい機能を選ぶと、ツクールのメモ欄に貼り付けるタグが自動で生成されます。グループ名は日本語でも指定できます。
+    設定したい機能を選ぶと、ツクールのメモ欄に貼り付けるタグが自動で生成されます。グループ限定コピーは <CopyAttack> と <CopyGroup> の併用です。
   </p>
 
   <div class="meta-tag-tool__form mt-4 space-y-4">
@@ -239,7 +239,11 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
     const group = sanitizeGroupName(groupRaw);
 
     if (feature === "copyAttack") return "<CopyAttack>";
-    if (feature === "copyGroup" || feature === "skillGroup") {
+    if (feature === "copyGroup") {
+      if (!group) return null;
+      return `<CopyAttack>\n<CopyGroup:${group}>`;
+    }
+    if (feature === "skillGroup") {
       if (!group) return null;
       return `<CopyGroup:${group}>`;
     }
@@ -340,7 +344,7 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
         }
         if (groupNote) {
           groupNote.textContent =
-            "出力: <CopyGroup:名前> 。この場合 <CopyAttack> は不要です。候補スキル側にも同じタグが必要です。";
+            "出力: <CopyAttack> と <CopyGroup:名前> を併用。候補スキル側にも同じ <CopyGroup:名前> が必要です。";
         }
       } else if (feature === "skillGroup") {
         if (groupLabel) groupLabel.textContent = "グループ名（必須）";
@@ -350,7 +354,7 @@ const { id = "meta-tag-tool", class: className = "" } = Astro.props;
         }
         if (groupNote) {
           groupNote.textContent =
-            "出力: <CopyGroup:名前> 。グループ限定コピーの候補スキルに付けます。";
+            "出力: <CopyGroup:名前> のみ。候補スキル用です（コピー実行にはなりません）。";
         }
       } else if (feature === "forget") {
         if (groupLabel) groupLabel.textContent = "グループ名（任意・空欄なら全コピー技）";
