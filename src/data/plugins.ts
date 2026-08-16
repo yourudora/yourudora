@@ -68,13 +68,24 @@ export type PluginItem = {
   image?: string;
   imageAlt?: string;
   /**
-   * 詳細ページ左側・上段の動画（自動再生・ミュート用）。
-   * URL（watch / youtu.be / embed）または動画ID。
+   * 詳細ページ左側・上段のローカル動画（自動再生・ミュート・ループ）。
+   * public 配下のパス。例: "/videos/plugins/copyattack-preview.mp4"
+   * 省略時は `/videos/plugins/{slug}-preview.mp4` を参照します。
+   */
+  previewVideoSrc?: string;
+  /**
+   * 詳細ページ左側・下段の使い方講座が準備済みなら true。
+   * false / 未設定のときは「準備中」プレースホルダーを表示します。
+   */
+  tutorialVideoReady?: boolean;
+  /**
+   * @deprecated 上段は previewVideoSrc（ローカル動画）を使用してください。
+   * 下段の YouTube 用に残しています。
    */
   mainVideoUrl?: string;
   /**
-   * 詳細ページ左側・下段の動画（手動再生用）。
-   * URL（watch / youtu.be / embed）または動画ID。
+   * 詳細ページ左側・下段の動画（手動再生用・YouTube）。
+   * tutorialVideoReady が true のときのみ使用します。
    */
   subVideoUrl?: string;
   /**
@@ -198,9 +209,11 @@ export const plugins: PluginItem[] = [
     hasMetaTags: true,
     // image: "/images/plugins/copyattack.webp",
     imageAlt: "敵の技コピーのアイキャッチ画像",
-    // mainVideoUrl: "https://www.youtube.com/watch?v=xxxxxxxxxxx",
+    // 上段ローカル動画: public/videos/plugins/copyattack-preview.mp4 を配置
+    previewVideoSrc: "/videos/plugins/copyattack-preview.mp4",
+    // 下段の使い方講座は準備中（プレースホルダー表示）
+    tutorialVideoReady: false,
     // subVideoUrl: "https://www.youtube.com/watch?v=yyyyyyyyyyy",
-    // youtubeUrls: ["xxxxxxxxxxx", "yyyyyyyyyyy"],
   },
 ];
 
@@ -213,6 +226,11 @@ export function getPluginGenres(): string[] {
 
 export function getPluginImage(plugin: PluginItem): string {
   return plugin.image ?? placeholderImage;
+}
+
+/** 詳細ページ上段のローカル動画パス */
+export function getPluginPreviewVideoSrc(plugin: PluginItem): string {
+  return plugin.previewVideoSrc?.trim() || `/videos/plugins/${plugin.slug}-preview.mp4`;
 }
 
 /** URL / ID 文字列から YouTube 動画IDを抽出 */

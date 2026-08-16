@@ -15,7 +15,7 @@ export const site = {
   logo: "/images/logo.png",
   social: {
     twitter: "https://x.com/yourudora_hako",
-    youtube: "https://youtube.com/",
+    youtube: "https://www.youtube.com/@yourudora",
   },
   /** お問い合わせ用 Google フォームの埋め込みURL */
   contactFormEmbedUrl:

@@ -9,7 +9,8 @@ import {
   getPluginBySlug,
   getPluginChangelog,
   getPluginFeatures,
-  getPluginVideoIds,
+  getPluginPreviewVideoSrc,
+  parseYoutubeId,
   plugins,
 } from "../../data/plugins";
 
@@ -29,14 +30,16 @@ if (!plugin) {
 const features = getPluginFeatures(plugin);
 const helpText = plugin.help?.trim() || "";
 const changelog = getPluginChangelog(plugin);
-const [mainVideoId, subVideoId] = getPluginVideoIds(plugin);
+const previewVideoSrc = getPluginPreviewVideoSrc(plugin);
+const tutorialVideoId = parseYoutubeId(plugin.subVideoUrl);
+const showTutorialVideo = Boolean(plugin.tutorialVideoReady && tutorialVideoId);
+const tutorialEmbedSrc = tutorialVideoId
+  ? `https://www.youtube-nocookie.com/embed/${tutorialVideoId}?rel=0`
+  : "";
 const hasOverview = features.length > 0;
 const hasHelp = Boolean(helpText);
 const hasChangelog = changelog.length > 0;
 const showMetaTagTool = Boolean(plugin.hasMetaTags);
-
-const mainEmbedSrc = `https://www.youtube-nocookie.com/embed/${mainVideoId}?autoplay=1&mute=1&playsinline=1&rel=0&enablejsapi=1`;
-const subEmbedSrc = `https://www.youtube-nocookie.com/embed/${subVideoId}?rel=0&enablejsapi=1`;
 ---
 
 <Layout title={plugin.title} description={plugin.shortDescription}>
@@ -48,39 +51,65 @@ const subEmbedSrc = `https://www.youtube-nocookie.com/embed/${subVideoId}?rel=0&
     </p>
 
     <div class="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
-      <!-- Left: two stacked YouTube players -->
+      <!-- Left: preview video + tutorial / placeholder -->
       <div class="order-1 space-y-4 lg:sticky lg:top-24">
         <div class="card-surface overflow-hidden">
           <div class="relative aspect-video w-full bg-forest-950">
-            <iframe
-              class="absolute inset-0 h-full w-full"
-              src={mainEmbedSrc}
-              title={`${plugin.title} の解説動画（自動再生）`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerpolicy="strict-origin-when-cross-origin"
-              allowfullscreen
-            />
+            <video
+              class="absolute inset-0 h-full w-full object-cover"
+              src={previewVideoSrc}
+              autoplay
+              muted
+              loop
+              playsinline
+              preload="metadata"
+              aria-label={`${plugin.title} のプレビュー動画`}
+            >
+              お使いのブラウザは動画再生に対応していません。
+            </video>
           </div>
         </div>
 
         <div class="space-y-2">
           <div class="card-surface overflow-hidden">
-            <div class="relative aspect-video w-full bg-forest-950">
-              <iframe
-                class="absolute inset-0 h-full w-full"
-                src={subEmbedSrc}
-                title={`${plugin.title} の使い方講座`}
-                loading="lazy"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerpolicy="strict-origin-when-cross-origin"
-                allowfullscreen
-              />
+            <div class="relative aspect-video w-full bg-black">
+              {
+                showTutorialVideo ? (
+                  <iframe
+                    class="absolute inset-0 h-full w-full"
+                    src={tutorialEmbedSrc}
+                    title={`${plugin.title} の使い方講座`}
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    allowfullscreen
+                  />
+                ) : (
+                  <div
+                    class="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black text-center"
+                    role="img"
+                    aria-label="使い方講座は準備中"
+                  >
+                    <p class="text-sm font-medium tracking-wide text-cream-200/90 sm:text-base">
+                      準備中
+                    </p>
+                    <p class="text-xs tracking-[0.12em] text-mist-500 uppercase sm:text-sm">
+                      Coming Soon
+                    </p>
+                  </div>
+                )
+              }
             </div>
           </div>
-          <p class="rounded-sm border border-gold-400/35 bg-gold-400/10 px-3 py-2 text-sm font-medium leading-relaxed text-gold-200">
-            ※この動画はプラグインの使い方講座です。<br />
-            再生すると音声が流れますのでご注意ください。
-          </p>
+          {
+            showTutorialVideo && (
+              <p class="rounded-sm border border-gold-400/35 bg-gold-400/10 px-3 py-2 text-sm font-medium leading-relaxed text-gold-200">
+                ※この動画はプラグインの使い方講座です。
+                <br />
+                再生すると音声が流れますのでご注意ください。
+              </p>
+            )
+          }
         </div>
       </div>
 
